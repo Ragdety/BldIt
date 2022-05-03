@@ -18,7 +18,7 @@ namespace BldIt.Api.Controllers
         {
             new BuildStep
             {
-                Command = "echo Hello World",
+                Command = "ipconfig",
                 Type = BuildStepType.Batch
             }
         };

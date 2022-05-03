@@ -44,12 +44,26 @@ namespace BldIt.Api.Controllers
             {
                 FileName = savePath,
                 CreateNoWindow = true,
-                UseShellExecute = true
+                UseShellExecute = false,
+                RedirectStandardOutput = true
             };
             
+            var outputStream = new StreamWriter("C:\\Users\\ragde\\OneDrive\\Desktop\\Programming\\BldIt\\BldIt.Api\\output.txt");
+            
             using (var process = new Process{StartInfo = startInfo}) {
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                    {
+                        outputStream.WriteLine(e.Data);
+                    }
+                };
+                
                 process.Start();
+                process.BeginOutputReadLine();
                 await process.WaitForExitAsync();
+                process.Close();
+                outputStream.Close();
             }
             
             return Ok();
