@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Claims;
+using BldIt.Models.Enums;
 
 namespace BldIt.Api
 {
@@ -21,7 +22,7 @@ namespace BldIt.Api
         public struct Claims
         {
             public const string Role = "role";
-            public static readonly Claim ModeratorClaim = new Claim(Role, Roles.Mod);
+            public static readonly Claim ModeratorClaim = new(Role, Roles.Mod);
         }
 
         public struct Roles
@@ -38,14 +39,20 @@ namespace BldIt.Api
                 public const string S3 = nameof(S3);
             }
 
-            public const string TempPrefix = "temp_";
-            public const string ConvertedPrefix = "c";
-            public const string ThumbnailPrefix = "t";
-            public const string ProfilePrefix = "p";
+            public const string TempPrefix = "bldit_temp_";
 
-            public static string GenerateConvertedFileName() => $"{ConvertedPrefix}{DateTime.Now.Ticks}.mp4";
-            public static string GenerateThumbnailFileName() => $"{ThumbnailPrefix}{DateTime.Now.Ticks}.jpg";
-            public static string GenerateProfileFileName() => $"{ProfilePrefix}{DateTime.Now.Ticks}.jpg";
+            public static string GenerateBuildStepFileType(BuildStepType buildStepType)
+            {
+                return buildStepType switch
+                {
+                    BuildStepType.Batch => ".bat",
+                    BuildStepType.Shell => ".sh",
+                    _ => throw new ArgumentOutOfRangeException(
+                        nameof(buildStepType),
+                        buildStepType, 
+                        "Build Step Type not supported")
+                };
+            }
         }
     }
 }

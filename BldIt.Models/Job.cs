@@ -9,7 +9,7 @@ namespace BldIt.Models
         public string JobName { get; set; }
         public string JobDescription { get; set; }
         
-        public string JobWorkspacePath { get; set; }
+        public string? JobWorkspacePath { get; set; }
         
         public DateTime UpdatedAt { get; set; }
 

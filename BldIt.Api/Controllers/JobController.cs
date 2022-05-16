@@ -18,7 +18,7 @@ namespace BldIt.Api.Controllers
         {
             new BuildStep
             {
-                Command = "ipconfig",
+                Command = "ping google.com \n exit 1",
                 Type = BuildStepType.Batch
             }
         };
@@ -29,6 +29,7 @@ namespace BldIt.Api.Controllers
             {
                 JobName = "TestJob",
                 JobDescription = "In memory job",
+                JobWorkspacePath = "C:\\Users\\ragde\\OneDrive\\Desktop\\Programming\\BldIt\\BldIt.Api",
                 BuildSteps = InMemBuildSteps,
                 JobBuilds = new List<Build>()
             }
