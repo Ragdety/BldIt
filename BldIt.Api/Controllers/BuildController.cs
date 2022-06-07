@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BldIt.Api.Form;
 using BldIt.Api.Hubs;
-using BldIt.Api.Services.Executors;
+using BldIt.Api.Services.Processes;
 using BldIt.Api.Services.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -16,16 +16,16 @@ namespace BldIt.Api.Controllers
     public class BuildController : ApiController
     {
         private readonly TemporaryFileStorage _temporaryFileStorage;
-        private readonly ExecutorService _executorService;
+        private readonly LauncherService _launcherService;
         private readonly IHubContext<BuildStreamHub> _hub;
 
         public BuildController(
             TemporaryFileStorage temporaryFileStorage,
-            ExecutorService executorService,
+            LauncherService launcherService,
             IHubContext<BuildStreamHub> hub)
         {
             _temporaryFileStorage = temporaryFileStorage;
-            _executorService = executorService;
+            _launcherService = launcherService;
             _hub = hub;
         }
         
@@ -42,7 +42,7 @@ namespace BldIt.Api.Controllers
             //3. Save Build in database (with its result)
             //4. Return appropriate Http Result
             
-            var job = JobController.InMemJobs.Find(j => j.JobName == jobName);
+            var job = JobController.InMemJobs.Find(j => j.Id == jobName);
             
             if (job == null)
             {
@@ -56,8 +56,8 @@ namespace BldIt.Api.Controllers
             await _temporaryFileStorage.CreateTemporaryBuildFile(
                 savePath, job.BuildSteps.First().Command);
 
-            _executorService.ProgramFileName = savePath;
-            _executorService.WorkingDirectory = job.JobWorkspacePath;
+            _launcherService.ProgramFileName = savePath;
+            _launcherService.WorkingDirectory = job.JobWorkspacePath;
 
             //Sends process output to frontend
             async void OutputHandler(string output)
@@ -66,7 +66,7 @@ namespace BldIt.Api.Controllers
             }
 
             //Run process created by build-step command giving it the output to send to frontend
-            var exitCode = _executorService.Run(OutputHandler);
+            var exitCode = _launcherService.Run(OutputHandler);
 
             // var startInfo = new ProcessStartInfo
             // {

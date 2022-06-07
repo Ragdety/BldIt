@@ -3,7 +3,6 @@
     public enum BuildStatus
     {
         Starting,
-        Ready,
         Waiting,
         Running,
         Aborted,

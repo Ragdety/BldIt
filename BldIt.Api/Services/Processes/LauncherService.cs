@@ -4,9 +4,8 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using Microsoft.AspNetCore.SignalR;
 
-namespace BldIt.Api.Services.Executors
+namespace BldIt.Api.Services.Processes
 {
     /// <summary>
     /// Encapsulates an executable program.
@@ -21,13 +20,13 @@ namespace BldIt.Api.Services.Executors
     /// (4) Call Run().
     /// </remarks>
 
-    public class ExecutorService
+    public class LauncherService
     {
         #region Constructor
 
         /// <summary>Runs the specified program file name.</summary>
         /// <param name="programFileName">Name of the program file to run.</param>
-        public ExecutorService(string programFileName)
+        public LauncherService(string programFileName)
         {
             ProgramFileName = programFileName;
 
@@ -42,7 +41,7 @@ namespace BldIt.Api.Services.Executors
         }
 
         /// <summary>Constructor.</summary>
-        public ExecutorService(): this(string.Empty)
+        public LauncherService(): this(string.Empty)
         {
         }
 

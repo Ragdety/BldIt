@@ -11,6 +11,7 @@
             private const string JobsBase = Base + "/jobs";
 
             public const string Get = JobsBase + "/{jobName}";
+            public const string Post = JobsBase;
         }
         
         public struct Builds

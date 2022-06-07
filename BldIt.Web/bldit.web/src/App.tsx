@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import * as signalR from "@microsoft/signalr";
 import {HubConnection} from "@microsoft/signalr";
-import {sign} from "crypto";
 
 function App() {
     const [connection, setConnection] = useState<HubConnection | null>();

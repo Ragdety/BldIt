@@ -1,6 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AF3A7DF8-3D59-4199-AE17-7B2C1C771CFC}"
+ProjectSection(SolutionItems) = preProject
+	ci-cd\branch_jenkinsfile.groovy = ci-cd\branch_jenkinsfile.groovy
+	ci-cd\scripts\manage_migrations.bat = ci-cd\scripts\manage_migrations.bat
+EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1CB36AFD-74EC-4852-B641-8DA868FCCDA2}"
 EndProject
