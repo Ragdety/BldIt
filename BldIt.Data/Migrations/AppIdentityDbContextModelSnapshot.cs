@@ -43,7 +43,7 @@ namespace BldIt.Data.Migrations
 
                     b.HasIndex("JobId");
 
-                    b.ToTable("Builds");
+                    b.ToTable("Builds", (string)null);
                 });
 
             modelBuilder.Entity("BldIt.Models.DataModels.BuildStep", b =>
@@ -74,7 +74,7 @@ namespace BldIt.Data.Migrations
 
                     b.HasIndex("JobId");
 
-                    b.ToTable("BuildStep");
+                    b.ToTable("BuildStep", (string)null);
                 });
 
             modelBuilder.Entity("BldIt.Models.DataModels.Job", b =>
@@ -104,7 +104,7 @@ namespace BldIt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Jobs");
+                    b.ToTable("Jobs", (string)null);
                 });
 
             modelBuilder.Entity("BldIt.Models.DataModels.User", b =>
