@@ -4,13 +4,11 @@ using System.IO;
 using System.Threading.Tasks;
 using BldIt.Api.Form;
 using BldIt.Api.Options;
-using BldIt.Api.Repositories;
 using BldIt.Api.Services;
-using BldIt.Models;
 using BldIt.Models.DataModels;
 using BldIt.Models.Enums;
+using BldIt.Models.Exceptions;
 using BldIt.Models.Interfaces;
-using BldIt.Models.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -22,23 +20,20 @@ namespace BldIt.Api.Controllers
     public class JobController : ApiController
     {
         private readonly UriService _uriService;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IJobRepo _jobRepo;
-        private readonly ResponsesService _responsesService;
         private readonly BldItEnvVariablesSettings _bldItEnvVariablesSettings;
         private readonly ILogger<JobController> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
         public JobController(
             UriService uriService, 
-            IUnitOfWork unitOfWork, 
-            ResponsesService responsesService,
+            IUnitOfWork unitOfWork,
             IOptionsMonitor<BldItEnvVariablesSettings> bldItSettingsMonitor,
             ILogger<JobController> logger)
         {
             _uriService = uriService;
             _unitOfWork = unitOfWork;
-            _jobRepo = _unitOfWork.JobRepo;
-            _responsesService = responsesService;
+            _jobRepo = unitOfWork.JobRepo;
             _bldItEnvVariablesSettings = bldItSettingsMonitor.CurrentValue;
             _logger = logger;
         }
@@ -76,15 +71,14 @@ namespace BldIt.Api.Controllers
         {
             var jobExists = await _jobRepo.JobExists(jobToCreate.Id);
             if (jobExists)
-                return BadRequest(_responsesService.GenerateFailResponse(
-                    new[] {$"Job with id {jobToCreate.Id} already exists."}));
+            {
+                throw new DomainValidationException(
+                    $"Job with id {jobToCreate.Id} already exists.", 
+                    "Job names must be unique");
+            }
 
-            //These checks should be added in validation later:
             if (string.IsNullOrEmpty(jobToCreate.JobWorkspacePath.Trim()))
                 jobToCreate.JobWorkspacePath = Path.Combine(_bldItEnvVariablesSettings.BLDIT_HOME, jobToCreate.Id);
-            else if (!Directory.Exists(jobToCreate.JobWorkspacePath))
-                return BadRequest(_responsesService.GenerateFailResponse(
-                    new []{ $"Path to workspace: {jobToCreate.JobWorkspacePath} does not exist." }));
 
             var job = new Job
             {
@@ -95,17 +89,6 @@ namespace BldIt.Api.Controllers
                 JobWorkspacePath = jobToCreate.JobWorkspacePath
                // BuildSteps = jobToCreate.BuildSteps
             };
-            
-            //Will add a service for this later:
-            //And add better error handling later as well
-            try
-            {
-                Directory.CreateDirectory(job.JobWorkspacePath);
-            }
-            catch
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
 
             //await _jobRepo.AddAsync(job);
             //await _unitOfWork.CompleteAsync();

@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
-using BldIt.Data;
 using BldIt.Models.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace BldIt.Api.Repositories
+namespace BldIt.Data.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {

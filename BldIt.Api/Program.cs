@@ -1,19 +1,23 @@
 using System;
 using AutoMapper;
+using BldIt.Api.Filters;
 using BldIt.Api.Hubs;
+using BldIt.Api.Middlewares;
 using BldIt.Api.Options;
 using BldIt.Api.Profiles;
-using BldIt.Api.Repositories;
 using BldIt.Api.Services;
 using BldIt.Api.Services.Processes;
 using BldIt.Api.Services.Storage;
+using BldIt.Api.Validators;
 using BldIt.Data;
-using BldIt.Models;
+using BldIt.Data.Repositories;
 using BldIt.Models.DataModels;
 using BldIt.Models.Interfaces;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,21 +43,19 @@ builder.Services.AddSwaggerGen(c =>
 //Scoped Services
 builder.Services.AddScoped<TemporaryFileStorage>();
 builder.Services.AddScoped<LauncherService>();
-builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped(provider =>
-{
-    var accessor = provider.GetRequiredService<IHttpContextAccessor>();
-    var statusCode = accessor.HttpContext?.Response.StatusCode;
-    var message = $"Response was executed with status: {statusCode}";
-    return new ResponsesService(statusCode!.Value, message);
-});
+
+builder.Services.AddHttpContextAccessor();
+
+//Transient Services
+builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
 //Database Services
-var connectionString = builder.Configuration.GetConnectionString("BldItDevDb");
-
-builder.Services.AddDbContext<AppIdentityDbContext>(options =>
-    options.UseNpgsql(connectionString));
+var connectionString = builder.Configuration.GetConnectionString("BldItDb");
+builder.Services.AddDbContext<AppIdentityDbContext>(config =>
+{
+    config.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+});
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
     {
         options.Password.RequiredLength = 8;
@@ -72,6 +74,20 @@ var config = new MapperConfiguration(cfg =>
 });
 var mapper = config.CreateMapper();
 
+builder.Services
+    .AddControllers(options =>
+    {
+        options.EnableEndpointRouting = false;
+        options.Filters.Add(typeof(ValidationFilter));
+    })
+    .AddFluentValidation(c => 
+        c.RegisterValidatorsFromAssemblyContaining<JobCreationFormValidator>());
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
 //Singleton Services
 builder.Services.AddSingleton(mapper);
 builder.Services.AddSingleton(provider =>
@@ -86,7 +102,6 @@ builder.Services.AddSingleton(provider =>
 
 //BldIt Option services:
 var settingsSection = builder.Configuration.GetSection(nameof(BldItEnvVariablesSettings));
-var settings = settingsSection.Get<BldItEnvVariablesSettings>();
 builder.Services.Configure<BldItEnvVariablesSettings>(settingsSection);
 
 var app = builder.Build();
@@ -102,6 +117,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.MapHub<BuildStreamHub>("/buildStream");
 
 app.Run();

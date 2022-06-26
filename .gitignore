@@ -8,6 +8,7 @@
 *.sln.docstates
 
 helpful.txt
+later.txt
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

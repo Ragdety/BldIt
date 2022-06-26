@@ -1,5 +1,4 @@
 ﻿using System;
-using BldIt.Models;
 using BldIt.Models.DataModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

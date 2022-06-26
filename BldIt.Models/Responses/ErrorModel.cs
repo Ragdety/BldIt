@@ -1,7 +1,8 @@
 ﻿namespace BldIt.Models.Responses
 {
-    public class BaseResponse
+    public class ErrorModel
     {
+        public string FieldName { get; set; }
         public string Message { get; set; }
     }
 }

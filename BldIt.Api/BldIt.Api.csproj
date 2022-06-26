@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+      <PackageReference Include="FluentValidation.AspNetCore" Version="11.0.3" />
       <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.5" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.4">
         <PrivateAssets>all</PrivateAssets>
@@ -15,7 +16,8 @@
       </PackageReference>
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.4" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
+      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.3.1" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.3.1" />
     </ItemGroup>

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BldIt.Models.Interfaces
 {
-    public interface IGenericRepo<T> where T : class
+    public interface IGenericRepo<T>
     {
         Task<IEnumerable<T>> GetAllAsync();
         Task<T?> GetByIdAsync(object? id);

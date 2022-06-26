@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using BldIt.Data;
 using BldIt.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace BldIt.Api.Repositories
+namespace BldIt.Data.Repositories
 {
     public class GenericRepo<T> : IGenericRepo<T> where T : class
     {
