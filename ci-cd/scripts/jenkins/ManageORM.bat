@@ -22,7 +22,12 @@ if [%Action%] == [Add] (
    call ManageDatabaseMigrations.bat remove
 ) else if [%Action%] == [Update] (
    echo INFO: Option set to update database
-   call ManageDatabaseMigrations.bat update
+   if [!MigrationName!] == [] (
+      call ManageDatabaseMigrations.bat update
+   ) else (
+      echo INFO: Updating Database with migration !MigrationName!
+      call ManageDatabaseMigrations.bat update !MigrationName!
+   )
 )
 
 :eof

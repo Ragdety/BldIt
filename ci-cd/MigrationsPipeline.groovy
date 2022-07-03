@@ -12,7 +12,7 @@ pipeline {
         )
         string(
             name: 'MigrationName', 
-            defaultValue: 'InitialMigration', 
+            defaultValue: '', 
             trim: true
         )
     }
@@ -37,6 +37,9 @@ pipeline {
                             if(params.Action == 'Add') {
                                 bat(script: "ManageORM.bat ${params.Action} ${params.MigrationName}")
                             }
+                            else if(params.Action == 'Update' && !params.MigrationName.getPlainText().isEmpty() {
+                                 bat(script: "ManageORM.bat ${params.Action} ${params.MigrationName}")
+                             }
                             else {
                                 bat(script: "ManageORM.bat ${params.Action}")
                             }
