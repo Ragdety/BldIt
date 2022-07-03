@@ -37,7 +37,7 @@ pipeline {
                             if(params.Action == 'Add') {
                                 bat(script: "ManageORM.bat ${params.Action} ${params.MigrationName}")
                             }
-                            else if(params.Action == 'Update' && !params.MigrationName.getPlainText().isEmpty()) {
+                            else if(params.Action == 'Update' && !params.MigrationName.isEmpty()) {
                                 bat(script: "ManageORM.bat ${params.Action} ${params.MigrationName}")
                             }
                             else {
