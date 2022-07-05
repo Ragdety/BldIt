@@ -9,9 +9,10 @@ namespace BldIt.Models.Interfaces
     {
         Task<IEnumerable<T>> GetAllAsync();
         Task<T?> GetByIdAsync(object? id);
-        Task<bool> AddAsync(T entity);
+        Task<T?> AddAsync(T entity);
         Task<bool> DeleteAsync(object id);
-        Task<bool> UpdateAsync(T entity);
+        Task<bool>UpdateAsync(T entity);
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
+        Task<bool> ExistsAsync(object id);
     }
 }

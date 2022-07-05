@@ -1,13 +1,13 @@
-﻿using System.Threading.Tasks;
-using BldIt.Models.Abstractions;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace BldIt.Models.Interfaces
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
-        //Future Repos here
+        IProjectRepo ProjectRepo { get; }
         IJobRepo JobRepo { get; }
         Task CompleteAsync();
-        void Dispose();
+        new void Dispose();
     }
 }

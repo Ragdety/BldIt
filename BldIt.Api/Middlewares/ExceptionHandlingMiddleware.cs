@@ -37,6 +37,25 @@ namespace BldIt.Api.Middlewares
                     Message = e.Message,
                     Detail = e.Detail
                 };
+                context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
+                await context.Response.WriteAsJsonAsync(response);
+            }
+            catch (DomainUnauthorizedException e)
+            {
+                var response = new UnauthorizedResponse
+                {
+                    Message = e.Message
+                };
+                context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
+                await context.Response.WriteAsJsonAsync(response);
+            }
+            catch (DomainNotFoundException e)
+            {
+                var response = new NotFoundResponse
+                {
+                    Message = e.Message
+                };
+                context.Response.StatusCode = (int) HttpStatusCode.NotFound;
                 await context.Response.WriteAsJsonAsync(response);
             }
             catch (Exception e)

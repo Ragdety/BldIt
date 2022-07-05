@@ -11,9 +11,23 @@ namespace BldIt.Api.Services
             _baseUri = baseUri;
         }
         
-        public Uri GetJobUri(string jobName)
+        public Uri GetJobByNameUri(Guid projectId, string jobName)
         {
-            return new Uri(_baseUri + Routes.Jobs.Get.Replace("{jobName}", jobName));
+            return new Uri(_baseUri + Routes.Jobs.GetName
+                .Replace("{projectId}", projectId.ToString())
+                .Replace("{jobName}", jobName));
+        }
+        
+        public Uri GetJobByIdUri(Guid jobId)
+        {
+            return new Uri(_baseUri + Routes.Jobs.GetId
+                .Replace("{jobId}", jobId.ToString()));
+        }
+        
+        public Uri GetProjectUri(string projectId)
+        {
+            return new Uri(_baseUri + Routes.Projects.Get
+                .Replace("{projectId}", projectId));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
 using BldIt.Models.Abstractions;
 using BldIt.Models.Enums;
 
@@ -9,8 +9,7 @@ namespace BldIt.Models.DataModels
         public BuildStatus BuildStatus { get; set; }
         public bool Success => BuildStatus.Equals(BuildStatus.Passed);
 
-        [ForeignKey("JobName")]
-        public string JobId { get; set; }
+        public Guid JobId { get; set; }
         public virtual Job Job { get; set; }
     }
 }

@@ -1,26 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using BldIt.Api.Form;
 using BldIt.Api.Options;
 using BldIt.Api.Services;
 using BldIt.Models.DataModels;
-using BldIt.Models.Enums;
 using BldIt.Models.Exceptions;
+using BldIt.Models.Forms;
 using BldIt.Models.Interfaces;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BldIt.Api.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     public class JobController : ApiController
     {
         private readonly UriService _uriService;
-        private readonly IJobRepo _jobRepo;
         private readonly BldItEnvVariablesSettings _bldItEnvVariablesSettings;
         private readonly ILogger<JobController> _logger;
         private readonly IUnitOfWork _unitOfWork;
@@ -33,68 +32,68 @@ namespace BldIt.Api.Controllers
         {
             _uriService = uriService;
             _unitOfWork = unitOfWork;
-            _jobRepo = unitOfWork.JobRepo;
             _bldItEnvVariablesSettings = bldItSettingsMonitor.CurrentValue;
             _logger = logger;
         }
-        
-        public static readonly List<BuildStep> InMemBuildSteps = new()
-        {
-            new BuildStep
-            {
-                Command = "ping google.com \n exit 1",
-                Type = BuildStepType.Batch
-            }
-        };
 
-        public static readonly List<Job> InMemJobs = new()
+        [HttpGet(Routes.Jobs.GetName)]
+        public async Task<IActionResult> GetByName(
+            [FromRoute] Guid projectId, 
+            [FromRoute] string jobName)
         {
-            new Job
-            {
-                Id = "TestJob",
-                JobDescription = "In memory job",
-                JobWorkspacePath = "C:\\Users\\ragde\\OneDrive\\Desktop\\Programming\\BldIt\\BldIt.Api",
-                BuildSteps = InMemBuildSteps,
-                JobBuilds = new List<Build>()
-            }
-        };
+            var projectExists = await _unitOfWork.ProjectRepo.ExistsAsync(projectId);
+            if (!projectExists)
+                throw new DomainNotFoundException($"Project with id '{projectId}' was not found");
+            
+            var job = await _unitOfWork.JobRepo.GetByNameAsync(projectId, jobName);
+            if (job == null) 
+                throw new DomainNotFoundException(
+                    $"Job with name '{jobName}' was not found within project id: '{projectId}'");
 
-        [HttpGet(Routes.Jobs.Get)]
-        public async Task<IActionResult> Get(string jobName)
-        {
-            var job = InMemJobs.Find(j => j.Id == jobName);
             return Ok(job);
         }
 
         [HttpPost(Routes.Jobs.Post)]
-        public async Task<IActionResult> CreateJob([FromBody] JobCreationForm jobToCreate)
+        public async Task<IActionResult> CreateJob(
+            [FromBody] JobCreationForm jobToCreate,
+            [FromRoute] Guid projectId)
         {
-            var jobExists = await _jobRepo.JobExists(jobToCreate.Id);
-            if (jobExists)
+            var project = await _unitOfWork.ProjectRepo.GetByIdAsync(projectId);
+            if (project == null)
+                throw new DomainNotFoundException($"Project with id '{projectId}' was not found");
+            
+            var existingJob = await _unitOfWork.JobRepo.GetByNameAsync(projectId, jobToCreate.JobName);
+            if (existingJob != null)
             {
                 throw new DomainValidationException(
-                    $"Job with id {jobToCreate.Id} already exists.", 
-                    "Job names must be unique");
+                    $"Job with name {jobToCreate.JobName} " +
+                    $"in project with id '{projectId}' already exists.", 
+                    "Job names must be unique within each project");
             }
-
-            if (string.IsNullOrEmpty(jobToCreate.JobWorkspacePath.Trim()))
-                jobToCreate.JobWorkspacePath = Path.Combine(_bldItEnvVariablesSettings.BLDIT_HOME, jobToCreate.Id);
 
             var job = new Job
             {
-                Id = jobToCreate.Id,
+                JobName = jobToCreate.JobName,
                 JobDescription = jobToCreate.JobDescription,
                 JobType = jobToCreate.JobType,
                 UpdatedAt = DateTime.Now,
-                JobWorkspacePath = jobToCreate.JobWorkspacePath
-               // BuildSteps = jobToCreate.BuildSteps
+                JobWorkspacePath = Path.Combine(project.ProjectWorkspacePath, jobToCreate.JobName),
+                ProjectId = projectId
             };
 
-            //await _jobRepo.AddAsync(job);
-            //await _unitOfWork.CompleteAsync();
-                
-            var locationUri = _uriService.GetJobUri(job.Id);
+            EnsureJobWorkspaceExists(job.JobWorkspacePath);
+
+            await _unitOfWork.JobRepo.AddAsync(job);
+            await _unitOfWork.CompleteAsync();
+
+            var locationUri = _uriService.GetJobByNameUri(projectId, job.JobName);
             return Created(locationUri, job);
+        }
+
+        private static void EnsureJobWorkspaceExists(string jobWorkspacePath)
+        {
+            if (!Directory.Exists(jobWorkspacePath))
+                Directory.CreateDirectory(jobWorkspacePath);
         }
     }
 }

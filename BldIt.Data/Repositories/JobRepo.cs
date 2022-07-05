@@ -1,26 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BldIt.Models.DataModels;
 using BldIt.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace BldIt.Data.Repositories
 {
     public class JobRepo : GenericRepo<Job>, IJobRepo
     {
-        public JobRepo(AppIdentityDbContext context, ILogger logger) : base(context, logger) { }
+        public JobRepo(AppIdentityDbContext context) : base(context) { }
 
-        public override async Task<bool> DeleteAsync(object id)
+        public override async Task<bool> UpdateAsync(Job job)
         {
-            var exist = await _dbSet.Where(x => x.Id == (string) id).FirstOrDefaultAsync();
-            if (exist == null) return false;
-            _dbSet.Remove(exist);
+            var existingProj = await GetByIdAsync(job.Id);
+            if (existingProj == null) return false;
+            Context.Entry(job).State = EntityState.Modified;
             return true;
         }
 
-        public async Task<bool> JobExists(string jobName) => await GetByIdAsync(jobName) != null;
+        public async Task<bool> ExistsAsync(Guid projectId, string jobName)
+        {
+            var project = await Context
+                .Set<Project>()
+                .Where(p => p.Id == projectId)
+                .Include(p => p.Jobs)
+                .FirstOrDefaultAsync();
+
+            var job = project?.Jobs.Where(j => j.JobName == jobName);
+            return job != null;
+        }
+
+        public async Task<Job?> GetByNameAsync(Guid projectId, string jobName)
+        {
+           return await _dbSet
+                .Where(j => j.ProjectId == projectId && j.JobName == jobName)
+                .FirstOrDefaultAsync();
+        }
     }
 }

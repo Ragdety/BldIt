@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BldIt.Data.Migrations
 {
     [DbContext(typeof(AppIdentityDbContext))]
-    [Migration("20220626043405_InitialMigration")]
+    [Migration("20220703044327_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,10 +36,8 @@ namespace BldIt.Data.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("JobId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("JobName");
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
@@ -64,10 +62,8 @@ namespace BldIt.Data.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("JobId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("JobName");
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -76,14 +72,14 @@ namespace BldIt.Data.Migrations
 
                     b.HasIndex("JobId");
 
-                    b.ToTable("BuildStep");
+                    b.ToTable("BuildSteps");
                 });
 
             modelBuilder.Entity("BldIt.Models.DataModels.Job", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("JobName");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -95,18 +91,62 @@ namespace BldIt.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("JobName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
                     b.Property<int>("JobType")
                         .HasColumnType("int");
 
                     b.Property<string>("JobWorkspacePath")
                         .HasColumnType("longtext");
 
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("char(36)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("JobName", "ProjectId")
+                        .IsUnique();
+
                     b.ToTable("Jobs");
+                });
+
+            modelBuilder.Entity("BldIt.Models.DataModels.Project", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ProjectName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("ProjectName")
+                        .IsUnique();
+
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("BldIt.Models.DataModels.User", b =>
@@ -333,6 +373,28 @@ namespace BldIt.Data.Migrations
                     b.Navigation("Job");
                 });
 
+            modelBuilder.Entity("BldIt.Models.DataModels.Job", b =>
+                {
+                    b.HasOne("BldIt.Models.DataModels.Project", "Project")
+                        .WithMany("Jobs")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("BldIt.Models.DataModels.Project", b =>
+                {
+                    b.HasOne("BldIt.Models.DataModels.User", "Creator")
+                        .WithMany("CreatedProjects")
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -389,6 +451,16 @@ namespace BldIt.Data.Migrations
                     b.Navigation("BuildSteps");
 
                     b.Navigation("JobBuilds");
+                });
+
+            modelBuilder.Entity("BldIt.Models.DataModels.Project", b =>
+                {
+                    b.Navigation("Jobs");
+                });
+
+            modelBuilder.Entity("BldIt.Models.DataModels.User", b =>
+                {
+                    b.Navigation("CreatedProjects");
                 });
 #pragma warning restore 612, 618
         }

@@ -71,27 +71,6 @@ namespace BldIt.Data.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Jobs",
-                columns: table => new
-                {
-                    JobName = table.Column<string>(type: "varchar(255)", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    JobDescription = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    JobWorkspacePath = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    JobType = table.Column<int>(type: "int", nullable: false),
-                    Deleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Jobs", x => x.JobName);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -213,14 +192,66 @@ namespace BldIt.Data.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ProjectName = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Deleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Projects_AspNetUsers_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Jobs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    JobName = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    JobDescription = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    JobWorkspacePath = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    JobType = table.Column<int>(type: "int", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Deleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Jobs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Jobs_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Builds",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     BuildStatus = table.Column<int>(type: "int", nullable: false),
-                    JobName = table.Column<string>(type: "varchar(255)", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    JobId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Deleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -228,16 +259,16 @@ namespace BldIt.Data.Migrations
                 {
                     table.PrimaryKey("PK_Builds", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Builds_Jobs_JobName",
-                        column: x => x.JobName,
+                        name: "FK_Builds_Jobs_JobId",
+                        column: x => x.JobId,
                         principalTable: "Jobs",
-                        principalColumn: "JobName",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "BuildStep",
+                name: "BuildSteps",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -245,19 +276,18 @@ namespace BldIt.Data.Migrations
                     Command = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Type = table.Column<int>(type: "int", nullable: false),
-                    JobName = table.Column<string>(type: "varchar(255)", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    JobId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Deleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BuildStep", x => x.Id);
+                    table.PrimaryKey("PK_BuildSteps", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BuildStep_Jobs_JobName",
-                        column: x => x.JobName,
+                        name: "FK_BuildSteps_Jobs_JobId",
+                        column: x => x.JobId,
                         principalTable: "Jobs",
-                        principalColumn: "JobName",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -300,14 +330,36 @@ namespace BldIt.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Builds_JobName",
+                name: "IX_Builds_JobId",
                 table: "Builds",
-                column: "JobName");
+                column: "JobId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BuildStep_JobName",
-                table: "BuildStep",
-                column: "JobName");
+                name: "IX_BuildSteps_JobId",
+                table: "BuildSteps",
+                column: "JobId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jobs_JobName_ProjectId",
+                table: "Jobs",
+                columns: new[] { "JobName", "ProjectId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jobs_ProjectId",
+                table: "Jobs",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_CreatorId",
+                table: "Projects",
+                column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_ProjectName",
+                table: "Projects",
+                column: "ProjectName",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -331,16 +383,19 @@ namespace BldIt.Data.Migrations
                 name: "Builds");
 
             migrationBuilder.DropTable(
-                name: "BuildStep");
+                name: "BuildSteps");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Jobs");
 
             migrationBuilder.DropTable(
-                name: "Jobs");
+                name: "Projects");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

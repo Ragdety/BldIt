@@ -5,22 +5,18 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using BldIt.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace BldIt.Data.Repositories
 {
     public class GenericRepo<T> : IGenericRepo<T> where T : class
     {
-        protected AppIdentityDbContext _context;
+        protected readonly AppIdentityDbContext Context;
         internal DbSet<T> _dbSet;
-        protected readonly ILogger _logger;
 
-        public GenericRepo(
-            AppIdentityDbContext context, 
-            ILogger logger)
+        public GenericRepo(AppIdentityDbContext context)
         {
-            _context = context;
-            _logger = logger;
+            Context = context;
             _dbSet = context.Set<T>();
         }
 
@@ -34,25 +30,33 @@ namespace BldIt.Data.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public virtual async Task<bool> AddAsync(T entity)
+        public virtual async Task<T?> AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
-            return true;
+            return entity;
         }
 
         public virtual async Task<bool> DeleteAsync(object id)
         {
-            throw new NotImplementedException();
+            var exist = await GetByIdAsync(id);
+            if (exist == null) return false;
+            _dbSet.Remove(exist);
+            return true;
         }
 
-        public virtual Task<bool> UpdateAsync(T entity)
+        public virtual async Task<bool> UpdateAsync(T entity)
         {
-            throw new NotImplementedException();
+            EntityEntry entityEntry = Context.Entry(entity);
+            entityEntry.State = EntityState.Modified;
+            await Task.CompletedTask;
+            return true;
         }
 
         public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
         }
+        
+        public virtual async Task<bool> ExistsAsync(object id) => await GetByIdAsync(id) != null;
     }
 }

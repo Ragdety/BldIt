@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using BldIt.Api.Form;
+using BldIt.Models.Forms;
 using FluentValidation;
 
 namespace BldIt.Api.Validators
@@ -8,17 +8,11 @@ namespace BldIt.Api.Validators
     {
         public JobCreationFormValidator()
         {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.JobName)
                 .NotEmpty()
                 .NotNull()
                 //Match strings with no special characters
                 .Matches("^[a-zA-Z0-9 ]*$");
-
-            RuleFor(x => x.JobWorkspacePath)
-                .Must(JobWorkspacePathExists)
-                .WithMessage("Path to custom workspace does not exist");
         }
-
-        private static bool JobWorkspacePathExists(string dirPath) => Directory.Exists(dirPath);
     }
 }

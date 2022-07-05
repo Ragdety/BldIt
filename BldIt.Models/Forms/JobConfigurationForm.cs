@@ -1,6 +1,6 @@
 ﻿using BldIt.Models.Enums;
 
-namespace BldIt.Api.Form
+namespace BldIt.Models.Forms
 {
     public class JobConfigurationForm
     {

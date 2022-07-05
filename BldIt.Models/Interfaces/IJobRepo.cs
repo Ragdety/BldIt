@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BldIt.Models.DataModels;
 
 namespace BldIt.Models.Interfaces
 {
     public interface IJobRepo : IGenericRepo<Job>
     {
-        Task<bool> JobExists(string jobName);
+        Task<bool> ExistsAsync(Guid projectId, string jobName);
+        Task<Job?> GetByNameAsync(Guid projectId, string jobName);
     }
 }
