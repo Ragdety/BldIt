@@ -1,0 +1,23 @@
+one = 1;
+two = 2
+name = 'Edgar'
+
+if 10 > one:
+    echo('10 is greater than 1 for some reason')
+    
+thingIsFalse = 1 > 10
+
+if thingIsFalse:
+    echo('Um...this isn't supposed to happen')
+else if two < one:
+    print('Um...this isn't supposed to happen either')
+else:
+    echo('This is supposed to happen!')
+    echo('We hit the else statement!!!!')
+
+while i < 10:
+    print("i isn't big enough - " + i + " so let's make it bigger")
+    
+    i = i + 1 * 4;
+
+echo("Congrats " + name + "! You finished testing a basic bldit program!")
