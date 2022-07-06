@@ -1,14 +1,16 @@
 one = 1;
-two = 2
-name = 'Edgar'
+two = 2;
+name = 'Edgar';
+
+three = one + two;
 
 if 10 > one:
-    echo('10 is greater than 1 for some reason')
+    echo('10 is greater than 1 for some reason');
     
-thingIsFalse = 1 > 10
+thingIsFalse = 1 > 10;
 
 if thingIsFalse:
-    echo('Um...this isn't supposed to happen')
+    echo('Um...this isn't supposed to happen');
 else if two < one:
     print('Um...this isn't supposed to happen either')
 else:

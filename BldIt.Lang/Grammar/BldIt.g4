@@ -84,27 +84,28 @@ assignment: IDENTIFIER '=' expression;
 functionCall: IDENTIFIER '(' (expression (',' expression)*)? ')';
 
 /*
+ * Expressions evaluate to a some value.
  * Must have mutliplication expression first
  */
 expression
-  : constant                #constantExpression
-  | IDENTIFIER              #identifierExpression
-  | functionCall            #functionCallExpression
-  | parenthExpression       #parenthesizedExpression
-  | notExpression           #notExpression
-  | multExpression          #multiplicativeExpression
-  | addExpression           #additiveExpression
-  | compareExpression       #comparisonExpression
-  | boolExpression          #booleanExpression
+  : constant                              #constantExpr
+  | IDENTIFIER                            #identifierExpr
+  | functionCall                          #functionCallExpr
+  | parenthExpression                     #parenthesizedExpr
+  | notExpression                         #notExpr
+  | expression multOp expression          #multiplicativeExpr
+  | expression addOp expression           #additiveExpr
+  | expression compareOp expression       #comparisonExpr
+  | expression boolOp expression          #booleanExpr
   ;
 
 //Expression types:
 parenthExpression: '(' expression ')';
 notExpression: NOT expression;
-multExpression: expression multOp expression;
-addExpression: expression addOp expression;
-compareExpression: expression compareOp expression;
-boolExpression: expression boolOp expression;
+// multExpression: expression multOp expression;
+// addExpression: expression addOp expression;
+// compareExpression: expression compareOp expression;
+// boolExpression: expression boolOp expression;
 
 //Operators
 multOp: '*' | '/' | '%' ;
@@ -113,7 +114,7 @@ compareOp: EQUALITY | '<' | '>' | '<=' | '>=' ;
 boolOp: BOOL_OPERATOR;
 
 BOOL_OPERATOR: 'and' | 'or' ;
-NOT: 'not' | '!' ;
+NOT: 'not ' | '!' ;
 
 //Might allow 'eq' and 'neq' in the future
 EQUALITY: '==' | '!=' ; //| 'eq' | 'neq' ;
@@ -127,7 +128,7 @@ BOOL: 'true' | 'false';
 NULL: 'null';
 
 //End of line can be a new line OR semicolon (adding optional semicolons)
-ENDLINE: [\r\n | ';']+;
+ENDLINE: ';';
 
 //Skip whitespace
 WS: [ \t\r\n]+ -> skip;
