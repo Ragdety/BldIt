@@ -12,7 +12,7 @@ INDENT: '\t';
   * BEFORE:
   *   AFTER_INDENTNEWLINE
  */
-INDENTNEWLINE: '\r\n\t';
+INDENTNEWLINE: '\n\t';
 DEDENT: '\r\n';
 
 /* 
@@ -57,8 +57,8 @@ elseIfBlock: block | ifBlock;
 //While/Unless block
 whileBlock: WHILE expression block;
 
-//We're supporting both while and unless
-WHILE: 'while' | 'unless';
+//Might support until in the future
+WHILE: 'while';
 
 /*
  * Block expression.

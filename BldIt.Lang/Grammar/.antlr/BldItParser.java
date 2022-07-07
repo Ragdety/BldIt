@@ -39,8 +39,9 @@ public class BldItParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, "'if'", "'else'", "':'", "'='", "'('", "','", "')'", "'*'", "'/'", 
-			"'%'", "'+'", "'-'", "'<'", "'>'", "'<='", "'>='", "'\t'", "'\r\n\t'", 
-			"'\r\n'", null, null, null, null, null, null, null, null, "'null'"
+			"'%'", "'+'", "'-'", "'<'", "'>'", "'<='", "'>='", "'\t'", "'\n\t'", 
+			"'\r\n'", "'while'", null, null, null, null, null, null, null, "'null'", 
+			"';'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();

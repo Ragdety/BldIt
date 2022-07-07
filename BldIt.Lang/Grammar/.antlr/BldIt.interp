@@ -17,9 +17,9 @@ null
 '<='
 '>='
 '\t'
-'\r\n\t'
+'\n\t'
 '\r\n'
-null
+'while'
 null
 null
 null
@@ -28,7 +28,7 @@ null
 null
 null
 'null'
-null
+';'
 null
 null
 
