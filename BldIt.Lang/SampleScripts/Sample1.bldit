@@ -1,10 +1,28 @@
 i = 1;
 
 while i < 4:
-    print(i)
-    print("i isn't big enough - " + i + " so let's make it bigger");
-    
     i = i + 1;
+    a = 1;
+    b = 2;
+
+if 1 < 10:
+    thisIsTrue = true;
+    echo('1 is less than 10 for some reason');
+
+thingIsFalse = 10 < 1;
+
+if thingIsFalse:
+    echo('Um...this isn't supposed to happen');
+else if 1 < 2:
+    print('Um...this isn't supposed to happen either');
+else:
+    supposed = "YES!";
+    echo('This is supposed to happen!');
+    echo('We hit the else statement!!!!');
+
+print(i)
+print("i isn't big enough - " + i + " so let's make it bigger");
+
 
 addStr = "Hello" + "World";
 add = 1 + 1
@@ -16,18 +34,5 @@ one = 1;
 two = 2;
 name = 'Edgar';
 three = one + two;
-
-if 10 > one:
-    echo('10 is greater than 1 for some reason');
-    
-thingIsFalse = 1 > 10;
-
-if thingIsFalse:
-    echo('Um...this isn't supposed to happen');
-else if two < one:
-    print('Um...this isn't supposed to happen either');
-else:
-    echo('This is supposed to happen!');
-    echo('We hit the else statement!!!!');
 
 echo("Congrats " + name + "! You finished testing a basic bldit program!");

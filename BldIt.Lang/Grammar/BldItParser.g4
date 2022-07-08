@@ -1,19 +1,11 @@
-grammar BldIt;
+parser grammar BldItParser;
+
+options {
+  tokenVocab = BldItLexer;
+}
 
 //Main starting point of the program
 program: line* EOF;
-
-//Just an indentation/tab
-INDENT: '\t';
-
-/* 
-  * This is a newline followed by an indentation:
-  * Example:
-  * BEFORE:
-  *   AFTER_INDENTNEWLINE
- */
-INDENTNEWLINE: '\n\t';
-DEDENT: '\r\n';
 
 /* 
   * This is a block of code, instead of brackets, we use indentation like python 
@@ -27,7 +19,7 @@ DEDENT: '\r\n';
 
 line: statement | ifBlock | whileBlock;
 
-statement: (assignment | functionCall) ENDLINE;
+statement: (assignment | functionCall) NL;
 
 /* 
  * This is an if block.
@@ -45,7 +37,7 @@ statement: (assignment | functionCall) ENDLINE;
  * else: 
  *   do_finish_ifBlock
  */
-ifBlock: 'if' expression block ('else' elseIfBlock)?;
+ifBlock: IF expression block (ELSE elseIfBlock)?;
 
 /*
  * This allows else if blocks
@@ -57,8 +49,6 @@ elseIfBlock: block | ifBlock;
 //While/Unless block
 whileBlock: WHILE expression block;
 
-//Might support until in the future
-WHILE: 'while';
 
 /*
  * Block expression.
@@ -71,9 +61,9 @@ WHILE: 'while';
  *    line2
  * '
  */
-block: ':' INDENTNEWLINE (line INDENTNEWLINE)* DEDENT;
+block: COLON INDENT statement+ DEDENT;
 
-assignment: IDENTIFIER '=' expression;
+assignment: IDENTIFIER ASSIGN_OP expression;
 
 /*
  * Arguments are optional, hence the '?'
@@ -81,11 +71,11 @@ assignment: IDENTIFIER '=' expression;
  * some_identifier() OR
  * some_identifier(arg1, arg2)
  */
-functionCall: IDENTIFIER '(' (expression (',' expression)*)? ')';
+functionCall: IDENTIFIER OPEN_PAREN (expression (COMMA expression)*)? CLOSE_PAREN;
 
 /*
  * Expressions evaluate to a some value.
- * Must have mutliplication expression first
+ * Must have multiplication expression first
  */
 expression
   : constant                              #constantExpr
@@ -100,7 +90,7 @@ expression
   ;
 
 //Expression types:
-parenthExpression: '(' expression ')';
+parenthExpression: OPEN_PAREN expression CLOSE_PAREN;
 notExpression: NOT expression;
 // multExpression: expression multOp expression;
 // addExpression: expression addOp expression;
@@ -108,35 +98,10 @@ notExpression: NOT expression;
 // boolExpression: expression boolOp expression;
 
 //Operators
-multOp: '*' | '/' | '%' ;
-addOp: '+' | '-' ;
-compareOp: EQUALITY | '<' | '>' | '<=' | '>=' ;
-boolOp: BOOL_OPERATOR;
+multOp: MULT_OP | DIV_OP | MOD_OP ;
+addOp: ADD_OP | SUB_OP ;
+compareOp: EQUALITY | LESS_THAN_OP | GREATER_THAN_OP | LESS_THAN_EQUAL_OP | GREATER_THAN_EQUAL_OP ;
+boolOp: BOOL_OP;
 
-BOOL_OPERATOR: 'and' | 'or' ;
-NOT: 'not ' | '!' ;
-
-//Might allow 'eq' and 'neq' in the future
-EQUALITY: '==' | '!=' ; //| 'eq' | 'neq' ;
 
 constant: INTEGER | FLOAT | STRING | BOOL | NULL;
-
-INTEGER: [0-9]+;
-FLOAT: [0-9]+ '.' [0-9]+;
-STRING: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
-BOOL: 'true' | 'false';
-NULL: 'null';
-
-//End of line can be a new line OR semicolon (adding optional semicolons)
-ENDLINE: ';';
-
-//Skip whitespace
-WS: [ \t\r\n]+ -> skip;
-
-/*
- * Must start with a letter (upper or lowercase) and 
- * allow any number of letters, numbers, and underscores after
- */
-IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
-
-

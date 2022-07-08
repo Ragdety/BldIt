@@ -3,7 +3,7 @@ using BldIt.Lang.Grammar;
 
 namespace BldIt.Lang.Visitors;
 
-public class BldItVisitor : BldItBaseVisitor<object?>
+public class BldItVisitor : BldItParserBaseVisitor<object?>
 {
     private Dictionary<string, object?> Variables { get; } = new();
 
@@ -22,7 +22,7 @@ public class BldItVisitor : BldItBaseVisitor<object?>
         var varName = context.IDENTIFIER().GetText();
 
         if (!Variables.ContainsKey(varName))
-            throw new MissingVariableException(varName);
+            throw new UndefinedVariableException(varName);
         
         return Variables[varName];
     }
@@ -75,18 +75,66 @@ public class BldItVisitor : BldItBaseVisitor<object?>
             _ => throw new NotSupportedException("Operator not supported")
         };
     }
-    
+
+    public override object? VisitIfBlock(BldItParser.IfBlockContext context)
+    {
+        var condition = Visit(context.expression());
+        var block = context.block().GetText();
+        if(condition is bool conditionBool)
+        {
+            return conditionBool ? Visit(context.block()) : Visit(context.elseIfBlock());
+        }
+        throw new InvalidTypeException("Condition must be a boolean");
+    }
+
+    public override object? VisitElseIfBlock(BldItParser.ElseIfBlockContext context)
+    {
+        var block = context.block().GetText();
+        return context.block() is {} ? Visit(context.block()) : Visit(context.ifBlock());
+    }
+
     public override object? VisitWhileBlock(BldItParser.WhileBlockContext context)
     {
-        Func<object?, bool> condition = context.WHILE().GetText() == "while"
-            ? IsTrue
-            : IsFalse;
+        // Func<object?, bool> condition = context.WHILE().GetText() == "while"
+        //     ? IsTrue
+        //     : IsFalse
+        //     ;
 
-        while (condition(Visit(context.expression())))
+        var condition = Visit(context.expression());
+        var block = context.block().GetText();
+
+        while (Visit(context.expression()) is bool conditionResult)
         {
-            Visit(context.block());
+            var b = conditionResult;
+            return Visit(context.block());
         }
 
+        return null;
+    }
+
+    public override object? VisitBlock(BldItParser.BlockContext context)
+    {
+        var statements = context.statement();
+
+        foreach (var statement in statements)
+        {
+            Visit(statement);
+        }
+        
+        return null;
+    }
+
+    public override object? VisitLine(BldItParser.LineContext context)
+    {
+        if(context.statement() is { })
+            Visit(context.statement());
+        else if (context.ifBlock() is { })
+            Visit(context.ifBlock());
+        else if (context.whileBlock() is { })
+            Visit(context.whileBlock());
+        else
+            throw new Exception("Incorrect line");
+        
         return null;
     }
 
