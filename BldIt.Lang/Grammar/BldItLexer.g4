@@ -76,15 +76,16 @@ NULL: 'null';
 ENDLINE: SEMICOLON;
 ENDBLOCK: 'end';
 
-//Skip whitespace
+//Combination of these 2 (WS/NL) causes the program to work BUT with <missing NL> instead of \r\n
 WS: [ \r\n]+ -> skip;
-COMMENT: '//' .*? '\r'?'\n' -> skip;
-//EMPTYLINE: '\r\n' -> skip;
-
-//Warning for myself: \t causes some problems...don't know yet why
 //For spaces just switch out '\t'* with ' '*
 //For tabs just switch out '  '* with '\t'*
-NL: ('\r'? '\n' ' '*);
+NL: ('\r'? '\n' '\t'*);
+COMMENT: '//' .*? '\r'?'\n' -> skip;
+
+//Combination of these 2 removes the <missing NL> but program does not continue after...
+//WS: [ \t]+ -> skip;
+//NL: ('\r'? '\n' '\t'*);
 
 /*
  * Must start with a letter (upper or lowercase) and 

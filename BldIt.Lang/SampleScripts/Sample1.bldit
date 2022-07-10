@@ -2,19 +2,28 @@ i = 1;
 
 thingIsFalse = 10 < 1;
 
-if thingIsFalse:
-    echo('Um...this isn't supposed to happen');
-else if 1 < 2:
-    print('Um...this isn't supposed to happen either');
+//Works...
+if 10 < 10:
+    hitTrue1 = true;
 else:
-    supposed = "YES!";
-    echo('This is supposed to happen!');
-    echo('We hit the else statement!!!!');
+    hitElse1 = true
+    if 1 < 10:
+        hitTrue2 = true;
+    else:
+        hitElse2 = true
+    end
 end
 
-if 10 < 10:
-    hitTrue = true;
-end
+//Does not work yet...
+//if thingIsFalse:
+//    echo('Um...this isn't supposed to happen');
+//else if 1 < 2:
+//    print('Um...this isn't supposed to happen either');
+//else:
+//    supposed = "YES!";
+//    echo('This is supposed to happen!');
+//    echo('We hit the else statement!!!!');
+//end
 
 y = 1
 z = 0

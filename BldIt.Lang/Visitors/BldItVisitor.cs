@@ -30,7 +30,6 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
     public override object? VisitIfStatement(BldItParser.IfStatementContext context)
     {
         var ifTxt = context.GetText();
-        var elseIfB = context.elseIfBlock();
 
         if (Visit(context.singleIfBlock().expression()) is true)
         {
@@ -39,49 +38,42 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             return null;
         }
         
-
-        foreach (var e in context.elseIfBlock())
-        {
-            var t = e.GetText();
-            Console.WriteLine(t);
-        }
-
-        //After checking single if statement, if we have else blocks, we need to check them too
-        //Instead of VisitElseIfBlock, we're handling that code here (for now until I find a better solution)
-        if (context.elseIfBlock() is {} elseIfBlocks)
-        {
-            var elseIfBlocksList = elseIfBlocks.Select(Visit).ToList();
-            //Loop through each else if blocks
-            foreach (var eib in elseIfBlocks)
-            {
-                //If the condition is not true, skip to the next else if block (eib) - continue
-                if (Visit(eib.expression()) is not true) continue;
-                
-                //If the condition is true, goto block and return (since we don't want to execute the else block)
-                Visit(eib.block());
-                return null;
-            }
-            
-            //This point is reached if all else if blocks are false
-            //Make sure to check the else block if no else if block was executed
-            if (context.elseBlock() is { } elseBlock)
-                VisitElseBlock(elseBlock);
-        }
-        else if (context.elseBlock() is {} elseBlock)
+        if (context.elseBlock() is {} elseBlock)
             VisitElseBlock(elseBlock);
         else
             throw new InvalidTypeException("Condition must be a boolean");
+        
+        //This is for else if blocks, will look into it later...
+        //After checking single if statement, if we have else blocks, we need to check them too
+        //Instead of VisitElseIfBlock, we're handling that code here (for now until I find a better solution)
+        // if (context.elseIfBlock() is {} elseIfBlocks)
+        // {
+        //     var elseIfBlocksList = elseIfBlocks.Select(Visit).ToList();
+        //     //Loop through each else if blocks
+        //     foreach (var eib in elseIfBlocks)
+        //     {
+        //         //If the condition is not true, skip to the next else if block (eib) - continue
+        //         if (Visit(eib.expression()) is not true) continue;
+        //         
+        //         //If the condition is true, goto block and return (since we don't want to execute the else block)
+        //         Visit(eib.block());
+        //         return null;
+        //     }
+        //     
+        //     //This point is reached if all else if blocks are false
+        //     //Make sure to check the else block if no else if block was executed
+        //     if (context.elseBlock() is { } elseBlock)
+        //         VisitElseBlock(elseBlock);
+        // }
+        // else if (context.elseBlock() is {} elseBlock)
+        //     VisitElseBlock(elseBlock);
+        // else
+        //     throw new InvalidTypeException("Condition must be a boolean");
 
         return null;
     }
 
     public override object? VisitSingleIfBlock(BldItParser.SingleIfBlockContext context)
-    {
-        Visit(context.block());
-        return null;
-    }
-    
-    public override object? VisitElseIfBlock(BldItParser.ElseIfBlockContext context)
     {
         Visit(context.block());
         return null;

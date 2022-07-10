@@ -24,7 +24,7 @@ public class BldItLexer extends Lexer {
 		LESS_THAN_EQUAL_OP=13, OPEN_PAREN=14, CLOSE_PAREN=15, COMMA=16, SEMICOLON=17, 
 		COLON=18, DOT=19, ASSIGN_OP=20, IF=21, ELSE=22, EQUALITY=23, NOT=24, INTEGER=25, 
 		FLOAT=26, STRING=27, BOOL=28, NULL=29, ENDLINE=30, ENDBLOCK=31, WS=32, 
-		COMMENT=33, NL=34, IDENTIFIER=35;
+		NL=33, COMMENT=34, IDENTIFIER=35;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
 	};
@@ -39,7 +39,7 @@ public class BldItLexer extends Lexer {
 			"GREATER_THAN_OP", "LESS_THAN_OP", "GREATER_THAN_EQUAL_OP", "LESS_THAN_EQUAL_OP", 
 			"OPEN_PAREN", "CLOSE_PAREN", "COMMA", "SEMICOLON", "COLON", "DOT", "ASSIGN_OP", 
 			"IF", "ELSE", "EQUALITY", "NOT", "INTEGER", "FLOAT", "STRING", "BOOL", 
-			"NULL", "ENDLINE", "ENDBLOCK", "WS", "COMMENT", "NL", "IDENTIFIER"
+			"NULL", "ENDLINE", "ENDBLOCK", "WS", "NL", "COMMENT", "IDENTIFIER"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -59,8 +59,8 @@ public class BldItLexer extends Lexer {
 			"MOD_OP", "BOOL_OP", "GREATER_THAN_OP", "LESS_THAN_OP", "GREATER_THAN_EQUAL_OP", 
 			"LESS_THAN_EQUAL_OP", "OPEN_PAREN", "CLOSE_PAREN", "COMMA", "SEMICOLON", 
 			"COLON", "DOT", "ASSIGN_OP", "IF", "ELSE", "EQUALITY", "NOT", "INTEGER", 
-			"FLOAT", "STRING", "BOOL", "NULL", "ENDLINE", "ENDBLOCK", "WS", "COMMENT", 
-			"NL", "IDENTIFIER"
+			"FLOAT", "STRING", "BOOL", "NULL", "ENDLINE", "ENDBLOCK", "WS", "NL", 
+			"COMMENT", "IDENTIFIER"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -154,9 +154,9 @@ public class BldItLexer extends Lexer {
 		"\13\32\3\32\3\32\3\32\7\32\u00a4\n\32\f\32\16\32\u00a7\13\32\3\32\5\32"+
 		"\u00aa\n\32\3\33\3\33\3\33\3\33\3\33\3\33\3\33\3\33\3\33\5\33\u00b5\n"+
 		"\33\3\34\3\34\3\34\3\34\3\34\3\35\3\35\3\36\3\36\3\36\3\36\3\37\6\37\u00c3"+
-		"\n\37\r\37\16\37\u00c4\3\37\3\37\3 \3 \3 \3 \7 \u00cd\n \f \16 \u00d0"+
-		"\13 \3 \5 \u00d3\n \3 \3 \3 \3 \3!\5!\u00da\n!\3!\3!\7!\u00de\n!\f!\16"+
-		"!\u00e1\13!\3\"\3\"\7\"\u00e5\n\"\f\"\16\"\u00e8\13\"\3\u00ce\2#\3\5\5"+
+		"\n\37\r\37\16\37\u00c4\3\37\3\37\3 \5 \u00ca\n \3 \3 \7 \u00ce\n \f \16"+
+		" \u00d1\13 \3!\3!\3!\3!\7!\u00d7\n!\f!\16!\u00da\13!\3!\5!\u00dd\n!\3"+
+		"!\3!\3!\3!\3\"\3\"\7\"\u00e5\n\"\f\"\16\"\u00e8\13\"\3\u00d8\2#\3\5\5"+
 		"\6\7\7\t\b\13\t\r\n\17\13\21\f\23\r\25\16\27\17\31\20\33\21\35\22\37\23"+
 		"!\24#\25%\26\'\27)\30+\31-\32/\33\61\34\63\35\65\36\67\379 ;!=\"?#A$C"+
 		"%\3\2\b\3\2\62;\3\2$$\3\2))\5\2\f\f\17\17\"\"\5\2C\\aac|\6\2\62;C\\aa"+
@@ -171,7 +171,7 @@ public class BldItLexer extends Lexer {
 		"\35j\3\2\2\2\37l\3\2\2\2!n\3\2\2\2#p\3\2\2\2%r\3\2\2\2\'t\3\2\2\2)w\3"+
 		"\2\2\2+\u0080\3\2\2\2-\u0087\3\2\2\2/\u008a\3\2\2\2\61\u008f\3\2\2\2\63"+
 		"\u00a9\3\2\2\2\65\u00b4\3\2\2\2\67\u00b6\3\2\2\29\u00bb\3\2\2\2;\u00bd"+
-		"\3\2\2\2=\u00c2\3\2\2\2?\u00c8\3\2\2\2A\u00d9\3\2\2\2C\u00e2\3\2\2\2E"+
+		"\3\2\2\2=\u00c2\3\2\2\2?\u00c9\3\2\2\2A\u00d2\3\2\2\2C\u00e2\3\2\2\2E"+
 		"F\7y\2\2FG\7j\2\2GH\7k\2\2HI\7n\2\2IJ\7g\2\2J\4\3\2\2\2KL\7-\2\2L\6\3"+
 		"\2\2\2MN\7/\2\2N\b\3\2\2\2OP\7,\2\2P\n\3\2\2\2QR\7\61\2\2R\f\3\2\2\2S"+
 		"T\7\'\2\2T\16\3\2\2\2UV\7c\2\2VW\7p\2\2W[\7f\2\2XY\7q\2\2Y[\7t\2\2ZU\3"+
@@ -202,19 +202,19 @@ public class BldItLexer extends Lexer {
 		"\2\u00bb\u00bc\5\37\20\2\u00bc:\3\2\2\2\u00bd\u00be\7g\2\2\u00be\u00bf"+
 		"\7p\2\2\u00bf\u00c0\7f\2\2\u00c0<\3\2\2\2\u00c1\u00c3\t\5\2\2\u00c2\u00c1"+
 		"\3\2\2\2\u00c3\u00c4\3\2\2\2\u00c4\u00c2\3\2\2\2\u00c4\u00c5\3\2\2\2\u00c5"+
-		"\u00c6\3\2\2\2\u00c6\u00c7\b\37\2\2\u00c7>\3\2\2\2\u00c8\u00c9\7\61\2"+
-		"\2\u00c9\u00ca\7\61\2\2\u00ca\u00ce\3\2\2\2\u00cb\u00cd\13\2\2\2\u00cc"+
-		"\u00cb\3\2\2\2\u00cd\u00d0\3\2\2\2\u00ce\u00cf\3\2\2\2\u00ce\u00cc\3\2"+
-		"\2\2\u00cf\u00d2\3\2\2\2\u00d0\u00ce\3\2\2\2\u00d1\u00d3\7\17\2\2\u00d2"+
-		"\u00d1\3\2\2\2\u00d2\u00d3\3\2\2\2\u00d3\u00d4\3\2\2\2\u00d4\u00d5\7\f"+
-		"\2\2\u00d5\u00d6\3\2\2\2\u00d6\u00d7\b \2\2\u00d7@\3\2\2\2\u00d8\u00da"+
-		"\7\17\2\2\u00d9\u00d8\3\2\2\2\u00d9\u00da\3\2\2\2\u00da\u00db\3\2\2\2"+
-		"\u00db\u00df\7\f\2\2\u00dc\u00de\7\"\2\2\u00dd\u00dc\3\2\2\2\u00de\u00e1"+
-		"\3\2\2\2\u00df\u00dd\3\2\2\2\u00df\u00e0\3\2\2\2\u00e0B\3\2\2\2\u00e1"+
-		"\u00df\3\2\2\2\u00e2\u00e6\t\6\2\2\u00e3\u00e5\t\7\2\2\u00e4\u00e3\3\2"+
-		"\2\2\u00e5\u00e8\3\2\2\2\u00e6\u00e4\3\2\2\2\u00e6\u00e7\3\2\2\2\u00e7"+
-		"D\3\2\2\2\u00e8\u00e6\3\2\2\2\23\2Z\u0080\u0087\u008c\u0091\u0097\u009d"+
-		"\u00a5\u00a9\u00b4\u00c4\u00ce\u00d2\u00d9\u00df\u00e6\3\b\2\2";
+		"\u00c6\3\2\2\2\u00c6\u00c7\b\37\2\2\u00c7>\3\2\2\2\u00c8\u00ca\7\17\2"+
+		"\2\u00c9\u00c8\3\2\2\2\u00c9\u00ca\3\2\2\2\u00ca\u00cb\3\2\2\2\u00cb\u00cf"+
+		"\7\f\2\2\u00cc\u00ce\7\13\2\2\u00cd\u00cc\3\2\2\2\u00ce\u00d1\3\2\2\2"+
+		"\u00cf\u00cd\3\2\2\2\u00cf\u00d0\3\2\2\2\u00d0@\3\2\2\2\u00d1\u00cf\3"+
+		"\2\2\2\u00d2\u00d3\7\61\2\2\u00d3\u00d4\7\61\2\2\u00d4\u00d8\3\2\2\2\u00d5"+
+		"\u00d7\13\2\2\2\u00d6\u00d5\3\2\2\2\u00d7\u00da\3\2\2\2\u00d8\u00d9\3"+
+		"\2\2\2\u00d8\u00d6\3\2\2\2\u00d9\u00dc\3\2\2\2\u00da\u00d8\3\2\2\2\u00db"+
+		"\u00dd\7\17\2\2\u00dc\u00db\3\2\2\2\u00dc\u00dd\3\2\2\2\u00dd\u00de\3"+
+		"\2\2\2\u00de\u00df\7\f\2\2\u00df\u00e0\3\2\2\2\u00e0\u00e1\b!\2\2\u00e1"+
+		"B\3\2\2\2\u00e2\u00e6\t\6\2\2\u00e3\u00e5\t\7\2\2\u00e4\u00e3\3\2\2\2"+
+		"\u00e5\u00e8\3\2\2\2\u00e6\u00e4\3\2\2\2\u00e6\u00e7\3\2\2\2\u00e7D\3"+
+		"\2\2\2\u00e8\u00e6\3\2\2\2\23\2Z\u0080\u0087\u008c\u0091\u0097\u009d\u00a5"+
+		"\u00a9\u00b4\u00c4\u00c9\u00cf\u00d8\u00dc\u00e6\3\b\2\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
