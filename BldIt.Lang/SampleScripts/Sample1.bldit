@@ -1,14 +1,5 @@
 i = 1;
 
-while i < 4:
-    i = i + 1;
-    a = 1;
-    b = 2;
-
-if 1 < 10:
-    thisIsTrue = true;
-    echo('1 is less than 10 for some reason');
-
 thingIsFalse = 10 < 1;
 
 if thingIsFalse:
@@ -19,10 +10,14 @@ else:
     supposed = "YES!";
     echo('This is supposed to happen!');
     echo('We hit the else statement!!!!');
+end
 
-print(i)
-print("i isn't big enough - " + i + " so let's make it bigger");
+if 10 < 10:
+    hitTrue = true;
+end
 
+y = 1
+z = 0
 
 addStr = "Hello" + "World";
 add = 1 + 1
@@ -34,5 +29,10 @@ one = 1;
 two = 2;
 name = 'Edgar';
 three = one + two;
+
+while i < 4:
+    i = i + 1;
+    a = 1;
+end
 
 echo("Congrats " + name + "! You finished testing a basic bldit program!");

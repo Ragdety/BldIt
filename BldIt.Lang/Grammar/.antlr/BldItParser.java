@@ -16,20 +16,23 @@ public class BldItParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		INDENT=1, DEDENT=2, NL=3, WHILE=4, ADD_OP=5, SUB_OP=6, MULT_OP=7, DIV_OP=8, 
-		MOD_OP=9, BOOL_OP=10, GREATER_THAN_OP=11, LESS_THAN_OP=12, GREATER_THAN_EQUAL_OP=13, 
-		LESS_THAN_EQUAL_OP=14, OPEN_PAREN=15, CLOSE_PAREN=16, COMMA=17, SEMICOLON=18, 
-		COLON=19, DOT=20, ASSIGN_OP=21, IF=22, ELSE=23, EQUALITY=24, NOT=25, INTEGER=26, 
-		FLOAT=27, STRING=28, BOOL=29, NULL=30, ENDLINE=31, WS=32, IDENTIFIER=33;
+		INDENT=1, DEDENT=2, WHILE=3, ADD_OP=4, SUB_OP=5, MULT_OP=6, DIV_OP=7, 
+		MOD_OP=8, BOOL_OP=9, GREATER_THAN_OP=10, LESS_THAN_OP=11, GREATER_THAN_EQUAL_OP=12, 
+		LESS_THAN_EQUAL_OP=13, OPEN_PAREN=14, CLOSE_PAREN=15, COMMA=16, SEMICOLON=17, 
+		COLON=18, DOT=19, ASSIGN_OP=20, IF=21, ELSE=22, EQUALITY=23, NOT=24, INTEGER=25, 
+		FLOAT=26, STRING=27, BOOL=28, NULL=29, ENDLINE=30, ENDBLOCK=31, WS=32, 
+		COMMENT=33, NL=34, IDENTIFIER=35;
 	public static final int
-		RULE_program = 0, RULE_line = 1, RULE_statement = 2, RULE_ifBlock = 3, 
-		RULE_elseIfBlock = 4, RULE_whileBlock = 5, RULE_block = 6, RULE_assignment = 7, 
-		RULE_functionCall = 8, RULE_expression = 9, RULE_parenthExpression = 10, 
-		RULE_notExpression = 11, RULE_multOp = 12, RULE_addOp = 13, RULE_compareOp = 14, 
-		RULE_boolOp = 15, RULE_constant = 16;
+		RULE_bldItFile = 0, RULE_statements = 1, RULE_statement = 2, RULE_simpleStatement = 3, 
+		RULE_compoundStatement = 4, RULE_ifStatement = 5, RULE_singleIfBlock = 6, 
+		RULE_elseIfBlock = 7, RULE_elseBlock = 8, RULE_whileStatement = 9, RULE_block = 10, 
+		RULE_assignment = 11, RULE_functionCall = 12, RULE_expression = 13, RULE_parenthExpression = 14, 
+		RULE_notExpression = 15, RULE_multOp = 16, RULE_addOp = 17, RULE_compareOp = 18, 
+		RULE_boolOp = 19, RULE_constant = 20;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"program", "line", "statement", "ifBlock", "elseIfBlock", "whileBlock", 
+			"bldItFile", "statements", "statement", "simpleStatement", "compoundStatement", 
+			"ifStatement", "singleIfBlock", "elseIfBlock", "elseBlock", "whileStatement", 
 			"block", "assignment", "functionCall", "expression", "parenthExpression", 
 			"notExpression", "multOp", "addOp", "compareOp", "boolOp", "constant"
 		};
@@ -38,19 +41,21 @@ public class BldItParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, null, "'while'", "'+'", "'-'", "'*'", "'/'", "'%'", 
-			null, "'>'", "'<'", "'>='", "'<='", "'('", "')'", "','", "';'", "':'", 
-			"'.'", "'='", "'if'", "'else'", null, null, null, null, null, null, "'null'"
+			null, null, null, "'while'", "'+'", "'-'", "'*'", "'/'", "'%'", null, 
+			"'>'", "'<'", "'>='", "'<='", "'('", "')'", "','", "';'", "':'", "'.'", 
+			"'='", "'if'", "'else'", null, null, null, null, null, null, "'null'", 
+			null, "'end'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "INDENT", "DEDENT", "NL", "WHILE", "ADD_OP", "SUB_OP", "MULT_OP", 
-			"DIV_OP", "MOD_OP", "BOOL_OP", "GREATER_THAN_OP", "LESS_THAN_OP", "GREATER_THAN_EQUAL_OP", 
+			null, "INDENT", "DEDENT", "WHILE", "ADD_OP", "SUB_OP", "MULT_OP", "DIV_OP", 
+			"MOD_OP", "BOOL_OP", "GREATER_THAN_OP", "LESS_THAN_OP", "GREATER_THAN_EQUAL_OP", 
 			"LESS_THAN_EQUAL_OP", "OPEN_PAREN", "CLOSE_PAREN", "COMMA", "SEMICOLON", 
 			"COLON", "DOT", "ASSIGN_OP", "IF", "ELSE", "EQUALITY", "NOT", "INTEGER", 
-			"FLOAT", "STRING", "BOOL", "NULL", "ENDLINE", "WS", "IDENTIFIER"
+			"FLOAT", "STRING", "BOOL", "NULL", "ENDLINE", "ENDBLOCK", "WS", "COMMENT", 
+			"NL", "IDENTIFIER"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -104,42 +109,26 @@ public class BldItParser extends Parser {
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
-	public static class ProgramContext extends ParserRuleContext {
+	public static class BldItFileContext extends ParserRuleContext {
+		public StatementsContext statements() {
+			return getRuleContext(StatementsContext.class,0);
+		}
 		public TerminalNode EOF() { return getToken(BldItParser.EOF, 0); }
-		public List<LineContext> line() {
-			return getRuleContexts(LineContext.class);
-		}
-		public LineContext line(int i) {
-			return getRuleContext(LineContext.class,i);
-		}
-		public ProgramContext(ParserRuleContext parent, int invokingState) {
+		public BldItFileContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_program; }
+		@Override public int getRuleIndex() { return RULE_bldItFile; }
 	}
 
-	public final ProgramContext program() throws RecognitionException {
-		ProgramContext _localctx = new ProgramContext(_ctx, getState());
-		enterRule(_localctx, 0, RULE_program);
-		int _la;
+	public final BldItFileContext bldItFile() throws RecognitionException {
+		BldItFileContext _localctx = new BldItFileContext(_ctx, getState());
+		enterRule(_localctx, 0, RULE_bldItFile);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(37);
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WHILE) | (1L << IF) | (1L << IDENTIFIER))) != 0)) {
-				{
-				{
-				setState(34);
-				line();
-				}
-				}
-				setState(39);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-			}
-			setState(40);
+			setState(42);
+			statements();
+			setState(43);
 			match(EOF);
 			}
 		}
@@ -154,52 +143,40 @@ public class BldItParser extends Parser {
 		return _localctx;
 	}
 
-	public static class LineContext extends ParserRuleContext {
-		public StatementContext statement() {
-			return getRuleContext(StatementContext.class,0);
+	public static class StatementsContext extends ParserRuleContext {
+		public List<StatementContext> statement() {
+			return getRuleContexts(StatementContext.class);
 		}
-		public IfBlockContext ifBlock() {
-			return getRuleContext(IfBlockContext.class,0);
+		public StatementContext statement(int i) {
+			return getRuleContext(StatementContext.class,i);
 		}
-		public WhileBlockContext whileBlock() {
-			return getRuleContext(WhileBlockContext.class,0);
-		}
-		public LineContext(ParserRuleContext parent, int invokingState) {
+		public StatementsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_line; }
+		@Override public int getRuleIndex() { return RULE_statements; }
 	}
 
-	public final LineContext line() throws RecognitionException {
-		LineContext _localctx = new LineContext(_ctx, getState());
-		enterRule(_localctx, 2, RULE_line);
+	public final StatementsContext statements() throws RecognitionException {
+		StatementsContext _localctx = new StatementsContext(_ctx, getState());
+		enterRule(_localctx, 2, RULE_statements);
+		int _la;
 		try {
-			setState(45);
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(46); 
 			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case IDENTIFIER:
-				enterOuterAlt(_localctx, 1);
+			_la = _input.LA(1);
+			do {
 				{
-				setState(42);
+				{
+				setState(45);
 				statement();
 				}
-				break;
-			case IF:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(43);
-				ifBlock();
 				}
-				break;
-			case WHILE:
-				enterOuterAlt(_localctx, 3);
-				{
-				setState(44);
-				whileBlock();
-				}
-				break;
-			default:
-				throw new NoViableAltException(this);
+				setState(48); 
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << WHILE) | (1L << IF) | (1L << IDENTIFIER))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -214,12 +191,11 @@ public class BldItParser extends Parser {
 	}
 
 	public static class StatementContext extends ParserRuleContext {
-		public TerminalNode NL() { return getToken(BldItParser.NL, 0); }
-		public AssignmentContext assignment() {
-			return getRuleContext(AssignmentContext.class,0);
+		public SimpleStatementContext simpleStatement() {
+			return getRuleContext(SimpleStatementContext.class,0);
 		}
-		public FunctionCallContext functionCall() {
-			return getRuleContext(FunctionCallContext.class,0);
+		public CompoundStatementContext compoundStatement() {
+			return getRuleContext(CompoundStatementContext.class,0);
 		}
 		public StatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -231,127 +207,22 @@ public class BldItParser extends Parser {
 		StatementContext _localctx = new StatementContext(_ctx, getState());
 		enterRule(_localctx, 4, RULE_statement);
 		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(49);
-			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
-			case 1:
-				{
-				setState(47);
-				assignment();
-				}
-				break;
-			case 2:
-				{
-				setState(48);
-				functionCall();
-				}
-				break;
-			}
-			setState(51);
-			match(NL);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	public static class IfBlockContext extends ParserRuleContext {
-		public TerminalNode IF() { return getToken(BldItParser.IF, 0); }
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public BlockContext block() {
-			return getRuleContext(BlockContext.class,0);
-		}
-		public TerminalNode ELSE() { return getToken(BldItParser.ELSE, 0); }
-		public ElseIfBlockContext elseIfBlock() {
-			return getRuleContext(ElseIfBlockContext.class,0);
-		}
-		public IfBlockContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_ifBlock; }
-	}
-
-	public final IfBlockContext ifBlock() throws RecognitionException {
-		IfBlockContext _localctx = new IfBlockContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_ifBlock);
-		int _la;
-		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(53);
-			match(IF);
-			setState(54);
-			expression(0);
-			setState(55);
-			block();
-			setState(58);
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			if (_la==ELSE) {
-				{
-				setState(56);
-				match(ELSE);
-				setState(57);
-				elseIfBlock();
-				}
-			}
-
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	public static class ElseIfBlockContext extends ParserRuleContext {
-		public BlockContext block() {
-			return getRuleContext(BlockContext.class,0);
-		}
-		public IfBlockContext ifBlock() {
-			return getRuleContext(IfBlockContext.class,0);
-		}
-		public ElseIfBlockContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_elseIfBlock; }
-	}
-
-	public final ElseIfBlockContext elseIfBlock() throws RecognitionException {
-		ElseIfBlockContext _localctx = new ElseIfBlockContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_elseIfBlock);
-		try {
-			setState(62);
+			setState(52);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case COLON:
+			case IDENTIFIER:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(60);
-				block();
+				setState(50);
+				simpleStatement();
 				}
 				break;
+			case WHILE:
 			case IF:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(61);
-				ifBlock();
+				setState(51);
+				compoundStatement();
 				}
 				break;
 			default:
@@ -369,31 +240,342 @@ public class BldItParser extends Parser {
 		return _localctx;
 	}
 
-	public static class WhileBlockContext extends ParserRuleContext {
+	public static class SimpleStatementContext extends ParserRuleContext {
+		public TerminalNode NL() { return getToken(BldItParser.NL, 0); }
+		public AssignmentContext assignment() {
+			return getRuleContext(AssignmentContext.class,0);
+		}
+		public FunctionCallContext functionCall() {
+			return getRuleContext(FunctionCallContext.class,0);
+		}
+		public TerminalNode SEMICOLON() { return getToken(BldItParser.SEMICOLON, 0); }
+		public SimpleStatementContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_simpleStatement; }
+	}
+
+	public final SimpleStatementContext simpleStatement() throws RecognitionException {
+		SimpleStatementContext _localctx = new SimpleStatementContext(_ctx, getState());
+		enterRule(_localctx, 6, RULE_simpleStatement);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(56);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
+			case 1:
+				{
+				setState(54);
+				assignment();
+				}
+				break;
+			case 2:
+				{
+				setState(55);
+				functionCall();
+				}
+				break;
+			}
+			setState(59);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			if (_la==SEMICOLON) {
+				{
+				setState(58);
+				match(SEMICOLON);
+				}
+			}
+
+			setState(61);
+			match(NL);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class CompoundStatementContext extends ParserRuleContext {
+		public TerminalNode ENDBLOCK() { return getToken(BldItParser.ENDBLOCK, 0); }
+		public IfStatementContext ifStatement() {
+			return getRuleContext(IfStatementContext.class,0);
+		}
+		public WhileStatementContext whileStatement() {
+			return getRuleContext(WhileStatementContext.class,0);
+		}
+		public CompoundStatementContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_compoundStatement; }
+	}
+
+	public final CompoundStatementContext compoundStatement() throws RecognitionException {
+		CompoundStatementContext _localctx = new CompoundStatementContext(_ctx, getState());
+		enterRule(_localctx, 8, RULE_compoundStatement);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(65);
+			_errHandler.sync(this);
+			switch (_input.LA(1)) {
+			case IF:
+				{
+				setState(63);
+				ifStatement();
+				}
+				break;
+			case WHILE:
+				{
+				setState(64);
+				whileStatement();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+			setState(67);
+			match(ENDBLOCK);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class IfStatementContext extends ParserRuleContext {
+		public SingleIfBlockContext singleIfBlock() {
+			return getRuleContext(SingleIfBlockContext.class,0);
+		}
+		public List<ElseIfBlockContext> elseIfBlock() {
+			return getRuleContexts(ElseIfBlockContext.class);
+		}
+		public ElseIfBlockContext elseIfBlock(int i) {
+			return getRuleContext(ElseIfBlockContext.class,i);
+		}
+		public ElseBlockContext elseBlock() {
+			return getRuleContext(ElseBlockContext.class,0);
+		}
+		public IfStatementContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_ifStatement; }
+	}
+
+	public final IfStatementContext ifStatement() throws RecognitionException {
+		IfStatementContext _localctx = new IfStatementContext(_ctx, getState());
+		enterRule(_localctx, 10, RULE_ifStatement);
+		int _la;
+		try {
+			int _alt;
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(69);
+			singleIfBlock();
+			setState(73);
+			_errHandler.sync(this);
+			_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(70);
+					elseIfBlock();
+					}
+					} 
+				}
+				setState(75);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
+			}
+			setState(77);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			if (_la==ELSE) {
+				{
+				setState(76);
+				elseBlock();
+				}
+			}
+
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class SingleIfBlockContext extends ParserRuleContext {
+		public TerminalNode IF() { return getToken(BldItParser.IF, 0); }
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public TerminalNode COLON() { return getToken(BldItParser.COLON, 0); }
+		public BlockContext block() {
+			return getRuleContext(BlockContext.class,0);
+		}
+		public SingleIfBlockContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_singleIfBlock; }
+	}
+
+	public final SingleIfBlockContext singleIfBlock() throws RecognitionException {
+		SingleIfBlockContext _localctx = new SingleIfBlockContext(_ctx, getState());
+		enterRule(_localctx, 12, RULE_singleIfBlock);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(79);
+			match(IF);
+			setState(80);
+			expression(0);
+			setState(81);
+			match(COLON);
+			setState(82);
+			block();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class ElseIfBlockContext extends ParserRuleContext {
+		public TerminalNode ELSE() { return getToken(BldItParser.ELSE, 0); }
+		public TerminalNode IF() { return getToken(BldItParser.IF, 0); }
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public TerminalNode COLON() { return getToken(BldItParser.COLON, 0); }
+		public BlockContext block() {
+			return getRuleContext(BlockContext.class,0);
+		}
+		public ElseIfBlockContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_elseIfBlock; }
+	}
+
+	public final ElseIfBlockContext elseIfBlock() throws RecognitionException {
+		ElseIfBlockContext _localctx = new ElseIfBlockContext(_ctx, getState());
+		enterRule(_localctx, 14, RULE_elseIfBlock);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(84);
+			match(ELSE);
+			setState(85);
+			match(IF);
+			setState(86);
+			expression(0);
+			setState(87);
+			match(COLON);
+			setState(88);
+			block();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class ElseBlockContext extends ParserRuleContext {
+		public TerminalNode ELSE() { return getToken(BldItParser.ELSE, 0); }
+		public TerminalNode COLON() { return getToken(BldItParser.COLON, 0); }
+		public BlockContext block() {
+			return getRuleContext(BlockContext.class,0);
+		}
+		public ElseBlockContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_elseBlock; }
+	}
+
+	public final ElseBlockContext elseBlock() throws RecognitionException {
+		ElseBlockContext _localctx = new ElseBlockContext(_ctx, getState());
+		enterRule(_localctx, 16, RULE_elseBlock);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(90);
+			match(ELSE);
+			setState(91);
+			match(COLON);
+			setState(92);
+			block();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class WhileStatementContext extends ParserRuleContext {
 		public TerminalNode WHILE() { return getToken(BldItParser.WHILE, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
+		public TerminalNode COLON() { return getToken(BldItParser.COLON, 0); }
 		public BlockContext block() {
 			return getRuleContext(BlockContext.class,0);
 		}
-		public WhileBlockContext(ParserRuleContext parent, int invokingState) {
+		public WhileStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_whileBlock; }
+		@Override public int getRuleIndex() { return RULE_whileStatement; }
 	}
 
-	public final WhileBlockContext whileBlock() throws RecognitionException {
-		WhileBlockContext _localctx = new WhileBlockContext(_ctx, getState());
-		enterRule(_localctx, 10, RULE_whileBlock);
+	public final WhileStatementContext whileStatement() throws RecognitionException {
+		WhileStatementContext _localctx = new WhileStatementContext(_ctx, getState());
+		enterRule(_localctx, 18, RULE_whileStatement);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(64);
+			setState(94);
 			match(WHILE);
-			setState(65);
+			setState(95);
 			expression(0);
-			setState(66);
+			setState(96);
+			match(COLON);
+			setState(97);
 			block();
 			}
 		}
@@ -409,14 +591,9 @@ public class BldItParser extends Parser {
 	}
 
 	public static class BlockContext extends ParserRuleContext {
-		public TerminalNode COLON() { return getToken(BldItParser.COLON, 0); }
-		public TerminalNode INDENT() { return getToken(BldItParser.INDENT, 0); }
-		public TerminalNode DEDENT() { return getToken(BldItParser.DEDENT, 0); }
-		public List<StatementContext> statement() {
-			return getRuleContexts(StatementContext.class);
-		}
-		public StatementContext statement(int i) {
-			return getRuleContext(StatementContext.class,i);
+		public TerminalNode NL() { return getToken(BldItParser.NL, 0); }
+		public StatementsContext statements() {
+			return getRuleContext(StatementsContext.class,0);
 		}
 		public BlockContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -426,31 +603,14 @@ public class BldItParser extends Parser {
 
 	public final BlockContext block() throws RecognitionException {
 		BlockContext _localctx = new BlockContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_block);
-		int _la;
+		enterRule(_localctx, 20, RULE_block);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(68);
-			match(COLON);
-			setState(69);
-			match(INDENT);
-			setState(71); 
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			do {
-				{
-				{
-				setState(70);
-				statement();
-				}
-				}
-				setState(73); 
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-			} while ( _la==IDENTIFIER );
-			setState(75);
-			match(DEDENT);
+			setState(99);
+			match(NL);
+			setState(100);
+			statements();
 			}
 		}
 		catch (RecognitionException re) {
@@ -478,15 +638,15 @@ public class BldItParser extends Parser {
 
 	public final AssignmentContext assignment() throws RecognitionException {
 		AssignmentContext _localctx = new AssignmentContext(_ctx, getState());
-		enterRule(_localctx, 14, RULE_assignment);
+		enterRule(_localctx, 22, RULE_assignment);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(77);
+			setState(102);
 			match(IDENTIFIER);
-			setState(78);
+			setState(103);
 			match(ASSIGN_OP);
-			setState(79);
+			setState(104);
 			expression(0);
 			}
 		}
@@ -523,42 +683,42 @@ public class BldItParser extends Parser {
 
 	public final FunctionCallContext functionCall() throws RecognitionException {
 		FunctionCallContext _localctx = new FunctionCallContext(_ctx, getState());
-		enterRule(_localctx, 16, RULE_functionCall);
+		enterRule(_localctx, 24, RULE_functionCall);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(81);
+			setState(106);
 			match(IDENTIFIER);
-			setState(82);
+			setState(107);
 			match(OPEN_PAREN);
-			setState(91);
+			setState(116);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << OPEN_PAREN) | (1L << NOT) | (1L << INTEGER) | (1L << FLOAT) | (1L << STRING) | (1L << BOOL) | (1L << NULL) | (1L << IDENTIFIER))) != 0)) {
 				{
-				setState(83);
+				setState(108);
 				expression(0);
-				setState(88);
+				setState(113);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(84);
+					setState(109);
 					match(COMMA);
-					setState(85);
+					setState(110);
 					expression(0);
 					}
 					}
-					setState(90);
+					setState(115);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
 				}
 			}
 
-			setState(93);
+			setState(118);
 			match(CLOSE_PAREN);
 			}
 		}
@@ -670,22 +830,22 @@ public class BldItParser extends Parser {
 		int _parentState = getState();
 		ExpressionContext _localctx = new ExpressionContext(_ctx, _parentState);
 		ExpressionContext _prevctx = _localctx;
-		int _startState = 18;
-		enterRecursionRule(_localctx, 18, RULE_expression, _p);
+		int _startState = 26;
+		enterRecursionRule(_localctx, 26, RULE_expression, _p);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(101);
+			setState(126);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,8,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
 			case 1:
 				{
 				_localctx = new ConstantExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
-				setState(96);
+				setState(121);
 				constant();
 				}
 				break;
@@ -694,7 +854,7 @@ public class BldItParser extends Parser {
 				_localctx = new IdentifierExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(97);
+				setState(122);
 				match(IDENTIFIER);
 				}
 				break;
@@ -703,7 +863,7 @@ public class BldItParser extends Parser {
 				_localctx = new FunctionCallExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(98);
+				setState(123);
 				functionCall();
 				}
 				break;
@@ -712,7 +872,7 @@ public class BldItParser extends Parser {
 				_localctx = new ParenthesizedExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(99);
+				setState(124);
 				parenthExpression();
 				}
 				break;
@@ -721,32 +881,32 @@ public class BldItParser extends Parser {
 				_localctx = new NotExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(100);
+				setState(125);
 				notExpression();
 				}
 				break;
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(121);
+			setState(146);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,11,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(119);
+					setState(144);
 					_errHandler.sync(this);
-					switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
+					switch ( getInterpreter().adaptivePredict(_input,10,_ctx) ) {
 					case 1:
 						{
 						_localctx = new MultiplicativeExprContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(103);
+						setState(128);
 						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
-						setState(104);
+						setState(129);
 						multOp();
-						setState(105);
+						setState(130);
 						expression(5);
 						}
 						break;
@@ -754,11 +914,11 @@ public class BldItParser extends Parser {
 						{
 						_localctx = new AdditiveExprContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(107);
+						setState(132);
 						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
-						setState(108);
+						setState(133);
 						addOp();
-						setState(109);
+						setState(134);
 						expression(4);
 						}
 						break;
@@ -766,11 +926,11 @@ public class BldItParser extends Parser {
 						{
 						_localctx = new ComparisonExprContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(111);
+						setState(136);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
-						setState(112);
+						setState(137);
 						compareOp();
-						setState(113);
+						setState(138);
 						expression(3);
 						}
 						break;
@@ -778,20 +938,20 @@ public class BldItParser extends Parser {
 						{
 						_localctx = new BooleanExprContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(115);
+						setState(140);
 						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
-						setState(116);
+						setState(141);
 						boolOp();
-						setState(117);
+						setState(142);
 						expression(2);
 						}
 						break;
 					}
 					} 
 				}
-				setState(123);
+				setState(148);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,11,_ctx);
 			}
 			}
 		}
@@ -820,15 +980,15 @@ public class BldItParser extends Parser {
 
 	public final ParenthExpressionContext parenthExpression() throws RecognitionException {
 		ParenthExpressionContext _localctx = new ParenthExpressionContext(_ctx, getState());
-		enterRule(_localctx, 20, RULE_parenthExpression);
+		enterRule(_localctx, 28, RULE_parenthExpression);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(124);
+			setState(149);
 			match(OPEN_PAREN);
-			setState(125);
+			setState(150);
 			expression(0);
-			setState(126);
+			setState(151);
 			match(CLOSE_PAREN);
 			}
 		}
@@ -856,13 +1016,13 @@ public class BldItParser extends Parser {
 
 	public final NotExpressionContext notExpression() throws RecognitionException {
 		NotExpressionContext _localctx = new NotExpressionContext(_ctx, getState());
-		enterRule(_localctx, 22, RULE_notExpression);
+		enterRule(_localctx, 30, RULE_notExpression);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(128);
+			setState(153);
 			match(NOT);
-			setState(129);
+			setState(154);
 			expression(0);
 			}
 		}
@@ -889,12 +1049,12 @@ public class BldItParser extends Parser {
 
 	public final MultOpContext multOp() throws RecognitionException {
 		MultOpContext _localctx = new MultOpContext(_ctx, getState());
-		enterRule(_localctx, 24, RULE_multOp);
+		enterRule(_localctx, 32, RULE_multOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(131);
+			setState(156);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MULT_OP) | (1L << DIV_OP) | (1L << MOD_OP))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -928,12 +1088,12 @@ public class BldItParser extends Parser {
 
 	public final AddOpContext addOp() throws RecognitionException {
 		AddOpContext _localctx = new AddOpContext(_ctx, getState());
-		enterRule(_localctx, 26, RULE_addOp);
+		enterRule(_localctx, 34, RULE_addOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(133);
+			setState(158);
 			_la = _input.LA(1);
 			if ( !(_la==ADD_OP || _la==SUB_OP) ) {
 			_errHandler.recoverInline(this);
@@ -970,12 +1130,12 @@ public class BldItParser extends Parser {
 
 	public final CompareOpContext compareOp() throws RecognitionException {
 		CompareOpContext _localctx = new CompareOpContext(_ctx, getState());
-		enterRule(_localctx, 28, RULE_compareOp);
+		enterRule(_localctx, 36, RULE_compareOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(135);
+			setState(160);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << GREATER_THAN_OP) | (1L << LESS_THAN_OP) | (1L << GREATER_THAN_EQUAL_OP) | (1L << LESS_THAN_EQUAL_OP) | (1L << EQUALITY))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -1008,11 +1168,11 @@ public class BldItParser extends Parser {
 
 	public final BoolOpContext boolOp() throws RecognitionException {
 		BoolOpContext _localctx = new BoolOpContext(_ctx, getState());
-		enterRule(_localctx, 30, RULE_boolOp);
+		enterRule(_localctx, 38, RULE_boolOp);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(137);
+			setState(162);
 			match(BOOL_OP);
 			}
 		}
@@ -1041,12 +1201,12 @@ public class BldItParser extends Parser {
 
 	public final ConstantContext constant() throws RecognitionException {
 		ConstantContext _localctx = new ConstantContext(_ctx, getState());
-		enterRule(_localctx, 32, RULE_constant);
+		enterRule(_localctx, 40, RULE_constant);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(139);
+			setState(164);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INTEGER) | (1L << FLOAT) | (1L << STRING) | (1L << BOOL) | (1L << NULL))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -1071,7 +1231,7 @@ public class BldItParser extends Parser {
 
 	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
 		switch (ruleIndex) {
-		case 9:
+		case 13:
 			return expression_sempred((ExpressionContext)_localctx, predIndex);
 		}
 		return true;
@@ -1091,43 +1251,53 @@ public class BldItParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3#\u0090\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3%\u00a9\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
-		"\3\2\7\2&\n\2\f\2\16\2)\13\2\3\2\3\2\3\3\3\3\3\3\5\3\60\n\3\3\4\3\4\5"+
-		"\4\64\n\4\3\4\3\4\3\5\3\5\3\5\3\5\3\5\5\5=\n\5\3\6\3\6\5\6A\n\6\3\7\3"+
-		"\7\3\7\3\7\3\b\3\b\3\b\6\bJ\n\b\r\b\16\bK\3\b\3\b\3\t\3\t\3\t\3\t\3\n"+
-		"\3\n\3\n\3\n\3\n\7\nY\n\n\f\n\16\n\\\13\n\5\n^\n\n\3\n\3\n\3\13\3\13\3"+
-		"\13\3\13\3\13\3\13\5\13h\n\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13"+
-		"\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\7\13z\n\13\f\13\16\13}\13\13"+
-		"\3\f\3\f\3\f\3\f\3\r\3\r\3\r\3\16\3\16\3\17\3\17\3\20\3\20\3\21\3\21\3"+
-		"\22\3\22\3\22\2\3\24\23\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"\2\6"+
-		"\3\2\t\13\3\2\7\b\4\2\r\20\32\32\3\2\34 \2\u008f\2\'\3\2\2\2\4/\3\2\2"+
-		"\2\6\63\3\2\2\2\b\67\3\2\2\2\n@\3\2\2\2\fB\3\2\2\2\16F\3\2\2\2\20O\3\2"+
-		"\2\2\22S\3\2\2\2\24g\3\2\2\2\26~\3\2\2\2\30\u0082\3\2\2\2\32\u0085\3\2"+
-		"\2\2\34\u0087\3\2\2\2\36\u0089\3\2\2\2 \u008b\3\2\2\2\"\u008d\3\2\2\2"+
-		"$&\5\4\3\2%$\3\2\2\2&)\3\2\2\2\'%\3\2\2\2\'(\3\2\2\2(*\3\2\2\2)\'\3\2"+
-		"\2\2*+\7\2\2\3+\3\3\2\2\2,\60\5\6\4\2-\60\5\b\5\2.\60\5\f\7\2/,\3\2\2"+
-		"\2/-\3\2\2\2/.\3\2\2\2\60\5\3\2\2\2\61\64\5\20\t\2\62\64\5\22\n\2\63\61"+
-		"\3\2\2\2\63\62\3\2\2\2\64\65\3\2\2\2\65\66\7\5\2\2\66\7\3\2\2\2\678\7"+
-		"\30\2\289\5\24\13\29<\5\16\b\2:;\7\31\2\2;=\5\n\6\2<:\3\2\2\2<=\3\2\2"+
-		"\2=\t\3\2\2\2>A\5\16\b\2?A\5\b\5\2@>\3\2\2\2@?\3\2\2\2A\13\3\2\2\2BC\7"+
-		"\6\2\2CD\5\24\13\2DE\5\16\b\2E\r\3\2\2\2FG\7\25\2\2GI\7\3\2\2HJ\5\6\4"+
-		"\2IH\3\2\2\2JK\3\2\2\2KI\3\2\2\2KL\3\2\2\2LM\3\2\2\2MN\7\4\2\2N\17\3\2"+
-		"\2\2OP\7#\2\2PQ\7\27\2\2QR\5\24\13\2R\21\3\2\2\2ST\7#\2\2T]\7\21\2\2U"+
-		"Z\5\24\13\2VW\7\23\2\2WY\5\24\13\2XV\3\2\2\2Y\\\3\2\2\2ZX\3\2\2\2Z[\3"+
-		"\2\2\2[^\3\2\2\2\\Z\3\2\2\2]U\3\2\2\2]^\3\2\2\2^_\3\2\2\2_`\7\22\2\2`"+
-		"\23\3\2\2\2ab\b\13\1\2bh\5\"\22\2ch\7#\2\2dh\5\22\n\2eh\5\26\f\2fh\5\30"+
-		"\r\2ga\3\2\2\2gc\3\2\2\2gd\3\2\2\2ge\3\2\2\2gf\3\2\2\2h{\3\2\2\2ij\f\6"+
-		"\2\2jk\5\32\16\2kl\5\24\13\7lz\3\2\2\2mn\f\5\2\2no\5\34\17\2op\5\24\13"+
-		"\6pz\3\2\2\2qr\f\4\2\2rs\5\36\20\2st\5\24\13\5tz\3\2\2\2uv\f\3\2\2vw\5"+
-		" \21\2wx\5\24\13\4xz\3\2\2\2yi\3\2\2\2ym\3\2\2\2yq\3\2\2\2yu\3\2\2\2z"+
-		"}\3\2\2\2{y\3\2\2\2{|\3\2\2\2|\25\3\2\2\2}{\3\2\2\2~\177\7\21\2\2\177"+
-		"\u0080\5\24\13\2\u0080\u0081\7\22\2\2\u0081\27\3\2\2\2\u0082\u0083\7\33"+
-		"\2\2\u0083\u0084\5\24\13\2\u0084\31\3\2\2\2\u0085\u0086\t\2\2\2\u0086"+
-		"\33\3\2\2\2\u0087\u0088\t\3\2\2\u0088\35\3\2\2\2\u0089\u008a\t\4\2\2\u008a"+
-		"\37\3\2\2\2\u008b\u008c\7\f\2\2\u008c!\3\2\2\2\u008d\u008e\t\5\2\2\u008e"+
-		"#\3\2\2\2\r\'/\63<@KZ]gy{";
+		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\3\2\3\2\3\2\3\3\6\3\61\n\3\r"+
+		"\3\16\3\62\3\4\3\4\5\4\67\n\4\3\5\3\5\5\5;\n\5\3\5\5\5>\n\5\3\5\3\5\3"+
+		"\6\3\6\5\6D\n\6\3\6\3\6\3\7\3\7\7\7J\n\7\f\7\16\7M\13\7\3\7\5\7P\n\7\3"+
+		"\b\3\b\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\t\3\n\3\n\3\n\3\n\3\13\3\13\3"+
+		"\13\3\13\3\13\3\f\3\f\3\f\3\r\3\r\3\r\3\r\3\16\3\16\3\16\3\16\3\16\7\16"+
+		"r\n\16\f\16\16\16u\13\16\5\16w\n\16\3\16\3\16\3\17\3\17\3\17\3\17\3\17"+
+		"\3\17\5\17\u0081\n\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17"+
+		"\3\17\3\17\3\17\3\17\3\17\3\17\7\17\u0093\n\17\f\17\16\17\u0096\13\17"+
+		"\3\20\3\20\3\20\3\20\3\21\3\21\3\21\3\22\3\22\3\23\3\23\3\24\3\24\3\25"+
+		"\3\25\3\26\3\26\3\26\2\3\34\27\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36"+
+		" \"$&(*\2\6\3\2\b\n\3\2\6\7\4\2\f\17\31\31\3\2\33\37\2\u00a4\2,\3\2\2"+
+		"\2\4\60\3\2\2\2\6\66\3\2\2\2\b:\3\2\2\2\nC\3\2\2\2\fG\3\2\2\2\16Q\3\2"+
+		"\2\2\20V\3\2\2\2\22\\\3\2\2\2\24`\3\2\2\2\26e\3\2\2\2\30h\3\2\2\2\32l"+
+		"\3\2\2\2\34\u0080\3\2\2\2\36\u0097\3\2\2\2 \u009b\3\2\2\2\"\u009e\3\2"+
+		"\2\2$\u00a0\3\2\2\2&\u00a2\3\2\2\2(\u00a4\3\2\2\2*\u00a6\3\2\2\2,-\5\4"+
+		"\3\2-.\7\2\2\3.\3\3\2\2\2/\61\5\6\4\2\60/\3\2\2\2\61\62\3\2\2\2\62\60"+
+		"\3\2\2\2\62\63\3\2\2\2\63\5\3\2\2\2\64\67\5\b\5\2\65\67\5\n\6\2\66\64"+
+		"\3\2\2\2\66\65\3\2\2\2\67\7\3\2\2\28;\5\30\r\29;\5\32\16\2:8\3\2\2\2:"+
+		"9\3\2\2\2;=\3\2\2\2<>\7\23\2\2=<\3\2\2\2=>\3\2\2\2>?\3\2\2\2?@\7$\2\2"+
+		"@\t\3\2\2\2AD\5\f\7\2BD\5\24\13\2CA\3\2\2\2CB\3\2\2\2DE\3\2\2\2EF\7!\2"+
+		"\2F\13\3\2\2\2GK\5\16\b\2HJ\5\20\t\2IH\3\2\2\2JM\3\2\2\2KI\3\2\2\2KL\3"+
+		"\2\2\2LO\3\2\2\2MK\3\2\2\2NP\5\22\n\2ON\3\2\2\2OP\3\2\2\2P\r\3\2\2\2Q"+
+		"R\7\27\2\2RS\5\34\17\2ST\7\24\2\2TU\5\26\f\2U\17\3\2\2\2VW\7\30\2\2WX"+
+		"\7\27\2\2XY\5\34\17\2YZ\7\24\2\2Z[\5\26\f\2[\21\3\2\2\2\\]\7\30\2\2]^"+
+		"\7\24\2\2^_\5\26\f\2_\23\3\2\2\2`a\7\5\2\2ab\5\34\17\2bc\7\24\2\2cd\5"+
+		"\26\f\2d\25\3\2\2\2ef\7$\2\2fg\5\4\3\2g\27\3\2\2\2hi\7%\2\2ij\7\26\2\2"+
+		"jk\5\34\17\2k\31\3\2\2\2lm\7%\2\2mv\7\20\2\2ns\5\34\17\2op\7\22\2\2pr"+
+		"\5\34\17\2qo\3\2\2\2ru\3\2\2\2sq\3\2\2\2st\3\2\2\2tw\3\2\2\2us\3\2\2\2"+
+		"vn\3\2\2\2vw\3\2\2\2wx\3\2\2\2xy\7\21\2\2y\33\3\2\2\2z{\b\17\1\2{\u0081"+
+		"\5*\26\2|\u0081\7%\2\2}\u0081\5\32\16\2~\u0081\5\36\20\2\177\u0081\5 "+
+		"\21\2\u0080z\3\2\2\2\u0080|\3\2\2\2\u0080}\3\2\2\2\u0080~\3\2\2\2\u0080"+
+		"\177\3\2\2\2\u0081\u0094\3\2\2\2\u0082\u0083\f\6\2\2\u0083\u0084\5\"\22"+
+		"\2\u0084\u0085\5\34\17\7\u0085\u0093\3\2\2\2\u0086\u0087\f\5\2\2\u0087"+
+		"\u0088\5$\23\2\u0088\u0089\5\34\17\6\u0089\u0093\3\2\2\2\u008a\u008b\f"+
+		"\4\2\2\u008b\u008c\5&\24\2\u008c\u008d\5\34\17\5\u008d\u0093\3\2\2\2\u008e"+
+		"\u008f\f\3\2\2\u008f\u0090\5(\25\2\u0090\u0091\5\34\17\4\u0091\u0093\3"+
+		"\2\2\2\u0092\u0082\3\2\2\2\u0092\u0086\3\2\2\2\u0092\u008a\3\2\2\2\u0092"+
+		"\u008e\3\2\2\2\u0093\u0096\3\2\2\2\u0094\u0092\3\2\2\2\u0094\u0095\3\2"+
+		"\2\2\u0095\35\3\2\2\2\u0096\u0094\3\2\2\2\u0097\u0098\7\20\2\2\u0098\u0099"+
+		"\5\34\17\2\u0099\u009a\7\21\2\2\u009a\37\3\2\2\2\u009b\u009c\7\32\2\2"+
+		"\u009c\u009d\5\34\17\2\u009d!\3\2\2\2\u009e\u009f\t\2\2\2\u009f#\3\2\2"+
+		"\2\u00a0\u00a1\t\3\2\2\u00a1%\3\2\2\2\u00a2\u00a3\t\4\2\2\u00a3\'\3\2"+
+		"\2\2\u00a4\u00a5\7\13\2\2\u00a5)\3\2\2\2\u00a6\u00a7\t\5\2\2\u00a7+\3"+
+		"\2\2\2\16\62\66:=CKOsv\u0080\u0092\u0094";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

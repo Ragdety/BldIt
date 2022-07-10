@@ -5,21 +5,15 @@ options {
 }
 
 //Main starting point of the program
-program: line* EOF;
+bldItFile: statements EOF;
 
-/* 
-  * This is a block of code, instead of brackets, we use indentation like python 
-  * Example:
-  * BLOCK:
-  *   SOME_CODE
-  *   SOME_OTHER_CODE
-  * ENDBLOCK
- */
-//block: INDENTNEWLINE line* INDENTNEWLINE* DEDENT;
+statements: statement+;
 
-line: statement | ifBlock | whileBlock;
+statement: simpleStatement | compoundStatement;
 
-statement: (assignment | functionCall) NL;
+simpleStatement: (assignment | functionCall) SEMICOLON? NL;
+
+compoundStatement: (ifStatement | whileStatement) ENDBLOCK;
 
 /* 
  * This is an if block.
@@ -27,8 +21,9 @@ statement: (assignment | functionCall) NL;
  * Example:
  * if expression:
  *   do_something
+ * end
  *
- * After that, it's optional to have an 'else: elseIfBlock' expression.
+ * After that, it's optional to have an 'elseIfBlock' (0 or more) and 'elseBlock'.
  * Example:
  * if expression:
  *   do_something
@@ -36,18 +31,19 @@ statement: (assignment | functionCall) NL;
  *   do_something_else
  * else: 
  *   do_finish_ifBlock
+ * end
  */
-ifBlock: IF expression block (ELSE elseIfBlock)?;
 
-/*
- * This allows else if blocks
- * It can have a single else or multiple 'else if'
- * If it has a single else, a single block would terminate the ifBlock
- */
-elseIfBlock: block | ifBlock;
+//A little like VBA style (was a little confusing to interpret this...)
+ifStatement: singleIfBlock elseIfBlock* elseBlock?;
+
+//If BLOCKS
+singleIfBlock: IF expression COLON block;
+elseIfBlock: ELSE IF expression COLON block;
+elseBlock: ELSE COLON block;
 
 //While/Unless block
-whileBlock: WHILE expression block;
+whileStatement: WHILE expression COLON block;
 
 
 /*
@@ -61,7 +57,18 @@ whileBlock: WHILE expression block;
  *    line2
  * '
  */
-block: COLON INDENT statement+ DEDENT;
+block: NL statements;
+
+/* 
+  * Old, may try without "end" keyword later
+  * This is a block of code, instead of brackets, we use indentation like python 
+  * Example:
+  * BLOCK:
+  *   SOME_CODE
+  *   SOME_OTHER_CODE
+  * ENDBLOCK
+ */
+//block: INDENTNEWLINE line* INDENTNEWLINE* DEDENT;
 
 assignment: IDENTIFIER ASSIGN_OP expression;
 

@@ -8,24 +8,23 @@ using BldIt.Lang.External.AntlrDenter;
 }
 
 @lexer::members {
-  private DenterHelper denter;
-    
-  public override IToken NextToken()
-  {
-      if (denter == null)
-      {
-          denter = DenterHelper.Builder()
-              .Nl(NL)
-              .Indent(BldItParser.INDENT)
-              .Dedent(BldItParser.DEDENT)
-              .PullToken(base.NextToken);
-      }
+private DenterHelper denter;
+  
+public override IToken NextToken()
+{
+    if (denter == null)
+    {
+        denter = DenterHelper.Builder()
+            .Nl(NL)
+            .Indent(BldItParser.INDENT)
+            .Dedent(BldItParser.DEDENT)
+            .PullToken(base.NextToken);
+    }
 
-      return denter.NextToken();
-  }
+    return denter.NextToken();
+}
 }
 
-NL: ('\r'? '\n' '\t'*); //For spaces just switch out '\t'* with ' '*
 
 /* 
   * This is a newline followed by an indentation:
@@ -75,12 +74,21 @@ NULL: 'null';
 
 //End of line can be a new line OR semicolon (adding optional semicolons)
 ENDLINE: SEMICOLON;
+ENDBLOCK: 'end';
 
 //Skip whitespace
 WS: [ \r\n]+ -> skip;
+COMMENT: '//' .*? '\r'?'\n' -> skip;
+//EMPTYLINE: '\r\n' -> skip;
+
+//Warning for myself: \t causes some problems...don't know yet why
+//For spaces just switch out '\t'* with ' '*
+//For tabs just switch out '  '* with '\t'*
+NL: ('\r'? '\n' ' '*);
 
 /*
  * Must start with a letter (upper or lowercase) and 
  * allow any number of letters, numbers, and underscores after
  */
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
+

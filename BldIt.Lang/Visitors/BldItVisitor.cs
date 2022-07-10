@@ -27,6 +27,141 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
         return Variables[varName];
     }
 
+    public override object? VisitIfStatement(BldItParser.IfStatementContext context)
+    {
+        var ifTxt = context.GetText();
+        var elseIfB = context.elseIfBlock();
+
+        if (Visit(context.singleIfBlock().expression()) is true)
+        {
+            Visit(context.singleIfBlock().block());
+            //If first if returned true, skip everything else by returning null (exit this function)
+            return null;
+        }
+        
+
+        foreach (var e in context.elseIfBlock())
+        {
+            var t = e.GetText();
+            Console.WriteLine(t);
+        }
+
+        //After checking single if statement, if we have else blocks, we need to check them too
+        //Instead of VisitElseIfBlock, we're handling that code here (for now until I find a better solution)
+        if (context.elseIfBlock() is {} elseIfBlocks)
+        {
+            var elseIfBlocksList = elseIfBlocks.Select(Visit).ToList();
+            //Loop through each else if blocks
+            foreach (var eib in elseIfBlocks)
+            {
+                //If the condition is not true, skip to the next else if block (eib) - continue
+                if (Visit(eib.expression()) is not true) continue;
+                
+                //If the condition is true, goto block and return (since we don't want to execute the else block)
+                Visit(eib.block());
+                return null;
+            }
+            
+            //This point is reached if all else if blocks are false
+            //Make sure to check the else block if no else if block was executed
+            if (context.elseBlock() is { } elseBlock)
+                VisitElseBlock(elseBlock);
+        }
+        else if (context.elseBlock() is {} elseBlock)
+            VisitElseBlock(elseBlock);
+        else
+            throw new InvalidTypeException("Condition must be a boolean");
+
+        return null;
+    }
+
+    public override object? VisitSingleIfBlock(BldItParser.SingleIfBlockContext context)
+    {
+        Visit(context.block());
+        return null;
+    }
+    
+    public override object? VisitElseIfBlock(BldItParser.ElseIfBlockContext context)
+    {
+        Visit(context.block());
+        return null;
+    }
+
+    public override object? VisitElseBlock(BldItParser.ElseBlockContext context)
+    {
+        Visit(context.block());
+        return null;
+    }
+
+    public override object? VisitWhileStatement(BldItParser.WhileStatementContext context)
+    {
+        Func<object?, bool> condition = context.WHILE().GetText() == "while"
+            ? IsTrue
+            : IsFalse
+            ;
+
+        while (condition(Visit(context.expression())))
+        {
+            Visit(context.block());
+        }
+
+        return null;
+    }
+
+    public override object? VisitBlock(BldItParser.BlockContext context)
+    {
+        Visit(context.statements());
+        return null;
+    }
+
+    public override object? VisitStatements(BldItParser.StatementsContext context)
+    {
+        var statements = context.statement();
+        foreach (var statement in statements)
+        {
+            Visit(statement);
+        }
+        return null;
+    }
+
+    public override object? VisitStatement(BldItParser.StatementContext context)
+    {
+        if(context.simpleStatement() is { } simpleStatement)
+            Visit(simpleStatement);
+        else if (context.compoundStatement() is { } compoundStatement)
+            Visit(compoundStatement);
+        else
+            throw new Exception("Incorrect statement");
+        
+        return null;
+    }
+
+    public override object? VisitSimpleStatement(BldItParser.SimpleStatementContext context)
+    {
+        if (context.assignment() is { } assignment)
+            Visit(assignment);
+        else if (context.functionCall() is { } functionCall)
+            Visit(functionCall);
+        else 
+            throw new Exception("Incorrect simple statement");
+
+        return null;
+    }
+
+    public override object? VisitCompoundStatement(BldItParser.CompoundStatementContext context)
+    {
+        var txt = context.GetText();
+        
+        if (context.ifStatement() is { } ifStatement)
+            Visit(ifStatement);
+        else if (context.whileStatement() is { } whileStatement)
+            Visit(whileStatement);
+        else
+            throw new NotSupportedException("Compound statement not supported");
+        
+        return null;
+    }
+    
     public override object? VisitConstant(BldItParser.ConstantContext context)
     {
         if (context.INTEGER() is { } intValue)
@@ -44,7 +179,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
         if (context.NULL() is { })
             return null;
 
-        throw new NotSupportedException("Data type not supported");
+        throw new InvalidTypeException("Data type not supported");
     }
 
     public override object? VisitAdditiveExpr(BldItParser.AdditiveExprContext context)
@@ -74,68 +209,6 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             "%" => Modulo(left, right),
             _ => throw new NotSupportedException("Operator not supported")
         };
-    }
-
-    public override object? VisitIfBlock(BldItParser.IfBlockContext context)
-    {
-        var condition = Visit(context.expression());
-        var block = context.block().GetText();
-        if(condition is bool conditionBool)
-        {
-            return conditionBool ? Visit(context.block()) : Visit(context.elseIfBlock());
-        }
-        throw new InvalidTypeException("Condition must be a boolean");
-    }
-
-    public override object? VisitElseIfBlock(BldItParser.ElseIfBlockContext context)
-    {
-        var block = context.block().GetText();
-        return context.block() is {} ? Visit(context.block()) : Visit(context.ifBlock());
-    }
-
-    public override object? VisitWhileBlock(BldItParser.WhileBlockContext context)
-    {
-        // Func<object?, bool> condition = context.WHILE().GetText() == "while"
-        //     ? IsTrue
-        //     : IsFalse
-        //     ;
-
-        var condition = Visit(context.expression());
-        var block = context.block().GetText();
-
-        while (Visit(context.expression()) is bool conditionResult)
-        {
-            var b = conditionResult;
-            return Visit(context.block());
-        }
-
-        return null;
-    }
-
-    public override object? VisitBlock(BldItParser.BlockContext context)
-    {
-        var statements = context.statement();
-
-        foreach (var statement in statements)
-        {
-            Visit(statement);
-        }
-        
-        return null;
-    }
-
-    public override object? VisitLine(BldItParser.LineContext context)
-    {
-        if(context.statement() is { })
-            Visit(context.statement());
-        else if (context.ifBlock() is { })
-            Visit(context.ifBlock());
-        else if (context.whileBlock() is { })
-            Visit(context.whileBlock());
-        else
-            throw new Exception("Incorrect line");
-        
-        return null;
     }
 
     public override object? VisitComparisonExpr(BldItParser.ComparisonExprContext context)

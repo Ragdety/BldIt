@@ -1,7 +1,5 @@
 @echo off
 
-dir
-
 if [%1] == [parser] (
     antlr4 -Dlanguage=CSharp -o csharp %cd%\BldItParser.g4 -no-listener -visitor
 ) else if [%1] == [lexer] (
