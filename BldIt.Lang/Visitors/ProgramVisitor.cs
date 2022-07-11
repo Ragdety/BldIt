@@ -22,23 +22,30 @@ public class ProgramVisitor : BldItParserBaseVisitor<BldItFile>
         var statementVisitorVisitor = new StatementVisitor(SemanticErrors);
         var pipelineVisitor = new PipelineVisitor(SemanticErrors);
 
+        /*
+         * Loop through each child: bldItFile: 'statements pipeline EOF'
+         * 1. statements
+         * 2. pipeline
+         * 3. EOF
+         */
         for (var i = 0; i < context.ChildCount; i++)
         {
             var child = context.GetChild(i).GetText();
-            if (i == context.ChildCount - 1)
+            if (i == 0)
             {
-                //Last child of the start symbol (bldItFile) is EOF
-                //Do not visit this child and attempt to convert it to a Statement object
+                foreach (var statement in context.statements().statement())
+                {
+                    //First child is the statements grammar rule
+                    bldItFile.AddStatement(statementVisitorVisitor.VisitStatement(statement));
+                }
             }
             else if (i == 1)
             {
-                //Child index 1 (second child) is the pipeline, so we set it here
+                //Second child is the pipeline grammar rule
                 bldItFile.SetPipeline(pipelineVisitor.Visit(context.GetChild(i)));
             }
-            else
-            {
-                bldItFile.AddStatement(statementVisitorVisitor.Visit(context.GetChild(i)));
-            }
+            //Last child of the start symbol (bldItFile) is EOF
+            //Do not visit this child and attempt to convert it to a Statement object
         }
 
         return bldItFile;

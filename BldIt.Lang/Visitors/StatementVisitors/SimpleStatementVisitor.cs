@@ -1,4 +1,5 @@
-﻿using BldIt.Lang.Grammar;
+﻿using BldIt.Lang.Exceptions;
+using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItStatements;
 using BldIt.Lang.ValueObjects.BldItStatements.Simple;
@@ -11,6 +12,16 @@ public class SimpleStatementVisitor : StatementVisitor
     private Dictionary<string, Expression> GlobalVariables { get; } = new();
     
     public SimpleStatementVisitor(List<string> semanticErrors) : base(semanticErrors) { }
+
+    public override Statement VisitSimpleStatement(BldItParser.SimpleStatementContext context)
+    {
+        if(context.assignment() is {} assignment)
+            return VisitAssignment(assignment);
+        if (context.functionCall() is {} functionCall)
+            throw new NotImplementedException();
+        SemanticErrors.Add($"Unknown statement type: {context.GetText()}");
+        throw new CompilingException(SemanticErrors[^1]);
+    }
 
     public override Statement VisitAssignment(BldItParser.AssignmentContext context)
     {

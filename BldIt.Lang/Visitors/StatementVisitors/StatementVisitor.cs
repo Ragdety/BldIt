@@ -1,5 +1,8 @@
-﻿using BldIt.Lang.Grammar;
+﻿using BldIt.Lang.Exceptions;
+using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItStatements;
+using BldIt.Lang.ValueObjects.BldItStatements.Compound;
+using BldIt.Lang.ValueObjects.BldItStatements.Simple;
 
 namespace BldIt.Lang.Visitors.StatementVisitors;
 
@@ -12,18 +15,13 @@ public class StatementVisitor : BldItParserBaseVisitor<Statement>
         SemanticErrors = semanticErrors;
     }
     
-    // public override Statement VisitStatement(BldItParser.StatementContext context)
-    // {
-    //     //But we can't do this since Statement is abstract...
-    //     if (context.simpleStatement() is { } simpleStatement)
-    //         return new SimpleStatement(simpleStatement);
-    //     else if (context.compoundStatement() is { } compoundStatement) 
-    //         return new CompoundStatement(compoundStatement);
-    //     else
-    //     {
-    //         SemanticErrors.Add($"Invalid statement: {context.GetText()}");
-    //     }
-    //
-    //     return new Statement();
-    // }
+    public override Statement VisitStatement(BldItParser.StatementContext context)
+    {
+        if (context.simpleStatement() is { })
+            return new SimpleStatementVisitor(SemanticErrors).VisitSimpleStatement(context.simpleStatement());
+        if (context.compoundStatement() is { }) 
+            return new CompoundStatement();
+        SemanticErrors.Add($"Invalid statement: {context.GetText()}");
+        throw new CompilingException("Invalid Statement");
+    }
 }
