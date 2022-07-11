@@ -16,6 +16,30 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
         
         return null;
     }
+    
+    public override object? VisitBldItFile(BldItParser.BldItFileContext context)
+    {
+        //First visit the statements defined before pipeline.
+        //(These can be some setup functions to use inside a pipeline 'script' block)
+        VisitStatements(context.statements());
+        var txt = context.pipeline().PIPELINE();
+        if(context.pipeline().PIPELINE() != null)
+        {
+            var t = context.pipeline().GetText();
+            Visit(context.pipeline());
+        }
+        else
+            throw new Exception("No pipeline found. Pipeline must be defined.");
+
+        return null;
+    }
+
+    public override object? VisitPipeline(BldItParser.PipelineContext context)
+    {
+        var txt = context.pipelineSections().pipelineSectionOrder().stagesStatement().GetText();
+        return null;
+    }
+
 
     public override object? VisitIdentifierExpr(BldItParser.IdentifierExprContext context)
     {
@@ -214,7 +238,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             //"==" => IsEquals(left, right),
             //"!=" => NotEquals(left, right),
             "<" => LessThan(left, right),
-            //">" => GreaterThan(left, right),
+            ">" => GreaterThan(left, right),
             //"<=" => LessThanOrEqual(left, right),
             //">=" => GreaterThanOrEqual(left, right),
             _ => throw new NotSupportedException("Operator not supported")
@@ -230,6 +254,18 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             int lI when right is float rF => lI < rF,
             float lF when right is int rI => lF < rI,
             _ => throw new InvalidTypeException("Cannot perform less than operation on given types")
+        };
+    }
+    
+    private static bool GreaterThan(object? left, object? right)
+    {
+        return left switch
+        {
+            int leftInt when right is int rightInt => leftInt > rightInt,
+            float leftFloat when right is float rightFloat => leftFloat > rightFloat,
+            int lI when right is float rF => lI > rF,
+            float lF when right is int rI => lF > rI,
+            _ => throw new InvalidTypeException("Cannot perform greater than operation on given types")
         };
     }
 

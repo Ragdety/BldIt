@@ -26,12 +26,14 @@ public override IToken NextToken()
 }
 
 
-/* 
-  * This is a newline followed by an indentation:
-  * Example:
-  * BEFORE:
-  *   AFTER_INDENTNEWLINE
- */
+//Bldit Pipeline keywords:
+PIPELINE: ('pipeline' | 'pipe');
+GLOBALENV: 'globalEnv';
+PARAMETERS: 'parameters';
+STAGES: 'stages';
+STAGE: 'stage';
+//PIPELINE_IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
+
 
 //Might support until in the future
 WHILE: 'while'; // | until;

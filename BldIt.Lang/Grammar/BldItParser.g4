@@ -5,7 +5,7 @@ options {
 }
 
 //Main starting point of the program
-bldItFile: statements EOF;
+bldItFile: statements pipeline EOF;
 
 statements: statement+;
 
@@ -14,6 +14,30 @@ statement: simpleStatement | compoundStatement;
 simpleStatement: (assignment | functionCall) SEMICOLON? NL;
 
 compoundStatement: (ifStatement | whileStatement) ENDBLOCK;
+
+//BldIt pipeline gramar specification
+pipeline: PIPELINE COLON NL pipelineSections ENDBLOCK;
+
+//Pipeline sections (must be in this order)
+//Note: Only stagesStatement is required
+pipelineSections: pipelineSectionOrder;
+pipelineSectionOrder: globalEnvStatement parameterStatement stagesStatement;
+
+//Pipeline statements
+globalEnvStatement: GLOBALENV COLON globalEnvBlock ENDBLOCK;
+parameterStatement: PARAMETERS COLON parameterBlock ENDBLOCK;
+stagesStatement: STAGES COLON stagesBlock ENDBLOCK;
+
+//Pipeline Blocks
+globalEnvBlock: NL;
+parameterBlock: NL;
+stagesBlock: NL stageStatements;
+
+//At least one stage is required
+stageStatements: stageStatement+;
+stageStatement: STAGE /*stageName*/ COLON stageBlock ENDBLOCK;
+//stageName: PIPELINE_IDENTIFIER;
+stageBlock: NL;
 
 /* 
  * This is an if block.

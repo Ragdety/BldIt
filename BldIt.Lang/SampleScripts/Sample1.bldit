@@ -1,6 +1,5 @@
 i = 1;
 
-thingIsFalse = 10 < 1;
 
 //Works...
 if 10 < 10:
@@ -14,6 +13,7 @@ else:
     end
 end
 
+//thingIsFalse = 10 < 1;
 //Does not work yet...
 //if thingIsFalse:
 //    echo('Um...this isn't supposed to happen');
@@ -25,23 +25,34 @@ end
 //    echo('We hit the else statement!!!!');
 //end
 
-y = 1
-z = 0
-
-addStr = "Hello" + "World";
-add = 1 + 1
-mult = 2 * 3
-divide = 10 / 2;
-mod = 10 % 3;
-
-one = 1;
-two = 2;
 name = 'Edgar';
-three = one + two;
 
-while i < 4:
+while 1 > 4:
     i = i + 1;
     a = 1;
 end
 
 echo("Congrats " + name + "! You finished testing a basic bldit program!");
+
+beforePipeline = 1
+
+pipeline:
+    globalEnv:
+        //Global env variables go here
+    end
+    parameters:
+        //Parameters go here
+    end
+    stages:
+        //Stages go here
+        stage:
+            //Stage 1 code goes here
+        end
+    end
+end
+
+
+
+
+
+
