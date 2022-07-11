@@ -106,7 +106,7 @@ assignment: IDENTIFIER ASSIGN_OP expression;
 functionCall: IDENTIFIER OPEN_PAREN (expression (COMMA expression)*)? CLOSE_PAREN;
 
 /*
- * Expressions evaluate to a some value.
+ * Expressions evaluate to a value.
  * Must have multiplication expression first
  */
 expression
