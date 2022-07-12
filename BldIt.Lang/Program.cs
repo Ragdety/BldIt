@@ -18,5 +18,5 @@ var bldItParser = new BldIt.Lang.Parsing.BldItParser();
 //Main starting point of our programming language.
 var parser = bldItParser.Parser(fileContents);
 var bldItContext = parser.bldItFile();
-var visitor = new ProgramVisitor();
+var visitor = new BldItVisitor();
 var ast = visitor.VisitBldItFile(bldItContext);

@@ -21,7 +21,10 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
     {
         //First visit the statements defined before pipeline.
         //(These can be some setup functions to use inside a pipeline 'script' block)
-        VisitStatements(context.statements());
+        foreach (var statement in context.statement())
+        {
+            Visit(statement);
+        }
         var txt = context.pipeline().PIPELINE();
         if(context.pipeline().PIPELINE() != null)
         {
@@ -29,14 +32,8 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             Visit(context.pipeline());
         }
         else
-            throw new Exception("No pipeline found. Pipeline must be defined.");
+            throw new CompilingException("No pipeline found. Pipeline must be defined.");
 
-        return null;
-    }
-
-    public override object? VisitPipeline(BldItParser.PipelineContext context)
-    {
-        var txt = context.pipelineSections().pipelineSectionOrder().stagesStatement().GetText();
         return null;
     }
 
@@ -53,8 +50,6 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
 
     public override object? VisitIfStatement(BldItParser.IfStatementContext context)
     {
-        var ifTxt = context.GetText();
-
         if (Visit(context.singleIfBlock().expression()) is true)
         {
             Visit(context.singleIfBlock().block());
@@ -116,6 +111,8 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             : IsFalse
             ;
 
+        var txt = context.GetText();
+
         while (condition(Visit(context.expression())))
         {
             Visit(context.block());
@@ -166,8 +163,6 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
 
     public override object? VisitCompoundStatement(BldItParser.CompoundStatementContext context)
     {
-        var txt = context.GetText();
-        
         if (context.ifStatement() is { } ifStatement)
             Visit(ifStatement);
         else if (context.whileStatement() is { } whileStatement)

@@ -33,7 +33,7 @@ public class ProgramVisitor : BldItParserBaseVisitor<BldItFile>
             var child = context.GetChild(i).GetText();
             if (i == 0)
             {
-                foreach (var statement in context.statements().statement())
+                foreach (var statement in context.statement())
                 {
                     //First child is the statements grammar rule
                     bldItFile.AddStatement(statementVisitorVisitor.VisitStatement(statement));

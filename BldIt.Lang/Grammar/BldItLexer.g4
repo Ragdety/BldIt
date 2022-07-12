@@ -3,27 +3,31 @@ lexer grammar BldItLexer;
 //INDENT and DEDENT from library: https://github.com/yshavit/antlr-denter: 
 tokens { INDENT, DEDENT }
 
-@lexer::header {
-using BldIt.Lang.External.AntlrDenter;
+options {
+    superClass=BldIt.Lang.External.Python3LexerIndent.PythonLexerBase;
 }
 
-@lexer::members {
-private DenterHelper denter;
+// @lexer::header {
+// using BldIt.Lang.External.AntlrDenter;
+// }
+
+// @lexer::members {
+// private DenterHelper denter;
   
-public override IToken NextToken()
-{
-    if (denter == null)
-    {
-        denter = DenterHelper.Builder()
-            .Nl(NL)
-            .Indent(BldItParser.INDENT)
-            .Dedent(BldItParser.DEDENT)
-            .PullToken(base.NextToken);
-    }
+// public override IToken NextToken()
+// {
+//     if (denter == null)
+//     {
+//         denter = DenterHelper.Builder()
+//             .Nl(NL)
+//             .Indent(BldItParser.INDENT)
+//             .Dedent(BldItParser.DEDENT)
+//             .PullToken(base.NextToken);
+//     }
 
-    return denter.NextToken();
-}
-}
+//     return denter.NextToken();
+// }
+// }
 
 
 //Bldit Pipeline keywords:
@@ -76,18 +80,7 @@ NULL: 'null';
 
 //End of line can be a new line OR semicolon (adding optional semicolons)
 ENDLINE: SEMICOLON;
-ENDBLOCK: 'end';
-
-//Combination of these 2 (WS/NL) causes the program to work BUT with <missing NL> instead of \r\n
-WS: [ \r\n]+ -> skip;
-//For spaces just switch out '\t'* with ' '*
-//For tabs just switch out '  '* with '\t'*
-NL: ('\r'? '\n' '\t'*);
-COMMENT: '//' .*? '\r'?'\n' -> skip;
-
-//Combination of these 2 removes the <missing NL> but program does not continue after...
-//WS: [ \t]+ -> skip;
-//NL: ('\r'? '\n' '\t'*);
+//ENDBLOCK: 'end';
 
 /*
  * Must start with a letter (upper or lowercase) and 
@@ -95,3 +88,29 @@ COMMENT: '//' .*? '\r'?'\n' -> skip;
  */
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
 
+//Other tokens:
+NEWLINE
+ : ( {this.atStartOfInput()}?   SPACES
+   | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
+   )
+   {this.onNewLine();}
+ ;
+ 
+//Python skipping
+SKIP_: ( SPACES | COMMENT | LINE_JOINING ) -> skip;
+fragment SPACES: [ \t]+;
+fragment COMMENT: ('//' | '#') ~[\r\n\f]*;
+fragment LINE_JOINING: '\\' SPACES? ( '\r'? '\n' | '\r' | '\f');
+
+
+//Old skipping:
+//Combination of these 2 (WS/NL) causes the program to work BUT with <missing NL> instead of \r\n
+//WS: [ \r\n]+ -> skip;
+//For spaces just switch out '\t'* with ' '*
+//For tabs just switch out '  '* with '\t'*
+//NL: ('\r'? '\n' '\t'*);
+//COMMENT: '//' .*? '\r'?'\n' -> skip;
+
+//Combination of these 2 removes the <missing NL> but program does not continue after...
+//WS: [ \t]+ -> skip;
+//NL: ('\r'? '\n' '\t'*);

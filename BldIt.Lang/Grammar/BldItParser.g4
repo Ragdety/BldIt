@@ -5,39 +5,39 @@ options {
 }
 
 //Main starting point of the program
-bldItFile: statements pipeline EOF;
+bldItFile: (NEWLINE | statement)* pipeline EOF;
 
 statements: statement+;
 
 statement: simpleStatement | compoundStatement;
 
-simpleStatement: (assignment | functionCall) SEMICOLON? NL;
+simpleStatement: (assignment | functionCall) SEMICOLON? NEWLINE;
 
-compoundStatement: (ifStatement | whileStatement) ENDBLOCK;
+compoundStatement: (ifStatement | whileStatement);
 
 //BldIt pipeline gramar specification
-pipeline: PIPELINE COLON NL pipelineSections ENDBLOCK;
+pipeline: PIPELINE COLON NEWLINE INDENT pipelineSections DEDENT;
 
 //Pipeline sections (must be in this order)
 //Note: Only stagesStatement is required
 pipelineSections: pipelineSectionOrder;
-pipelineSectionOrder: globalEnvStatement parameterStatement stagesStatement;
+pipelineSectionOrder: globalEnvStatement? parameterStatement? stagesStatement;
 
 //Pipeline statements
-globalEnvStatement: GLOBALENV COLON globalEnvBlock ENDBLOCK;
-parameterStatement: PARAMETERS COLON parameterBlock ENDBLOCK;
-stagesStatement: STAGES COLON stagesBlock ENDBLOCK;
+globalEnvStatement: GLOBALENV COLON globalEnvBlock;
+parameterStatement: PARAMETERS COLON parameterBlock;
+stagesStatement: STAGES COLON stagesBlock;
 
 //Pipeline Blocks
-globalEnvBlock: NL;
-parameterBlock: NL;
-stagesBlock: NL stageStatements;
+globalEnvBlock: NEWLINE;
+parameterBlock: NEWLINE;
+stagesBlock: NEWLINE stageStatements;
 
 //At least one stage is required
 stageStatements: stageStatement+;
-stageStatement: STAGE /*stageName*/ COLON stageBlock ENDBLOCK;
+stageStatement: STAGE /*stageName*/ COLON stageBlock;
 //stageName: PIPELINE_IDENTIFIER;
-stageBlock: NL;
+stageBlock: NEWLINE;
 
 /* 
  * This is an if block.
@@ -82,7 +82,7 @@ whileStatement: WHILE expression COLON block;
  *    line2
  * '
  */
-block: NL statements;
+block: simpleStatement | NEWLINE INDENT statements DEDENT;
 
 /* 
   * Old, may try without "end" keyword later
