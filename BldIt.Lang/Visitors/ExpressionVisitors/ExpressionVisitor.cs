@@ -69,41 +69,22 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
 
     private static Tuple<object, object> ValidateComparisonType(Expression leftExpr, Expression rightExpr)
     {
-        object? left;
-        object? right;
+        object left = leftExpr switch
+        {
+            IntegerValue expr => expr.Value,
+            FloatValue expr => expr.Value,
+            _ => throw new InvalidTypeException("Comparison between " + leftExpr.Type + " and " + rightExpr.Type +
+                                                " is not supported.")
+        };
         
-        if (leftExpr is IntegerValue)
+        object right = rightExpr switch
         {
-            var leftExpression = (IntegerValue) leftExpr;
-            left = leftExpression.Value;
-        }
-        else if (leftExpr is FloatValue)
-        {
-            var leftExpression = (FloatValue) leftExpr;
-            left = leftExpression.Value;
-        }
-        else
-        {
-            throw new InvalidTypeException("Comparison between " + leftExpr.Type + " and " + rightExpr.Type +
-                                           " is not supported.");
-        }
-        
-        if (rightExpr is IntegerValue)
-        {
-            var rightExpression = (IntegerValue) rightExpr;
-            right = rightExpression.Value;
-        }
-        else if (rightExpr is FloatValue)
-        {
-            var rightExpression = (FloatValue) rightExpr;
-            right = rightExpression.Value;
-        }
-        else
-        {
-            throw new InvalidTypeException("Comparison between " + leftExpr.Type + " and " + rightExpr.Type +
-                                           " is not supported.");
-        }
-        
+            IntegerValue expr => expr.Value,
+            FloatValue expr => expr.Value,
+            _ => throw new InvalidTypeException("Comparison between " + leftExpr.Type + " and " + rightExpr.Type +
+                                                " is not supported.")
+        };
+
         return Tuple.Create(left, right);
     }
 }
