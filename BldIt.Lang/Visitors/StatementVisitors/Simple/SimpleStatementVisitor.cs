@@ -15,10 +15,11 @@ public class SimpleStatementVisitor : StatementVisitor
 
     public override Statement VisitSimpleStatement(BldItParser.SimpleStatementContext context)
     {
+        var txt = context.GetText();
         if(context.assignment() is {} assignment)
             return VisitAssignment(assignment);
         if (context.functionCall() is {} functionCall)
-            throw new NotImplementedException();
+            return VisitFunctionCall(functionCall);
         SemanticErrors.Add($"Unknown statement type: {context.GetText()}");
         throw new CompilingException(SemanticErrors[^1]);
     }
@@ -45,5 +46,10 @@ public class SimpleStatementVisitor : StatementVisitor
         GlobalVariables[varName] = value;
         
         return new Assignment(varName, value);
+    }
+
+    public override Statement VisitFunctionCall(BldItParser.FunctionCallContext context)
+    {
+        return new FunctionCall();
     }
 }
