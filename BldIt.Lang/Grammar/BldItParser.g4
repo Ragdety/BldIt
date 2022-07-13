@@ -29,15 +29,18 @@ parameterStatement: PARAMETERS COLON parameterBlock;
 stagesStatement: STAGES COLON stagesBlock;
 
 //Pipeline Blocks
-globalEnvBlock: NEWLINE;
-parameterBlock: NEWLINE;
-stagesBlock: NEWLINE stageStatements;
+globalEnvBlock: NEWLINE;//NEWLINE INDENT /*envAssignments**/ DEDENT;
+parameterBlock: NEWLINE;//NEWLINE INDENT /*paramAssignments**/ DEDENT;
+stagesBlock: NEWLINE INDENT stageStatements DEDENT;
 
 //At least one stage is required
 stageStatements: stageStatement+;
 stageStatement: STAGE /*stageName*/ COLON stageBlock;
 //stageName: PIPELINE_IDENTIFIER;
-stageBlock: NEWLINE;
+stageBlock: block;
+
+//Pipeline assignments:
+//envAssignments: 
 
 /* 
  * This is an if block.
@@ -45,7 +48,7 @@ stageBlock: NEWLINE;
  * Example:
  * if expression:
  *   do_something
- * end
+ * 
  *
  * After that, it's optional to have an 'elseIfBlock' (0 or more) and 'elseBlock'.
  * Example:
@@ -55,7 +58,7 @@ stageBlock: NEWLINE;
  *   do_something_else
  * else: 
  *   do_finish_ifBlock
- * end
+ * 
  */
 
 //Not supporting "else if" yet (can't make it work yet...)
@@ -83,17 +86,6 @@ whileStatement: WHILE expression COLON block;
  * '
  */
 block: simpleStatement | NEWLINE INDENT statements DEDENT;
-
-/* 
-  * Old, may try without "end" keyword later
-  * This is a block of code, instead of brackets, we use indentation like python 
-  * Example:
-  * BLOCK:
-  *   SOME_CODE
-  *   SOME_OTHER_CODE
-  * ENDBLOCK
- */
-//block: INDENTNEWLINE line* INDENTNEWLINE* DEDENT;
 
 assignment: IDENTIFIER ASSIGN_OP expression;
 

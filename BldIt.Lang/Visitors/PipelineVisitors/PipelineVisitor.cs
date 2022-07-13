@@ -15,6 +15,7 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
     public override Pipeline VisitPipeline(BldItParser.PipelineContext context)
     {
         //Method stub. TODO: Implement it
+        var txt = context.pipelineSections().pipelineSectionOrder().globalEnvStatement().GetText();
         return new Pipeline();
     }
 }

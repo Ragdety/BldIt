@@ -5,7 +5,7 @@ using BldIt.Lang.ValueObjects.BldItStatements;
 using BldIt.Lang.ValueObjects.BldItStatements.Simple;
 using BldIt.Lang.Visitors.ExpressionVisitors;
 
-namespace BldIt.Lang.Visitors.StatementVisitors;
+namespace BldIt.Lang.Visitors.StatementVisitors.Simple;
 
 public class SimpleStatementVisitor : StatementVisitor
 {

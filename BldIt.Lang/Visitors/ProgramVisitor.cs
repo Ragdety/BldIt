@@ -24,7 +24,7 @@ public class ProgramVisitor : BldItParserBaseVisitor<BldItFile>
 
         /*
          * Loop through each child: bldItFile: 'statements pipeline EOF'
-         * 1. statements
+         * 1. statement*
          * 2. pipeline
          * 3. EOF
          */
@@ -35,14 +35,14 @@ public class ProgramVisitor : BldItParserBaseVisitor<BldItFile>
             {
                 foreach (var statement in context.statement())
                 {
-                    //First child is the statements grammar rule
+                    //First child is the statement* grammar rule, visit each one:
                     bldItFile.AddStatement(statementVisitorVisitor.VisitStatement(statement));
                 }
             }
             else if (i == 1)
             {
                 //Second child is the pipeline grammar rule
-                bldItFile.SetPipeline(pipelineVisitor.Visit(context.GetChild(i)));
+                bldItFile.SetPipeline(pipelineVisitor.VisitPipeline(context.pipeline()));
             }
             //Last child of the start symbol (bldItFile) is EOF
             //Do not visit this child and attempt to convert it to a Statement object

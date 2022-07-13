@@ -2,7 +2,7 @@ i = 1;
 
 
 //Works...
-if 10 < 10:
+if 1 < 10:
     hitTrue1 = true;
 else:
     hitElse1 = true
@@ -37,14 +37,11 @@ beforePipeline = 1
 
 pipeline:
     globalEnv:
-        //Global variables here
-    parameters:
-        //Parameters go here
     
+    parameters:
+        param = 1;
     stages:
-        //Stages go here
         stage:
+            stage1 = 1
             //Stage 1 code goes here
-        
-
 

@@ -50,6 +50,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
 
     public override object? VisitIfStatement(BldItParser.IfStatementContext context)
     {
+        var txt = context.GetText();
         if (Visit(context.singleIfBlock().expression()) is true)
         {
             Visit(context.singleIfBlock().block());
