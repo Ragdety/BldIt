@@ -15,33 +15,6 @@ simpleStatement: (assignment | functionCall) SEMICOLON? NEWLINE;
 
 compoundStatement: (ifStatement | whileStatement);
 
-//BldIt pipeline gramar specification
-pipeline: PIPELINE COLON NEWLINE INDENT pipelineSections DEDENT;
-
-//Pipeline sections (must be in this order)
-//Note: Only stagesStatement is required
-pipelineSections: pipelineSectionOrder;
-pipelineSectionOrder: globalEnvStatement? parameterStatement? stagesStatement;
-
-//Pipeline statements
-globalEnvStatement: GLOBALENV COLON globalEnvBlock;
-parameterStatement: PARAMETERS COLON parameterBlock;
-stagesStatement: STAGES COLON stagesBlock;
-
-//Pipeline Blocks
-globalEnvBlock: NEWLINE;//NEWLINE INDENT /*envAssignments**/ DEDENT;
-parameterBlock: NEWLINE;//NEWLINE INDENT /*paramAssignments**/ DEDENT;
-stagesBlock: NEWLINE INDENT stageStatements DEDENT;
-
-//At least one stage is required
-stageStatements: stageStatement+;
-stageStatement: STAGE /*stageName*/ COLON stageBlock;
-//stageName: PIPELINE_IDENTIFIER;
-stageBlock: block;
-
-//Pipeline assignments:
-//envAssignments: 
-
 /* 
  * This is an if block.
  *
@@ -116,16 +89,38 @@ expression
 //Expression types:
 parenthExpression: OPEN_PAREN expression CLOSE_PAREN;
 notExpression: NOT expression;
-// multExpression: expression multOp expression;
-// addExpression: expression addOp expression;
-// compareExpression: expression compareOp expression;
-// boolExpression: expression boolOp expression;
 
 //Operators
 multOp: MULT_OP | DIV_OP | MOD_OP ;
 addOp: ADD_OP | SUB_OP ;
 compareOp: EQUALITY | LESS_THAN_OP | GREATER_THAN_OP | LESS_THAN_EQUAL_OP | GREATER_THAN_EQUAL_OP ;
 boolOp: BOOL_OP;
-
-
 constant: INTEGER | FLOAT | STRING | BOOL | NULL;
+
+
+//BldIt pipeline gramar specification
+pipeline: PIPELINE COLON NEWLINE INDENT pipelineSections DEDENT;
+
+//Pipeline sections (must be in this order)
+//Note: Only stagesStatement is required
+pipelineSections: pipelineSectionOrder;
+pipelineSectionOrder: globalEnvStatement? parameterStatement? stagesStatement;
+
+//Pipeline statements
+globalEnvStatement: GLOBALENV COLON globalEnvBlock;
+parameterStatement: PARAMETERS COLON parameterBlock;
+stagesStatement: STAGES COLON stagesBlock;
+
+//Pipeline Blocks
+globalEnvBlock: NEWLINE;//NEWLINE INDENT /*envAssignments**/ DEDENT;
+parameterBlock: NEWLINE;//NEWLINE INDENT /*paramAssignments**/ DEDENT;
+stagesBlock: NEWLINE INDENT stageStatements DEDENT;
+
+//At least one stage is required
+stageStatements: stageStatement+;
+stageStatement: STAGE /*stageName*/ COLON stageBlock;
+//stageName: PIPELINE_IDENTIFIER;
+stageBlock: block;
+
+//Pipeline assignments:
+//envAssignments: 

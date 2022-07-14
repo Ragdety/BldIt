@@ -1,6 +1,7 @@
 ﻿using BldIt.Lang.Exceptions;
 using BldIt.Lang.Grammar;
 using BldIt.Lang.Listeners;
+using BldIt.Lang.ValueObjects;
 using BldIt.Lang.Visitors;
 
 //This should be a command line arg to be used like so: "bldit.exe SampleScripts/Sample1.bldit"
@@ -27,7 +28,21 @@ var ast = parser?.bldItFile();
 //     throw new CompilingException("Errors found in file");
 // }
 
-var visitor = new ProgramVisitor();
+var visitor = new BldItFileVisitor();
 
 if (ast is null) throw new ArgumentNullException(nameof(ast));
-var bldItFile = visitor.VisitBldItFile(ast);
+
+try
+{
+    var bldItFile = visitor.VisitBldItFile(ast);
+}
+catch (Exception e)
+{
+    foreach (var error in visitor.SemanticErrors)
+    {
+        Console.Error.WriteLine(error);
+    }
+    Console.Error.WriteLine(e.StackTrace);
+    Console.Error.WriteLine(e.Message);
+    throw;
+}

@@ -1,17 +1,20 @@
 ﻿using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects;
+using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.Visitors.PipelineVisitors;
 using BldIt.Lang.Visitors.StatementVisitors;
 
 namespace BldIt.Lang.Visitors;
 
-public class ProgramVisitor : BldItParserBaseVisitor<BldItFile>
+public class BldItFileVisitor : BldItParserBaseVisitor<BldItFile>
 {
     public List<string> SemanticErrors { get; }
+    public Dictionary<string, Expression> GlobalVariables { get; }
 
-    public ProgramVisitor()
+    public BldItFileVisitor()
     {
         SemanticErrors = new List<string>();
+        GlobalVariables = new Dictionary<string, Expression>();
     }
 
     public override BldItFile VisitBldItFile(BldItParser.BldItFileContext context)
@@ -19,8 +22,10 @@ public class ProgramVisitor : BldItParserBaseVisitor<BldItFile>
         var bldItFile = new BldItFile();
         
         //Helper object to transform each subtree into a Statement object
-        var statementVisitorVisitor = new StatementVisitor(SemanticErrors);
-        var pipelineVisitor = new PipelineVisitor(SemanticErrors);
+        var statementVisitorVisitor = new StatementVisitor(SemanticErrors, GlobalVariables);
+        
+        //Also pass GlobalVariables to the pipeline to use them in the pipeline statements
+        var pipelineVisitor = new PipelineVisitor(SemanticErrors, GlobalVariables);
 
         /*
          * Loop through each child: bldItFile: 'statements pipeline EOF'

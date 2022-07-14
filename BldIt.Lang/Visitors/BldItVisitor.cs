@@ -61,7 +61,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
         if (context.elseBlock() is {} elseBlock)
             VisitElseBlock(elseBlock);
         else
-            throw new InvalidTypeException("Condition must be a boolean");
+            throw new InvalidDataTypeException("Condition must be a boolean");
         
         //This is for else if blocks, will look into it later...
         //After checking single if statement, if we have else blocks, we need to check them too
@@ -191,7 +191,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
         if (context.NULL() is { })
             return null;
 
-        throw new InvalidTypeException("Data type not supported");
+        throw new InvalidDataTypeException("Data type not supported");
     }
 
     public override object? VisitAdditiveExpr(BldItParser.AdditiveExprContext context)
@@ -249,7 +249,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             float leftFloat when right is float rightFloat => leftFloat < rightFloat,
             int lI when right is float rF => lI < rF,
             float lF when right is int rI => lF < rI,
-            _ => throw new InvalidTypeException("Cannot perform less than operation on given types")
+            _ => throw new InvalidDataTypeException("Cannot perform less than operation on given types")
         };
     }
     
@@ -261,7 +261,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             float leftFloat when right is float rightFloat => leftFloat > rightFloat,
             int lI when right is float rF => lI > rF,
             float lF when right is int rI => lF > rI,
-            _ => throw new InvalidTypeException("Cannot perform greater than operation on given types")
+            _ => throw new InvalidDataTypeException("Cannot perform greater than operation on given types")
         };
     }
 
@@ -270,7 +270,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
         if(value is bool b)
             return b;
         
-        throw new InvalidTypeException("Expected boolean type");
+        throw new InvalidDataTypeException("Expected boolean type");
     }
 
     private static bool IsFalse(object? value) => !IsTrue(value);
@@ -286,7 +286,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             string leftString when right is string rightString => $"{leftString}{rightString}",
             string lStr when right is int rInt => $"{lStr}{rInt.ToString()}",
             int lInt when right is string rStr => $"{lInt.ToString()}{rStr}",
-            _ => throw new InvalidTypeException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}")
+            _ => throw new InvalidDataTypeException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}")
         };
     }
     
@@ -298,7 +298,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             float lF when right is float rF => lF - rF,
             int lInt when right is float rFloat => lInt - rFloat,
             float lFloat when right is int rInt => lFloat - rInt,
-            _ => throw new InvalidTypeException($"Cannot subtract values of types {left?.GetType()} and {right?.GetType()}")
+            _ => throw new InvalidDataTypeException($"Cannot subtract values of types {left?.GetType()} and {right?.GetType()}")
         };
     }
     
@@ -310,7 +310,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             float lF when right is float rF => lF * rF,
             int lInt when right is float rFloat => lInt * rFloat,
             float lFloat when right is int rInt => lFloat * rInt,
-            _ => throw new InvalidTypeException($"Cannot multiply values of types {left?.GetType()} and {right?.GetType()}")
+            _ => throw new InvalidDataTypeException($"Cannot multiply values of types {left?.GetType()} and {right?.GetType()}")
         };
     }
     
@@ -322,7 +322,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             float lF when right is float rF => lF / rF,
             int lInt when right is float rFloat => lInt / rFloat,
             float lFloat when right is int rInt => lFloat / rInt,
-            _ => throw new InvalidTypeException($"Cannot divide values of types {left?.GetType()} and {right?.GetType()}")
+            _ => throw new InvalidDataTypeException($"Cannot divide values of types {left?.GetType()} and {right?.GetType()}")
         };
     }
     
@@ -334,7 +334,7 @@ public class BldItVisitor : BldItParserBaseVisitor<object?>
             float lF when right is float rF => lF % rF,
             int lInt when right is float rFloat => lInt % rFloat,
             float lFloat when right is int rInt => lFloat % rInt,
-            _ => throw new InvalidTypeException($"Cannot use modulus with types {left?.GetType()} and {right?.GetType()}")
+            _ => throw new InvalidDataTypeException($"Cannot use modulus with types {left?.GetType()} and {right?.GetType()}")
         };
     }
 }

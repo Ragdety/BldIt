@@ -12,7 +12,7 @@ public static class ComparisonHelper
             float leftFloat when right is float rightFloat => leftFloat < rightFloat,
             int lI when right is float rF => lI < rF,
             float lF when right is int rI => lF < rI,
-            _ => throw new InvalidTypeException("Cannot perform less than operation on given types")
+            _ => throw new InvalidDataTypeException("Cannot perform less than operation on given types")
         };
     }
     
@@ -24,7 +24,7 @@ public static class ComparisonHelper
             float leftFloat when right is float rightFloat => leftFloat > rightFloat,
             int lI when right is float rF => lI > rF,
             float lF when right is int rI => lF > rI,
-            _ => throw new InvalidTypeException("Cannot perform greater than operation on given types")
+            _ => throw new InvalidDataTypeException("Cannot perform greater than operation on given types")
         };
     }
     
@@ -36,7 +36,7 @@ public static class ComparisonHelper
             float leftFloat when right is float rightFloat => leftFloat <= rightFloat,
             int lI when right is float rF => lI <= rF,
             float lF when right is int rI => lF <= rI,
-            _ => throw new InvalidTypeException("Cannot perform less than or equal operation on given types")
+            _ => throw new InvalidDataTypeException("Cannot perform less than or equal operation on given types")
         };
     }
     
@@ -48,7 +48,7 @@ public static class ComparisonHelper
             float leftFloat when right is float rightFloat => leftFloat >= rightFloat,
             int lI when right is float rF => lI >= rF,
             float lF when right is int rI => lF >= rI,
-            _ => throw new InvalidTypeException("Cannot perform greater than or equal operation on given types")
+            _ => throw new InvalidDataTypeException("Cannot perform greater than or equal operation on given types")
         };
     }
     
@@ -60,7 +60,7 @@ public static class ComparisonHelper
             float leftFloat when right is float rightFloat => leftFloat == rightFloat,
             int lI when right is float rF => lI == rF,
             float lF when right is int rI => lF == rI,
-            _ => throw new InvalidTypeException("Cannot perform equal operation on given types")
+            _ => throw new InvalidDataTypeException("Cannot perform equal operation on given types")
         };
     }
     
@@ -72,7 +72,7 @@ public static class ComparisonHelper
             float leftFloat when right is float rightFloat => leftFloat != rightFloat,
             int lI when right is float rF => lI != rF,
             float lF when right is int rI => lF != rI,
-            _ => throw new InvalidTypeException("Cannot perform not equal operation on given types")
+            _ => throw new InvalidDataTypeException("Cannot perform not equal operation on given types")
         };
     }
 }

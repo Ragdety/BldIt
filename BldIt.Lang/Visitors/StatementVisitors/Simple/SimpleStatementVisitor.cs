@@ -9,9 +9,9 @@ namespace BldIt.Lang.Visitors.StatementVisitors.Simple;
 
 public class SimpleStatementVisitor : StatementVisitor
 {
-    private Dictionary<string, Expression> GlobalVariables { get; } = new();
-    
-    public SimpleStatementVisitor(List<string> semanticErrors) : base(semanticErrors) { }
+    public SimpleStatementVisitor(
+        List<string> semanticErrors,
+        Dictionary<string, Expression> globalVariables) : base(semanticErrors, globalVariables) { }
 
     public override Statement VisitSimpleStatement(BldItParser.SimpleStatementContext context)
     {
@@ -30,9 +30,9 @@ public class SimpleStatementVisitor : StatementVisitor
         var line = token.Line;
         var column = token.Column + 1;
         
-        var expressionVisitor = new ExpressionVisitor(SemanticErrors);
+        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables);
         var varName = context.IDENTIFIER().GetText();
-        var value = expressionVisitor.VisitExpression(context.expression());
+        var value = expressionVisitor.Visit(context.expression());
         
         if(GlobalVariables.ContainsKey(varName))
         {
