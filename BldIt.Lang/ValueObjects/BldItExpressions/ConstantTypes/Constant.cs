@@ -4,7 +4,7 @@ namespace BldIt.Lang.ValueObjects.BldItExpressions.ConstantTypes;
 
 public class Constant<T> : Expression
 {
-    public T Value { get; }
+    public T Value { get; set; }
     
     /// <summary>
     /// Gets the static type of the constant that its generic value T represents.

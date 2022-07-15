@@ -5,14 +5,13 @@ using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItExpressions.ConstantTypes;
 using BldIt.Lang.ValueObjects.BldItExpressions.ExpressionHelpers;
 using Expression = BldIt.Lang.ValueObjects.BldItExpressions.Expression;
-using ExpressionType = BldIt.Lang.ValueObjects.BldItExpressions.ExpressionTypes.ExpressionType;
 
 namespace BldIt.Lang.Visitors.ExpressionVisitors;
 
 public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
 {
     protected List<string> SemanticErrors { get; }
-    Dictionary<string, Expression> GlobalVariables { get; }
+    protected Dictionary<string, Expression> GlobalVariables { get; }
 
     public ExpressionVisitor(
         List<string> semanticErrors,
@@ -59,12 +58,17 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
 
     public override Expression VisitParenthesizedExpr(BldItParser.ParenthesizedExprContext context)
     {
-        return base.VisitParenthesizedExpr(context);
+        return VisitParenthExpression(context.parenthExpression());
+    }
+
+    public override Expression VisitParenthExpression(BldItParser.ParenthExpressionContext context)
+    {
+        return Visit(context.expression());
     }
 
     public override Expression VisitNotExpr(BldItParser.NotExprContext context)
     {
-        return base.VisitNotExpr(context);
+        throw new NotImplementedException();
     }
 
     public override Expression VisitMultiplicativeExpr(BldItParser.MultiplicativeExprContext context)

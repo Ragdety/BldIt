@@ -18,7 +18,6 @@ public class CompoundStatementVisitor : StatementVisitor
     
     public override Statement VisitCompoundStatement(BldItParser.CompoundStatementContext context)
     {
-        var txt = context.GetText();
         if(context.ifStatement() is {} ifStatement)
             return VisitIfStatement(ifStatement);
         if (context.whileStatement() is {} whileStatement)
@@ -33,24 +32,54 @@ public class CompoundStatementVisitor : StatementVisitor
 
         var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables);
         var expressionResult = expressionVisitor.Visit(context.singleIfBlock().expression());
-        
-        if (expressionResult.ExpressionType != ExpressionType.Boolean)
-            throw new InvalidDataTypeException("Condition must be a boolean");
-        
-        var boolValue = (BoolValue) expressionResult;
-        return boolValue.Value ? VisitSingleIfBlock(context.singleIfBlock()) : VisitElseBlock(context.elseBlock());
+        var boolValue = new BoolValue(false);
+
+        switch (expressionResult.ExpressionType)
+        {
+            case ExpressionType.Boolean:
+                boolValue = (BoolValue) expressionResult;
+                break;
+            case ExpressionType.Identifier:
+            {
+                var identifier = (Identifier) expressionResult;
+                boolValue = (BoolValue) GlobalVariables[identifier.Id];
+                break;
+            }
+        }
+
+        if (boolValue.Value)
+            return Visit(context.singleIfBlock().block());
+
+        //After checking single if statement, if we have else blocks, we need to check them too
+        if (context.elseIfBlock().Length != 0)
+        {
+            //Loop through each else if blocks
+            foreach (var eib in context.elseIfBlock())
+            {
+                expressionResult = expressionVisitor.Visit(eib.expression());
+                if (expressionResult.ExpressionType != ExpressionType.Boolean)
+                    throw new InvalidDataTypeException("Condition must be a boolean");
+                
+                boolValue = (BoolValue) expressionResult;
+                
+                //If the condition is not true, skip to the next else if block (eib) - continue
+                if (!boolValue.Value) continue;
+                
+                //If the condition is true, goto block and return (since we don't want to execute the else block)
+                return Visit(eib.block());
+            }
+            
+            //This point is reached if all else if blocks are false
+            //Make sure to check the else block if no else if block was executed
+            if (context.elseBlock() is { } elseBlock)
+                return Visit(elseBlock.block());
+        }
+        else if (context.elseBlock() is {} elseBlock)
+            return Visit(elseBlock.block());
+
+        return new IfStatementResult(boolValue.Value);
     }
 
-    public override Statement VisitSingleIfBlock(BldItParser.SingleIfBlockContext context)
-    {
-        return Visit(context.block());
-    }
-
-    public override Statement VisitElseBlock(BldItParser.ElseBlockContext context)
-    {
-        return Visit(context.block());
-    }
-    
     public override Statement VisitWhileStatement(BldItParser.WhileStatementContext context)
     {
         Func<object?, bool> condition = context.WHILE().GetText() == "while"

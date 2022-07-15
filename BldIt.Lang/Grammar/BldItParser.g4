@@ -34,13 +34,11 @@ compoundStatement: (ifStatement | whileStatement);
  * 
  */
 
-//Not supporting "else if" yet (can't make it work yet...)
-//ifStatement: singleIfBlock elseIfBlock* elseBlock?;
-ifStatement: singleIfBlock elseBlock?;
+ifStatement: singleIfBlock elseIfBlock* elseBlock?;
 
 //If BLOCKS
 singleIfBlock: IF expression COLON block;
-//elseIfBlock: ELSE IF expression COLON block;
+elseIfBlock: ELSE IF expression COLON block;
 elseBlock: ELSE COLON block;
 
 //While/Unless block

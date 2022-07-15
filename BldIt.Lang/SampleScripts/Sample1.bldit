@@ -5,25 +5,28 @@ while i <= 4:
     i = i + 1;
     a = 1;
 
+if 10 < 9:
+    nope = false
+
+
 //Works...
-if 1 < 10:
-    hitTrue1 = true;
-else:
-    hitElse1 = true
-    if 1 < 10:
-        hitTrue2 = true;
-    else:
-        hitElse2 = true
-
-
-//thingIsFalse = 10 < 1;
-//Does not work yet...
-//if thingIsFalse:
-//    echo('Um...this isn't supposed to happen');
-//else if 1 < 2:
-//    print('Um...this isn't supposed to happen either');
+//if 10 < 10:
+//    hitTrue1 = true;
 //else:
-//    supposed = "YES!";
+//    hitElse1 = true
+//    if 1 < 10:
+//        hitTrue2 = true;
+//    else:
+//        hitElse2 = true
+
+
+thingIsFalse = 10 < 1;
+if thingIsFalse:
+    echo("Um...this isn't supposed to happen");
+else if 1 < 2:
+    print("Um...this isn't supposed to happen either");
+else:
+    supposed = "YES!";
 //    echo('This is supposed to happen!');
 //    echo('We hit the else statement!!!!');
 //end
