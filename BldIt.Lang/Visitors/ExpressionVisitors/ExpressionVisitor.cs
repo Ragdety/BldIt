@@ -61,7 +61,7 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
         var statementVisitor = new SimpleStatementVisitor(SemanticErrors, GlobalVariables, Functions);
         var functionCallStatement = statementVisitor.VisitFunctionCall(context.functionCall());
         var funcResult = (FunctionCallStatement) functionCallStatement;
-        return funcResult.Result ?? new NullValue(null);
+        return funcResult.Result ?? new VoidValue();
     }
 
     public override Expression VisitParenthesizedExpr(BldItParser.ParenthesizedExprContext context)

@@ -127,27 +127,41 @@ public class CompoundStatementVisitor : StatementVisitor
         var functionParameters = context.parameters() != null ? 
             context.parameters().IDENTIFIER().ToArray() : 
             Array.Empty<ITerminalNode>();
-        
+
         var functionBody = context.block();
         
-        //TODO: Add parameter support
         Expression FunctionDelegate(Expression?[] arguments)
         {
-            var argList = arguments.ToList(); 
-            foreach (var param in functionParameters) 
-            { 
-                argList.Add(new Identifier(param.GetText())); 
+            /*
+             * 1. Loop through each argument and visit their value as expression
+             * 2. Save it temporarily to Global variables dictionary
+             *    with the parameter name as key and result as value
+             * 3. Visit the function body
+             * 4. Remove the temporary variables from the global variables dictionary
+             * 5. TODO: Return the result expression of the function body (if any)
+             */
+            for (var i = 0; i < functionParameters.Length; i++)
+            {
+                GlobalVariables.Add(functionParameters[i].GetText(), arguments[i] ?? new NullValue(null));
             }
 
-            //Supporting functions with no arguments
             Visit(functionBody);
+            
+            foreach (var param in functionParameters)
+            {
+                GlobalVariables.Remove(param.GetText());
+            }
+            
+            //For return value, if it exists, visit the expression and return it
+            //Otherwise return VoidValue
+            
             return new VoidValue();
         }
 
         Functions.Add(functionName, FunctionDelegate);
         return new FunctionDefinition(functionName, FunctionDelegate);
     }
-    
+
     private static bool IsTrue(object? value)
     {
         if(value is bool b)
