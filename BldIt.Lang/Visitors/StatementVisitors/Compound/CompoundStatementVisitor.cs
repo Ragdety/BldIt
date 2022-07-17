@@ -13,8 +13,10 @@ public class CompoundStatementVisitor : StatementVisitor
 {
     public CompoundStatementVisitor(
         List<string> semanticErrors,
-        Dictionary<string, Expression> globalVariables) 
-        : base(semanticErrors, globalVariables) { }
+        Dictionary<string, Expression> globalVariables,
+        Dictionary<string, Func<Expression?[], Expression?>> functions
+        ) 
+        : base(semanticErrors, globalVariables, functions) { }
     
     public override Statement VisitCompoundStatement(BldItParser.CompoundStatementContext context)
     {
@@ -32,7 +34,7 @@ public class CompoundStatementVisitor : StatementVisitor
 
         var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables);
         var expressionResult = expressionVisitor.Visit(context.singleIfBlock().expression());
-        var boolValue = new BoolValue(false);
+        BoolValue boolValue;
 
         switch (expressionResult.ExpressionType)
         {
@@ -45,6 +47,8 @@ public class CompoundStatementVisitor : StatementVisitor
                 boolValue = (BoolValue) GlobalVariables[identifier.Id];
                 break;
             }
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         if (boolValue.Value)
@@ -86,8 +90,6 @@ public class CompoundStatementVisitor : StatementVisitor
                 ? IsTrue
                 : IsFalse;
 
-        var txt = context.GetText();
-        
         var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables);
         var expressionResult = expressionVisitor.Visit(context.expression());
         

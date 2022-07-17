@@ -1,7 +1,4 @@
 ﻿using BldIt.Lang.Exceptions;
-using BldIt.Lang.Grammar;
-using BldIt.Lang.Listeners;
-using BldIt.Lang.ValueObjects;
 using BldIt.Lang.Visitors;
 
 //This should be a command line arg to be used like so: "bldit.exe SampleScripts/Sample1.bldit"

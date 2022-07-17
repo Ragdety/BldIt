@@ -1,6 +1,7 @@
 ﻿using BldIt.Lang.Exceptions;
 using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
+using BldIt.Lang.ValueObjects.BldItExpressions.ConstantTypes;
 using BldIt.Lang.ValueObjects.BldItStatements;
 using BldIt.Lang.ValueObjects.BldItStatements.Simple;
 using BldIt.Lang.Visitors.ExpressionVisitors;
@@ -11,11 +12,16 @@ public class SimpleStatementVisitor : StatementVisitor
 {
     public SimpleStatementVisitor(
         List<string> semanticErrors,
-        Dictionary<string, Expression> globalVariables) : base(semanticErrors, globalVariables) { }
+        Dictionary<string, Expression> globalVariables,
+        Dictionary<string, Func<Expression?[], Expression?>> functions) 
+        : base(semanticErrors, globalVariables, functions)
+    {
+        functions["print"] = Write;
+        functions["echo"]  = Echo;
+    }
 
     public override Statement VisitSimpleStatement(BldItParser.SimpleStatementContext context)
     {
-        var txt = context.GetText();
         if(context.assignment() is {} assignment)
             return VisitAssignment(assignment);
         if (context.functionCall() is {} functionCall)
@@ -50,6 +56,43 @@ public class SimpleStatementVisitor : StatementVisitor
 
     public override Statement VisitFunctionCall(BldItParser.FunctionCallContext context)
     {
-        return new FunctionCall();
+        var token = context.IDENTIFIER().Symbol;
+        var line = token.Line;
+        var column = token.Column + 1;
+        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables);
+        
+        var functionName = context.IDENTIFIER().GetText();
+        
+        //Visit each expression to evaluate as function arguments:
+        var arguments = context.expression().Select(expression => expressionVisitor.Visit(expression)).ToArray();
+        
+        if(!Functions.ContainsKey(functionName))
+            throw new UndefinedFunctionException(functionName);
+        
+        var function = Functions[functionName];
+        if(function is not { } func)
+        {
+            SemanticErrors.Add($"{functionName} is not a function on line {line}:{column}");
+            throw new CompilingException(SemanticErrors[^1]);
+        }
+
+        var result = func(arguments);
+        return new FunctionCallStatement(func.Method.Name, arguments, result);
     }
+    
+    private static Expression Write(Expression?[] arguments)
+    {
+        //Function Write returns a string with the output write
+        var output = "";
+        
+        foreach (var argument in arguments)
+        {
+            Console.WriteLine(argument);
+            output += argument;
+        }
+
+        return new StringValue(output);
+    }
+
+    private static Expression Echo(Expression?[] arguments) => Write(arguments);
 }

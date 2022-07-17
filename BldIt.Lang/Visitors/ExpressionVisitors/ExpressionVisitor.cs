@@ -48,7 +48,7 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
         if (!GlobalVariables.ContainsKey(varName))
             throw new UndefinedVariableException(nameof(varName));
         
-        return new Identifier(varName, GlobalVariables[varName]);
+        return GlobalVariables[varName];
     }
 
     public override Expression VisitFunctionCallExpr(BldItParser.FunctionCallExprContext context)
@@ -75,22 +75,27 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
     {
         var (leftExpr, rightExpr, op) = GetLeftRightOperatorValues(context);
         var (left, right) = GetConstantValueRecursively(leftExpr, rightExpr);
-        
-        return op switch
+
+        var result = op switch
         {
-            "*" => (Expression) BasicOperationsHelper.Multiply(left, right)!,
-            "/" => (Expression) BasicOperationsHelper.Divide(left, right)!,
-            "%" => (Expression) BasicOperationsHelper.Modulo(left, right)!,
+            "*" => BasicOperationsHelper.Multiply(left, right),
+            "/" => BasicOperationsHelper.Divide(left, right),
+            "%" => BasicOperationsHelper.Modulo(left, right),
             _ => throw new NotSupportedException("Operator not supported")
         };
+
+        Expression resultExpression = result switch
+        {
+            int i => new IntegerValue(i),
+            float f => new FloatValue(f),
+            _ => throw new CompilingException("Incorrect result type")
+        };
+
+        return resultExpression;
     }
     
     public override Expression VisitAdditiveExpr(BldItParser.AdditiveExprContext context)
     {
-        // var left = Visit(context.expression(0));
-        // var right = Visit(context.expression(1));
-        // var op = context.addOp().GetText();
-        //
         var (leftExpr, rightExpr, op) = GetLeftRightOperatorValues(context);
         var (left, right) = GetConstantValueRecursively(leftExpr, rightExpr);
 
@@ -105,6 +110,7 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
         {
             int i => new IntegerValue(i),
             float f => new FloatValue(f),
+            string s => new StringValue(s),
             _ => throw new CompilingException("Incorrect result type")
         };
 
@@ -146,12 +152,6 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
         var leftToken  = child1.GetText();
         var rightToken = child3.GetText();
         throw new CompilingException($"{leftToken} or {rightToken} expression is incorrect");
-
-        //if (leftExpr.ExpressionType == ExpressionType.Constant && rightExpr.ExpressionType == ExpressionType.Constant) 
-
-        // SemanticErrors.Add($"Comparison between {leftExpr.ExpressionType} and {rightExpr.ExpressionType} must " +
-        //                    "be between two constants. ");
-        // throw new CompilingException(SemanticErrors[^1]);
     }
 
     private static Tuple<object, object> GetConstantValueRecursively(Expression leftExpr, Expression rightExpr)
@@ -161,6 +161,7 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
             //Base cases:
             IntegerValue expr => expr.Value,
             FloatValue expr => expr.Value,
+            StringValue expr => expr.Value,
             
             //Recursively evaluate the expression of the identifier, ideal...?
             Identifier expr => GetConstantValueRecursively(expr.Value, rightExpr).Item1,
@@ -173,6 +174,7 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
         {
             IntegerValue expr => expr.Value,
             FloatValue expr => expr.Value,
+            StringValue expr => expr.Value,
             Identifier expr => GetConstantValueRecursively(leftExpr, expr.Value).Item2,
             _ => throw new InvalidDataTypeException("Comparison between " + leftExpr.Type + " and " + rightExpr.Type +
                                                 " is not supported.")

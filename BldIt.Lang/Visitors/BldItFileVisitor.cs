@@ -10,11 +10,15 @@ public class BldItFileVisitor : BldItParserBaseVisitor<BldItFile>
 {
     public List<string> SemanticErrors { get; }
     public Dictionary<string, Expression> GlobalVariables { get; }
+    
+    //Dict<identifier, function<arguments, result>>
+    public Dictionary<string, Func<Expression?[], Expression?>> Functions { get; }
 
     public BldItFileVisitor()
     {
         SemanticErrors = new List<string>();
         GlobalVariables = new Dictionary<string, Expression>();
+        Functions = new Dictionary<string, Func<Expression?[], Expression?>>();
     }
 
     public override BldItFile VisitBldItFile(BldItParser.BldItFileContext context)
@@ -22,7 +26,7 @@ public class BldItFileVisitor : BldItParserBaseVisitor<BldItFile>
         var bldItFile = new BldItFile();
         
         //Helper object to transform each subtree into a Statement object
-        var statementVisitorVisitor = new StatementVisitor(SemanticErrors, GlobalVariables);
+        var statementVisitorVisitor = new StatementVisitor(SemanticErrors, GlobalVariables, Functions);
         
         //Also pass GlobalVariables to the pipeline to use them in the pipeline statements
         var pipelineVisitor = new PipelineVisitor(SemanticErrors, GlobalVariables);

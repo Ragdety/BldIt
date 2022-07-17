@@ -11,21 +11,26 @@ public class StatementVisitor : BldItParserBaseVisitor<Statement>
 {
     protected List<string> SemanticErrors { get; }
     protected Dictionary<string, Expression> GlobalVariables { get; }
+    
+    //Dict<identifier, function<arguments, result>>
+    protected Dictionary<string, Func<Expression?[], Expression?>> Functions { get; }
 
     public StatementVisitor(
         List<string> semanticErrors, 
-        Dictionary<string, Expression> globalVariables)
+        Dictionary<string, Expression> globalVariables, 
+        Dictionary<string, Func<Expression?[], Expression?>> functions)
     {
         SemanticErrors = semanticErrors;
         GlobalVariables = globalVariables;
+        Functions = functions;
     }
     
     public override Statement VisitStatement(BldItParser.StatementContext context)
     {
         if (context.simpleStatement() is { })
-            return new SimpleStatementVisitor(SemanticErrors, GlobalVariables).VisitSimpleStatement(context.simpleStatement());
+            return new SimpleStatementVisitor(SemanticErrors, GlobalVariables, Functions).VisitSimpleStatement(context.simpleStatement());
         if (context.compoundStatement() is { }) 
-            return new CompoundStatementVisitor(SemanticErrors, GlobalVariables).VisitCompoundStatement(context.compoundStatement());
+            return new CompoundStatementVisitor(SemanticErrors, GlobalVariables, Functions).VisitCompoundStatement(context.compoundStatement());
         SemanticErrors.Add($"Invalid statement: {context.GetText()}");
         throw new CompilingException("Invalid Statement");
     }

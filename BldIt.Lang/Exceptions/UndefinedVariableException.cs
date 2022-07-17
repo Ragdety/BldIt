@@ -1,7 +1,7 @@
 ﻿namespace BldIt.Lang.Exceptions;
 
-public class UndefinedVariableException : ArgumentNullException
+public class UndefinedVariableException : UndefinedException
 {
     public UndefinedVariableException(string variableName)
-        : base($"No such variable: '{variableName}'") { }
+        : base($"Variable '{variableName}' is not defined") { }
 }

@@ -1,39 +1,33 @@
 i = 1;
-add = 1 - 2
+//a = 3
+//b = a
+//c = 10 % b
+//d = c
+//e = d * 3 //e should be 3...
 
-while i <= 4:
-    i = i + 1;
-    a = 1;
+echo(i)
+print("Start of program")
 
-if 10 < 9:
-    nope = false
-
-
-//Works...
-//if 10 < 10:
-//    hitTrue1 = true;
-//else:
-//    hitElse1 = true
-//    if 1 < 10:
-//        hitTrue2 = true;
-//    else:
-//        hitElse2 = true
+//while i <= 4:
+//    i = i + 1;
+//    a = 1;
 
 
 thingIsFalse = 10 < 1;
 if thingIsFalse:
     echo("Um...this isn't supposed to happen");
-else if 1 < 2:
+else if 1 == 2:
     print("Um...this isn't supposed to happen either");
 else:
-    supposed = "YES!";
+    supposed = "YES! This is supposed to happen";
+    print(supposed);
 //    echo('This is supposed to happen!');
 //    echo('We hit the else statement!!!!');
-//end
 
 name = 'Edgar';
 
 echo("Congrats " + name + "! You finished testing a basic bldit program!");
+print("Now time for pipeline")
 
 beforePipeline = 1
 
