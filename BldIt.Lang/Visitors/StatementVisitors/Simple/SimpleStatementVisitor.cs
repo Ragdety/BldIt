@@ -36,7 +36,7 @@ public class SimpleStatementVisitor : StatementVisitor
         var line = token.Line;
         var column = token.Column + 1;
         
-        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables);
+        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables, Functions);
         var varName = context.IDENTIFIER().GetText();
         var value = expressionVisitor.Visit(context.expression());
         
@@ -59,7 +59,7 @@ public class SimpleStatementVisitor : StatementVisitor
         var token = context.IDENTIFIER().Symbol;
         var line = token.Line;
         var column = token.Column + 1;
-        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables);
+        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables, Functions);
         
         var functionName = context.IDENTIFIER().GetText();
         

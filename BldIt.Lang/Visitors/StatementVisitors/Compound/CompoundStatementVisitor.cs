@@ -32,7 +32,7 @@ public class CompoundStatementVisitor : StatementVisitor
     {
         var txt = context.GetText();
 
-        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables);
+        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables, Functions);
         var expressionResult = expressionVisitor.Visit(context.singleIfBlock().expression());
         BoolValue boolValue;
 
@@ -90,7 +90,7 @@ public class CompoundStatementVisitor : StatementVisitor
                 ? IsTrue
                 : IsFalse;
 
-        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables);
+        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables, Functions);
         var expressionResult = expressionVisitor.Visit(context.expression());
         
         if (expressionResult.ExpressionType != ExpressionType.Boolean)

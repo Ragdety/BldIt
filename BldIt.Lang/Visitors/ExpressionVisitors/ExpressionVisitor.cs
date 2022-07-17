@@ -4,6 +4,8 @@ using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItExpressions.ConstantTypes;
 using BldIt.Lang.ValueObjects.BldItExpressions.ExpressionHelpers;
+using BldIt.Lang.ValueObjects.BldItStatements.Simple;
+using BldIt.Lang.Visitors.StatementVisitors.Simple;
 using Expression = BldIt.Lang.ValueObjects.BldItExpressions.Expression;
 
 namespace BldIt.Lang.Visitors.ExpressionVisitors;
@@ -12,13 +14,16 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
 {
     protected List<string> SemanticErrors { get; }
     protected Dictionary<string, Expression> GlobalVariables { get; }
+    protected Dictionary<string, Func<Expression?[], Expression?>> Functions { get; }
 
     public ExpressionVisitor(
         List<string> semanticErrors,
-        Dictionary<string, Expression> globalVariables)
+        Dictionary<string, Expression> globalVariables,
+        Dictionary<string, Func<Expression?[], Expression?>> functions)
     {
         SemanticErrors = semanticErrors;
         GlobalVariables = globalVariables;
+        Functions = functions;
     }
 
     public override Expression VisitConstant(BldItParser.ConstantContext context)
@@ -53,7 +58,10 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
 
     public override Expression VisitFunctionCallExpr(BldItParser.FunctionCallExprContext context)
     {
-        return base.VisitFunctionCallExpr(context);
+        var statementVisitor = new SimpleStatementVisitor(SemanticErrors, GlobalVariables, Functions);
+        var functionCallStatement = statementVisitor.VisitFunctionCall(context.functionCall());
+        var funcResult = (FunctionCallStatement) functionCallStatement;
+        return funcResult.Result ?? new NullValue(null);
     }
 
     public override Expression VisitParenthesizedExpr(BldItParser.ParenthesizedExprContext context)
