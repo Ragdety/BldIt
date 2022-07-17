@@ -164,28 +164,22 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
 
     private static Tuple<object, object> GetConstantValueRecursively(Expression leftExpr, Expression rightExpr)
     {
-        var left = leftExpr switch
+        object left = leftExpr switch
         {
-            //Base cases:
             IntegerValue expr => expr.Value,
             FloatValue expr => expr.Value,
             StringValue expr => expr.Value,
-            
-            //Recursively evaluate the expression of the identifier, ideal...?
-            Identifier expr => GetConstantValueRecursively(expr.Value, rightExpr).Item1,
-            //TODO: Add the other Expression types with their values here later...
             _ => throw new InvalidDataTypeException("Comparison between " + leftExpr.Type + " and " + rightExpr.Type +
-                                                " is not supported.")
+                                                    " is not supported.")
         };
-        
-        var right = rightExpr switch
+
+        object right = rightExpr switch
         {
             IntegerValue expr => expr.Value,
             FloatValue expr => expr.Value,
             StringValue expr => expr.Value,
-            Identifier expr => GetConstantValueRecursively(leftExpr, expr.Value).Item2,
             _ => throw new InvalidDataTypeException("Comparison between " + leftExpr.Type + " and " + rightExpr.Type +
-                                                " is not supported.")
+                                                    " is not supported.")
         };
 
         return Tuple.Create(left, right);

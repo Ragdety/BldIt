@@ -13,7 +13,7 @@ statement: simpleStatement | compoundStatement;
 
 simpleStatement: (assignment | functionCall) SEMICOLON? NEWLINE;
 
-compoundStatement: (ifStatement | whileStatement);
+compoundStatement: (ifStatement | whileStatement | functionDefinition);
 
 /* 
  * This is an if block.
@@ -44,6 +44,10 @@ elseBlock: ELSE COLON block;
 //While/Unless block
 whileStatement: WHILE expression COLON block;
 
+functionDefinition: 
+  FUNCTION IDENTIFIER OPEN_PAREN parameters? CLOSE_PAREN COLON block;
+
+parameters: (IDENTIFIER (COMMA IDENTIFIER)*);
 
 /*
  * Block expression.

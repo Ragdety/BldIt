@@ -5,6 +5,12 @@ i = 1;
 //d = c
 //e = d * 3 //e should be 3...
 
+fun Something():
+    varInsideFunction = 1
+    addy = varInsideFunction + 2;
+    print("Result should be 3: " + addy)
+
+Something()
 echo(i)
 str = print("Start of program")
 print(str)

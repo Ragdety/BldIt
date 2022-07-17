@@ -76,6 +76,7 @@ public class SimpleStatementVisitor : StatementVisitor
             throw new CompilingException(SemanticErrors[^1]);
         }
 
+        //Executing the function here:
         var result = func(arguments);
         return new FunctionCallStatement(func.Method.Name, arguments, result);
     }

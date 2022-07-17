@@ -3,6 +3,7 @@
 public enum ExpressionType
 {
     Constant,
+    Void,
     Identifier,
     FunctionCall,
     Parenthesized,

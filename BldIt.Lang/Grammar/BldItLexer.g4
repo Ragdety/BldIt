@@ -42,6 +42,8 @@ STAGE: 'stage';
 //Might support until in the future
 WHILE: 'while'; // | until;
 
+FUNCTION: 'fun' | 'def' | 'function';
+
 //Operators
 ADD_OP: '+';
 SUB_OP: '-';

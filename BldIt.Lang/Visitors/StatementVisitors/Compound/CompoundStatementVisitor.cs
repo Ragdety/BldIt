@@ -1,4 +1,5 @@
-﻿using BldIt.Lang.Exceptions;
+﻿using Antlr4.Runtime.Tree;
+using BldIt.Lang.Exceptions;
 using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItExpressions.ConstantTypes;
@@ -24,6 +25,8 @@ public class CompoundStatementVisitor : StatementVisitor
             return VisitIfStatement(ifStatement);
         if (context.whileStatement() is {} whileStatement)
             return VisitWhileStatement(whileStatement);
+        if (context.functionDefinition() is { } functionDefinition)
+            return VisitFunctionDefinition(functionDefinition);
         SemanticErrors.Add($"Unknown compound statement type: {context.GetText()}");
         throw new CompilingException(SemanticErrors[^1]);
     }
@@ -115,6 +118,34 @@ public class CompoundStatementVisitor : StatementVisitor
         //Always should end in false, otherwise infinite loop...
         //Undecidable Turing Machine...?
         return new WhileStatementResult(boolValue.Value);
+    }
+    
+    public override Statement VisitFunctionDefinition(BldItParser.FunctionDefinitionContext context)
+    {
+        var functionName = context.IDENTIFIER().GetText();
+
+        var functionParameters = context.parameters() != null ? 
+            context.parameters().IDENTIFIER().ToArray() : 
+            Array.Empty<ITerminalNode>();
+        
+        var functionBody = context.block();
+        
+        //TODO: Add parameter support
+        Expression FunctionDelegate(Expression?[] arguments)
+        {
+            var argList = arguments.ToList(); 
+            foreach (var param in functionParameters) 
+            { 
+                argList.Add(new Identifier(param.GetText())); 
+            }
+
+            //Supporting functions with no arguments
+            Visit(functionBody);
+            return new VoidValue();
+        }
+
+        Functions.Add(functionName, FunctionDelegate);
+        return new FunctionDefinition(functionName, FunctionDelegate);
     }
     
     private static bool IsTrue(object? value)

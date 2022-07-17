@@ -41,5 +41,5 @@ catch (Exception e)
     }
     Console.Error.WriteLine(e.StackTrace);
     Console.Error.WriteLine(e.Message);
-    throw;
+    //throw;
 }
