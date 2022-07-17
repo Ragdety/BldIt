@@ -169,6 +169,7 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
             IntegerValue expr => expr.Value,
             FloatValue expr => expr.Value,
             StringValue expr => expr.Value,
+            BoolValue expr => expr.Value,
             _ => throw new InvalidDataTypeException("Comparison between " + leftExpr.Type + " and " + rightExpr.Type +
                                                     " is not supported.")
         };
@@ -178,6 +179,7 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
             IntegerValue expr => expr.Value,
             FloatValue expr => expr.Value,
             StringValue expr => expr.Value,
+            BoolValue expr => expr.Value,
             _ => throw new InvalidDataTypeException("Comparison between " + leftExpr.Type + " and " + rightExpr.Type +
                                                     " is not supported.")
         };

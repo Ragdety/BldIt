@@ -6,9 +6,9 @@ i = 1;
 //e = d * 3 //e should be 3...
 
 fun Something():
-    varInsideFunction = 1
-    addy = varInsideFunction + 2;
-    print("Result should be 3: " + addy)
+    varInsideFunction = 1.2
+    mult = varInsideFunction * 4.1;
+    print("Result should be 4.92: " + mult)
 
 Something()
 echo(i)
