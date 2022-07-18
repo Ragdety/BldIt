@@ -29,7 +29,7 @@ public class BldItFileVisitor : BldItParserBaseVisitor<BldItFile>
         var statementVisitorVisitor = new StatementVisitor(SemanticErrors, GlobalVariables, Functions);
         
         //Also pass GlobalVariables to the pipeline to use them in the pipeline statements
-        var pipelineVisitor = new PipelineVisitor(SemanticErrors, GlobalVariables);
+        var pipelineVisitor = new PipelineVisitor(SemanticErrors, GlobalVariables, Functions);
 
         /*
          * Loop through each child: bldItFile: 'statements pipeline EOF'

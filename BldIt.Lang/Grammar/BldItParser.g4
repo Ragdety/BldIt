@@ -109,16 +109,15 @@ pipeline: PIPELINE COLON NEWLINE INDENT pipelineSections DEDENT;
 
 //Pipeline sections (must be in this order)
 //Note: Only stagesStatement is required
-pipelineSections: pipelineSectionOrder;
-pipelineSectionOrder: globalEnvStatement? parameterStatement? stagesStatement;
+pipelineSections: globalEnvStatement? stagesStatement;
+///*parameterStatement?*/ ;
 
-//Pipeline statements
 globalEnvStatement: GLOBALENV COLON globalEnvBlock;
 parameterStatement: PARAMETERS COLON parameterBlock;
 stagesStatement: STAGES COLON stagesBlock;
 
 //Pipeline Blocks
-globalEnvBlock: NEWLINE;//NEWLINE INDENT /*envAssignments**/ DEDENT;
+globalEnvBlock: NEWLINE INDENT envAssignments DEDENT;
 parameterBlock: NEWLINE;//NEWLINE INDENT /*paramAssignments**/ DEDENT;
 stagesBlock: NEWLINE INDENT stageStatements DEDENT;
 
@@ -129,4 +128,8 @@ stageStatement: STAGE /*stageName*/ COLON stageBlock;
 stageBlock: block;
 
 //Pipeline assignments:
-//envAssignments: 
+envAssignments: ((envAssignment) SEMICOLON? NEWLINE)+;
+envAssignment: IDENTIFIER ASSIGN_OP pipelineExpression;
+
+//Might allow different exprs in the future
+pipelineExpression: expression;

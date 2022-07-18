@@ -13,64 +13,28 @@ def IsLegalAgeInUSA(age):
 def AreYouLegalAgeInUSA(agee):
     legalAge = IsLegalAgeInUSA(agee)
     if legalAge:
-        return
+        return "You are legal age in USA"
     return "You are not legal age in USA"
 
-legalAgeTxt = AreYouLegalAgeInUSA(21)
-echo(legalAgeTxt)
-
-st = 2
-
-fun Add(param1, param2):
-    result = param1 + param2
-    return result
-
-result = Add(st, 2)
-print(st + " + " + 2 + " is: " + result)
-
-
-fun Something():
-    varInsideFunction = 1.2
-    mult = varInsideFunction * 4.1;
-    print("Result should be 4.92: " + mult)
-
-Something()
-echo(i)
-str = print("Start of program")
-print(str)
-
-//while i <= 4:
-//    i = i + 1;
-//    a = 1;
-
-
-thingIsFalse = 10 < 1;
-if thingIsFalse:
-    echo("Um...this isn't supposed to happen");
-else if 1 == 2:
-    print("Um...this isn't supposed to happen either");
-else:
-    supposed = "YES! This is supposed to happen";
-    print(supposed);
-//    echo('This is supposed to happen!');
-//    echo('We hit the else statement!!!!');
-
-name = 'Edgar';
-
-echo("Congrats " + name + "! You finished testing a basic bldit program!");
-print("Now time for pipeline")
-
-beforePipeline = 1
-
-//pipeline:
-//    globalEnv:
-//    
-//    parameters:
-//        param = 1;
-//    stages:
-//        stage:
-//            stage1 = 1
-//            //Stage 1 code goes here
+fun GetCurrentEnvironment(isDev):
+    ASPNETCORE_ENVIRONMENT = "Production"
+    if isDev:
+        ASPNETCORE_ENVIRONMENT = "Development"
+        return ASPNETCORE_ENVIRONMENT
+    return ASPNETCORE_ENVIRONMENT
 
 pipe:
+    globalEnv:
+        var1 = "Some/Random/Path"
+        currentEnv = GetCurrentEnvironment(true)
+    stages:
+        stage "Release Software":
+            script:
+                if currentEnv == "Development":
+                    deployToDevServer();
+                else:
+                    deployToProdServer();
+            //Stage 1 code goes here
+
+
     
