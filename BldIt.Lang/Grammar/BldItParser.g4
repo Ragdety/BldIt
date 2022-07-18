@@ -11,7 +11,7 @@ statements: statement+;
 
 statement: simpleStatement | compoundStatement;
 
-simpleStatement: (assignment | functionCall) SEMICOLON? NEWLINE;
+simpleStatement: (assignment | functionCall | returnStatement) SEMICOLON? NEWLINE;
 
 compoundStatement: (ifStatement | whileStatement | functionDefinition);
 
@@ -45,7 +45,7 @@ elseBlock: ELSE COLON block;
 whileStatement: WHILE expression COLON block;
 
 functionDefinition: 
-  FUNCTION IDENTIFIER OPEN_PAREN parameters? CLOSE_PAREN COLON block;
+  FUNCTION IDENTIFIER OPEN_PAREN parameters? CLOSE_PAREN COLON functionBlock;
 
 parameters: (IDENTIFIER (COMMA IDENTIFIER)*);
 
@@ -54,13 +54,17 @@ parameters: (IDENTIFIER (COMMA IDENTIFIER)*);
  *
  * Example: 
  * 'some_expression block' would evaluate to:
- * 'some_expression:\r\n\t line1 \r\n\t line2 \r\n\t \r\n' which would evaluate to:
  * 'some_expression:
  *    line1
  *    line2
  * '
  */
 block: simpleStatement | NEWLINE INDENT statements DEDENT;
+
+//Statements are optional (therefore the '?') since we might have a function only with a return statement
+//TODO: Add support for multiple return statements throughout the function 
+functionBlock: simpleStatement | NEWLINE INDENT statements? DEDENT;
+returnStatement: RETURN expression?;
 
 assignment: IDENTIFIER ASSIGN_OP expression;
 

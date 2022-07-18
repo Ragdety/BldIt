@@ -22,11 +22,14 @@ public class SimpleStatementVisitor : StatementVisitor
 
     public override Statement VisitSimpleStatement(BldItParser.SimpleStatementContext context)
     {
+        var text = context.GetText();
         if(context.assignment() is {} assignment)
             return VisitAssignment(assignment);
         if (context.functionCall() is {} functionCall)
             return VisitFunctionCall(functionCall);
-        SemanticErrors.Add($"Unknown statement type: {context.GetText()}");
+        if (context.returnStatement() is { } returnStatement)
+            return VisitReturnStatement(returnStatement);
+        SemanticErrors.Add($"Unknown statement type: {text}");
         throw new CompilingException(SemanticErrors[^1]);
     }
 
@@ -80,7 +83,14 @@ public class SimpleStatementVisitor : StatementVisitor
         var result = func(arguments);
         return new FunctionCallStatement(func.Method.Name, arguments, result);
     }
-    
+
+    public override Statement VisitReturnStatement(BldItParser.ReturnStatementContext context)
+    {
+        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables, Functions);
+        var expression = expressionVisitor.Visit(context.expression());
+        return new ReturnStatement(expression);
+    }
+
     private static Expression Write(Expression?[] arguments)
     {
         //Function Write returns a string with the output write

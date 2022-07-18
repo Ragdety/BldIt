@@ -35,10 +35,10 @@ try
 }
 catch (Exception e)
 {
-    foreach (var error in visitor.SemanticErrors)
-    {
-        Console.Error.WriteLine(error);
-    }
+    // foreach (var error in visitor.SemanticErrors)
+    // {
+    //     Console.Error.WriteLine(error);
+    // }
     Console.Error.WriteLine(e.StackTrace);
     Console.Error.WriteLine(e.Message);
     //throw;

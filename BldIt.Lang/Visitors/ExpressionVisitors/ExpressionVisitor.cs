@@ -51,13 +51,15 @@ public class ExpressionVisitor : BldItParserBaseVisitor<Expression>
         var varName = context.IDENTIFIER().GetText();
 
         if (!GlobalVariables.ContainsKey(varName))
-            throw new UndefinedVariableException(nameof(varName));
+            throw new UndefinedVariableException(varName);
         
         return GlobalVariables[varName];
     }
 
     public override Expression VisitFunctionCallExpr(BldItParser.FunctionCallExprContext context)
     {
+        var text = context.GetText();
+        var funT = context.functionCall().GetText();
         var statementVisitor = new SimpleStatementVisitor(SemanticErrors, GlobalVariables, Functions);
         var functionCallStatement = statementVisitor.VisitFunctionCall(context.functionCall());
         var funcResult = (FunctionCallStatement) functionCallStatement;

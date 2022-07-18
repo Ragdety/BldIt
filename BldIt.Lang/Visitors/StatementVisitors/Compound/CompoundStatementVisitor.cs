@@ -6,18 +6,23 @@ using BldIt.Lang.ValueObjects.BldItExpressions.ConstantTypes;
 using BldIt.Lang.ValueObjects.BldItExpressions.ExpressionTypes;
 using BldIt.Lang.ValueObjects.BldItStatements;
 using BldIt.Lang.ValueObjects.BldItStatements.Compound;
+using BldIt.Lang.ValueObjects.BldItStatements.Simple;
 using BldIt.Lang.Visitors.ExpressionVisitors;
 
 namespace BldIt.Lang.Visitors.StatementVisitors.Compound;
 
 public class CompoundStatementVisitor : StatementVisitor
 {
+    public Dictionary<string, Expression> LocalVariables { get; }
+
     public CompoundStatementVisitor(
         List<string> semanticErrors,
         Dictionary<string, Expression> globalVariables,
         Dictionary<string, Func<Expression?[], Expression?>> functions
-        ) 
-        : base(semanticErrors, globalVariables, functions) { }
+    ) : base(semanticErrors, globalVariables, functions)
+    {
+        LocalVariables = new Dictionary<string, Expression>();
+    }
     
     public override Statement VisitCompoundStatement(BldItParser.CompoundStatementContext context)
     {
@@ -128,8 +133,10 @@ public class CompoundStatementVisitor : StatementVisitor
             context.parameters().IDENTIFIER().ToArray() : 
             Array.Empty<ITerminalNode>();
 
-        var functionBody = context.block();
-        
+        var globalVariablesBeforeFunc = 
+            GlobalVariables.Select(x => x)
+                .ToDictionary(x => x.Key, x => x.Value);
+
         Expression FunctionDelegate(Expression?[] arguments)
         {
             /*
@@ -138,28 +145,68 @@ public class CompoundStatementVisitor : StatementVisitor
              *    with the parameter name as key and result as value
              * 3. Visit the function body
              * 4. Remove the temporary variables from the global variables dictionary
-             * 5. TODO: Return the result expression of the function body (if any)
+             * 5. Return the result expression of the function body (if any)
              */
             for (var i = 0; i < functionParameters.Length; i++)
             {
                 GlobalVariables.Add(functionParameters[i].GetText(), arguments[i] ?? new NullValue(null));
             }
 
-            Visit(functionBody);
+            var returnStatement = VisitFunctionBlock(context.functionBlock());
+            var result = (ReturnStatement) returnStatement;
+
+            //After we evaluate the result, clean up variables.
+            //Must be after that since we still want to access those when evaluating return's expression
             
-            foreach (var param in functionParameters)
+            //CLEAN UP:
+            //Select keys that were not previously in globalVariablesBeforeFunc, loop, and remove each one
+            foreach (var key in GlobalVariables
+                         .Select(kv => kv.Key)
+                         .Where(key => !globalVariablesBeforeFunc.ContainsKey(key)))
             {
-                GlobalVariables.Remove(param.GetText());
+                GlobalVariables.Remove(key);
             }
-            
-            //For return value, if it exists, visit the expression and return it
-            //Otherwise return VoidValue
-            
-            return new VoidValue();
+            return result.Expression;
         }
 
         Functions.Add(functionName, FunctionDelegate);
         return new FunctionDefinition(functionName, FunctionDelegate);
+    }
+
+    public override Statement VisitBlock(BldItParser.BlockContext context)
+    {
+        var t = context.GetText();
+        var statements = context.statements().statement().ToArray();
+        
+        //Loop through each statement
+        foreach (var statementContext in statements)
+        {
+            //If the result is a return statement, return (exit out of the function)
+            var res = VisitStatement(statementContext);
+            if (res is ReturnStatement)
+                return res;
+        }
+        return new BlockResult();
+    }
+
+    public override Statement VisitFunctionBlock(BldItParser.FunctionBlockContext context)
+    {
+        var t = context.GetText();
+        //Function blocks must have a return statement (either explicit or implicit) 
+        //For return value, if it does not exist, return Void
+        //Otherwise visit expression and return it
+        var statements = context.statements().statement().ToArray();
+
+        //Loop through each statement
+        foreach (var statementContext in statements)
+        {
+            //If the result is a return statement, return (exit out of the function)
+            var res = VisitStatement(statementContext);
+            if (res is ReturnStatement)
+                return res;
+        }
+        //If end of the loop, implicitly return Void
+        return new ReturnStatement(new VoidValue());
     }
 
     private static bool IsTrue(object? value)

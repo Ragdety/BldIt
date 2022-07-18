@@ -5,13 +5,29 @@ i = 1;
 //d = c
 //e = d * 3 //e should be 3...
 
-st = print("2")
+def IsLegalAgeInUSA(age):
+    return age >= 21
+
+//Param must be of different name than the function above
+//Need to handle this better in the future...
+def AreYouLegalAgeInUSA(agee):
+    legalAge = IsLegalAgeInUSA(agee)
+    if legalAge:
+        return "You are legal age in USA"
+    return "You are not legal age in USA"
+
+legalAgeTxt = AreYouLegalAgeInUSA(21)
+echo(legalAgeTxt)
+
+st = 2
 
 fun Add(param1, param2):
     result = param1 + param2
-    print(param1 + " + " + param2 + " is: " + result)
+    return result
 
-Add(st, 2)
+result = Add(st, 2)
+print(st + " + " + 2 + " is: " + result)
+
 
 fun Something():
     varInsideFunction = 1.2

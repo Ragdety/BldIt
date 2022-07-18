@@ -43,6 +43,7 @@ STAGE: 'stage';
 WHILE: 'while'; // | until;
 
 FUNCTION: 'fun' | 'def' | 'function';
+RETURN: 'return' | 'ret';
 
 //Operators
 ADD_OP: '+';
