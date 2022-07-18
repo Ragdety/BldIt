@@ -13,7 +13,7 @@ def IsLegalAgeInUSA(age):
 def AreYouLegalAgeInUSA(agee):
     legalAge = IsLegalAgeInUSA(agee)
     if legalAge:
-        return "You are legal age in USA"
+        return
     return "You are not legal age in USA"
 
 legalAgeTxt = AreYouLegalAgeInUSA(21)
@@ -62,13 +62,15 @@ print("Now time for pipeline")
 
 beforePipeline = 1
 
-pipeline:
-    globalEnv:
-    
-    parameters:
-        param = 1;
-    stages:
-        stage:
-            stage1 = 1
-            //Stage 1 code goes here
+//pipeline:
+//    globalEnv:
+//    
+//    parameters:
+//        param = 1;
+//    stages:
+//        stage:
+//            stage1 = 1
+//            //Stage 1 code goes here
 
+pipe:
+    

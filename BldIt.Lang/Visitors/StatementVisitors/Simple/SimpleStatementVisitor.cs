@@ -86,6 +86,10 @@ public class SimpleStatementVisitor : StatementVisitor
 
     public override Statement VisitReturnStatement(BldItParser.ReturnStatementContext context)
     {
+        //If expression is not there, it means function returns void
+        if (context.expression() == null)
+            return new ReturnStatement(new VoidValue());
+        
         var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables, Functions);
         var expression = expressionVisitor.Visit(context.expression());
         return new ReturnStatement(expression);

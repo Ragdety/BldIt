@@ -7,4 +7,9 @@ public class VoidValue : Expression
     public VoidValue() : base(ExpressionType.Void)
     {
     }
+    
+    public override string ToString()
+    {
+        return "void";
+    }
 }
