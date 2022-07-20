@@ -39,7 +39,6 @@ public class BldItFileVisitor : BldItParserBaseVisitor<BldItFile>
          */
         for (var i = 0; i < context.ChildCount; i++)
         {
-            var child = context.GetChild(i).GetText();
             if (i == 0)
             {
                 foreach (var statement in context.statement())

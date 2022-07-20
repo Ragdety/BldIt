@@ -105,11 +105,13 @@ constant: INTEGER | FLOAT | STRING | BOOL | NULL;
 
 
 //BldIt pipeline gramar specification
-pipeline: PIPELINE COLON NEWLINE INDENT pipelineSections DEDENT;
+pipeline: 
+  PIPELINE COLON NEWLINE INDENT 
+    globalEnvStatement? 
+    parameterStatement?
+    stagesStatement 
+  DEDENT;
 
-//Pipeline sections (must be in this order)
-//Note: Only stagesStatement is required
-pipelineSections: globalEnvStatement? stagesStatement;
 ///*parameterStatement?*/ ;
 
 globalEnvStatement: GLOBALENV COLON globalEnvBlock;
@@ -118,7 +120,7 @@ stagesStatement: STAGES COLON stagesBlock;
 
 //Pipeline Blocks
 globalEnvBlock: NEWLINE INDENT envAssignments DEDENT;
-parameterBlock: NEWLINE;//NEWLINE INDENT /*paramAssignments**/ DEDENT;
+parameterBlock: NEWLINE INDENT paramAssignments DEDENT;
 stagesBlock: NEWLINE INDENT stageStatements DEDENT;
 
 //At least one stage is required
@@ -130,6 +132,22 @@ stageBlock: block;
 //Pipeline assignments:
 envAssignments: ((envAssignment) SEMICOLON? NEWLINE)+;
 envAssignment: IDENTIFIER ASSIGN_OP pipelineExpression;
+
+/* 
+ * Example:
+ * parameters:
+ *    ReleaseName: stringParam
+ *    IsInternal: boolParam = false
+ *
+ * IsInternal is a boolean parameter with default value of false.
+ * ReleaseName is a string parameter with no default value.
+ * 
+ * Note: I still need to figure out how to implement choice parameters...
+ */
+paramAssignments: ((paramAssignment) SEMICOLON? NEWLINE)+;
+paramAssignment: IDENTIFIER COLON PARAM_TYPE paramDefualtValue?;
+paramDefualtValue: ASSIGN_OP (STRING | BOOL);
+
 
 //Might allow different exprs in the future
 pipelineExpression: expression;

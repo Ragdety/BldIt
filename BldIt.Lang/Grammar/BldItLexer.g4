@@ -91,6 +91,12 @@ ENDLINE: SEMICOLON;
  */
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
 
+/*
+ * Pipeline
+ */
+PARAM_TYPE: 'stringParam' | 'boolParam' ;//| 'choiceParam';
+
+
 //Other tokens:
 NEWLINE
  : ( {this.atStartOfInput()}?   SPACES

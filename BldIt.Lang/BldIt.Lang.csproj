@@ -26,4 +26,8 @@
         <Content Include="Grammar\BldItLexer.g4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Visitors\PipelineVisitors\PipelineSections\Stages" />
+    </ItemGroup>
+
 </Project>

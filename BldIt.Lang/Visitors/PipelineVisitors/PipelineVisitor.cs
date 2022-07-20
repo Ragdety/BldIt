@@ -2,8 +2,10 @@
 using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItPipeline;
-using BldIt.Lang.ValueObjects.BldItPipeline.PipelineExpressions;
+using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections;
+using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
 using BldIt.Lang.Visitors.ExpressionVisitors;
+using BldIt.Lang.Visitors.PipelineVisitors.PipelineSections;
 
 namespace BldIt.Lang.Visitors.PipelineVisitors;
 
@@ -49,18 +51,37 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
     
     public override Pipeline VisitPipeline(BldItParser.PipelineContext context)
     {
-        VisitPipelineSections(context.pipelineSections());
-        return new Pipeline();
-    }
-
-    public override Pipeline VisitPipelineSections(BldItParser.PipelineSectionsContext context)
-    {
-        var pipelineSection = context.GetText();
-        if (context.globalEnvStatement() is { } globalEnvStatement)
-            return VisitGlobalEnvStatement(globalEnvStatement);
-        if (context.stagesStatement() is {} stagesStatement)
-            return VisitStagesStatement(stagesStatement);
-        throw new CompilingException($"Invalid pipeline section: {pipelineSection}");
+        var pipeline = new Pipeline();
+        
+        var globalEnvVisitor = new GlobalEnvStatementVisitor(
+            SemanticErrors, 
+            GlobalVariables, 
+            GlobalEnv, 
+            Functions);
+        
+        var parameterStatementVisitor = new ParameterStatementVisitor(
+            SemanticErrors, 
+            GlobalVariables, 
+            GlobalEnv, 
+            Functions);
+        
+        for (var i = 0; i < context.ChildCount; i++)
+        {
+            switch (i)
+            {
+                //GlobalEnvStatement is index 0
+                case 0:
+                    pipeline.SetGlobalEnv(globalEnvVisitor
+                        .VisitGlobalEnvStatement(context.globalEnvStatement()));
+                    break;
+                case 1:
+                    pipeline.SetParameterStatement(parameterStatementVisitor
+                        .VisitParameterStatement(context.parameterStatement()));
+                    break;
+            }
+        }
+        
+        return pipeline;
     }
 
     public override Pipeline VisitGlobalEnvStatement(BldItParser.GlobalEnvStatementContext context)
