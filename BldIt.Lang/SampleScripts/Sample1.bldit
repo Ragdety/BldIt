@@ -20,13 +20,12 @@ fun GetCurrentEnvironment(isDev):
     ASPNETCORE_ENVIRONMENT = "Production"
     if isDev:
         ASPNETCORE_ENVIRONMENT = "Development"
-        return ASPNETCORE_ENVIRONMENT
     return ASPNETCORE_ENVIRONMENT
 
 pipe:
     globalEnv:
         var1 = "Some/Random/Path"
-        currentEnv = GetCurrentEnvironment(true)
+        currentEnv = GetCurrentEnvironment(false)
     stages:
         stage "Release Software":
             script:

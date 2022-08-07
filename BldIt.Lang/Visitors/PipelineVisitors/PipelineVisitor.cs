@@ -83,39 +83,4 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
         
         return pipeline;
     }
-
-    public override Pipeline VisitGlobalEnvStatement(BldItParser.GlobalEnvStatementContext context)
-    {
-        var globalEnvStatement = context.GetText();
-        if (context.globalEnvBlock() is {} globalEnv)
-            return VisitGlobalEnvBlock(globalEnv);
-        throw new CompilingException($"Invalid global environment statement: {globalEnvStatement}");
-    }
-
-    public override Pipeline VisitGlobalEnvBlock(BldItParser.GlobalEnvBlockContext context)
-    {
-        return VisitEnvAssignments(context.envAssignments());
-    }
-
-    public override Pipeline VisitEnvAssignments(BldItParser.EnvAssignmentsContext context)
-    {
-        var envs = context.envAssignment();
-        
-        foreach (var env in envs)
-        {
-            var envName = env.IDENTIFIER().GetText();
-            var envValue = VisitEnvAssignment(env);
-            //Set value as actual system env variable during the scope of pipeline execution.
-            //GlobalEnv.Add(envName, envValue);
-        }
-
-        return new Pipeline();
-    }
-
-    public override Pipeline VisitEnvAssignment(BldItParser.EnvAssignmentContext context)
-    {
-        var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables, Functions);
-        var result = expressionVisitor.Visit(context.pipelineExpression().expression());
-        return new Pipeline();
-    }
 }

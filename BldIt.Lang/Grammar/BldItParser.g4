@@ -61,8 +61,6 @@ parameters: (IDENTIFIER (COMMA IDENTIFIER)*);
  */
 block: simpleStatement | NEWLINE INDENT statements DEDENT;
 
-//Statements are optional (therefore the '?') since we might have a function only with a return statement
-//TODO: Add support for multiple return statements throughout the function 
 functionBlock: simpleStatement | NEWLINE INDENT statements? DEDENT;
 returnStatement: RETURN expression?;
 
@@ -104,7 +102,7 @@ boolOp: BOOL_OP;
 constant: INTEGER | FLOAT | STRING | BOOL | NULL;
 
 
-//BldIt pipeline gramar specification
+//BldIt pipeline grammar specification
 pipeline: 
   PIPELINE COLON NEWLINE INDENT 
     globalEnvStatement? 
@@ -142,12 +140,14 @@ envAssignment: IDENTIFIER ASSIGN_OP pipelineExpression;
  * IsInternal is a boolean parameter with default value of false.
  * ReleaseName is a string parameter with no default value.
  * 
- * Note: I still need to figure out how to implement choice parameters...
+ * Note for myself: I still need to figure out how to implement choice parameters...
  */
 paramAssignments: ((paramAssignment) SEMICOLON? NEWLINE)+;
-paramAssignment: IDENTIFIER COLON PARAM_TYPE paramDefualtValue?;
-paramDefualtValue: ASSIGN_OP (STRING | BOOL);
+
+//If defaultValue is null, parameter will be empty by default
+paramAssignment: IDENTIFIER COLON PARAM_TYPE paramDefaultValue?;
+paramDefaultValue: ASSIGN_OP (STRING | BOOL);
 
 
-//Might allow different exprs in the future
+//Might allow different exprs in the future, like bat expr (returning stdOut or exit code)
 pipelineExpression: expression;
