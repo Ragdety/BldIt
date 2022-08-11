@@ -1,10 +1,17 @@
 import React, {useEffect, useState} from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {Navbar, Footer, Sidebar, ThemeSettings} from "./components";
+import {BldIt, Projects} from "./pages";
+
 import './App.css';
+
 import * as signalR from "@microsoft/signalr";
 import {HubConnection} from "@microsoft/signalr";
 
 function App() {
     const [connection, setConnection] = useState<HubConnection | null>();
+    
+    const activeMenu = true;
 
     useEffect(() => {
         const connection = new signalR.HubConnectionBuilder()
@@ -32,21 +39,34 @@ function App() {
     }, [connection])
 
     return (
-        <div className="App">
-            <header className="App-header">
-                <nav>Nav here</nav>
-                <main>
-                    <div className="container mx-auto bg-gray-200 rounded-xl shadow border p-8 m-10">
-                        <p className="text-3xl text-gray-700 font-bold mb-5">
-                            Welcome!
-                        </p>
-                        <p className="text-gray-500 text-lg">
-                            React and Tailwind CSS in action
-                        </p>
+        <div>
+            <BrowserRouter>
+                <div className="flex dark:bg-main-dark-bg">
+                    <div className={`${activeMenu ? "w-72" : "w-20"} relative 
+                                    h-screen sidebar dark:bg-secondary-dark-bg bg-dark-purple
+                                    duration-200 p-5 pt-8`}>
+                        <Sidebar />
                     </div>
-                </main>
-                <footer>Footer here</footer>
-            </header>
+                    <div className={
+                        `dark:bg-main-bg bg-main-bg min-h-screen w-full
+                        ${activeMenu ? " md:ml-72" : "flex-2"}`
+                    }>
+                        <div className="fixed md:static bg-main-bg dark:bg-main-dark-bg navbar w-full">
+                            <Navbar />
+                        </div>
+                    </div>
+                    <div>
+                        <Routes>
+                            {/* Dashboard */}
+                            <Route path="/" element={<BldIt/>} />
+                            <Route path="/bldIt" element={<BldIt/>} />
+
+                            {/* Pages */}
+                            <Route path="/projects" element={<Projects/>} />
+                        </Routes>
+                    </div>
+                </div>
+            </BrowserRouter>
         </div>
     );
 }
