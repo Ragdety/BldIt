@@ -12,10 +12,11 @@ function App() {
     const [connection, setConnection] = useState<HubConnection | null>();
     
     const activeMenu = true;
+    const buildStreamURL: string = process.env.REACT_APP_BLDIT_BUILD_STREAM_URL_SECURE!;
 
     useEffect(() => {
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl('https://localhost:5001/buildStream', {
+            .withUrl(buildStreamURL, {
                 skipNegotiation: true,
                 transport: signalR.HttpTransportType.WebSockets
             })
