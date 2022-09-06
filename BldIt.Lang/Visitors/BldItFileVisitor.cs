@@ -23,6 +23,7 @@ public class BldItFileVisitor : BldItParserBaseVisitor<BldItFile>
 
     public override BldItFile VisitBldItFile(BldItParser.BldItFileContext context)
     {
+        //TODO: Use dependency injection to handle creation of objects
         var bldItFile = new BldItFile();
         
         //Helper object to transform each subtree into a Statement object
@@ -39,18 +40,21 @@ public class BldItFileVisitor : BldItParserBaseVisitor<BldItFile>
          */
         for (var i = 0; i < context.ChildCount; i++)
         {
-            if (i == 0)
+            switch (i)
             {
-                foreach (var statement in context.statement())
+                case 0:
                 {
-                    //First child is the statement* grammar rule, visit each one:
-                    bldItFile.AddStatement(statementVisitorVisitor.VisitStatement(statement));
+                    foreach (var statement in context.statement())
+                    {
+                        //First child is the statement* grammar rule, visit each one:
+                        bldItFile.AddStatement(statementVisitorVisitor.VisitStatement(statement));
+                    }
+                    break;
                 }
-            }
-            else if (i == 1)
-            {
-                //Second child is the pipeline grammar rule
-                bldItFile.SetPipeline(pipelineVisitor.VisitPipeline(context.pipeline()));
+                case 1:
+                    //Second child is the pipeline grammar rule
+                    bldItFile.SetPipeline(pipelineVisitor.VisitPipeline(context.pipeline()));
+                    break;
             }
             //Last child of the start symbol (bldItFile) is EOF
             //Do not visit this child and attempt to convert it to a Statement object

@@ -1,10 +1,8 @@
-﻿using BldIt.Lang.Exceptions;
-using BldIt.Lang.Grammar;
+﻿using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItPipeline;
-using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections;
+using BldIt.Lang.ValueObjects.BldItPipeline.PipelineParameterTypes;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
-using BldIt.Lang.Visitors.ExpressionVisitors;
 using BldIt.Lang.Visitors.PipelineVisitors.PipelineSections;
 
 namespace BldIt.Lang.Visitors.PipelineVisitors;
@@ -27,6 +25,11 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
     protected Dictionary<string, Expression> GlobalEnv { get; }
     
     /// <summary>
+    /// Represents the set of parameters in the pipeline
+    /// </summary>
+    protected HashSet<Parameter> Parameters { get; }
+    
+    /// <summary>
     /// Represents functions of the bldit file context.
     /// </summary>
     protected Dictionary<string, Func<Expression?[], Expression?>> Functions { get; }
@@ -45,6 +48,7 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
         SemanticErrors = semanticErrors;
         GlobalVariables = globalVariables;
         Functions = functions;
+        Parameters = new HashSet<Parameter>();
         GlobalEnv = new Dictionary<string, Expression>();
         Stages = new HashSet<Stage>();
     }
@@ -53,18 +57,34 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
     {
         var pipeline = new Pipeline();
         
+        /*
+         * We will pass the semantic errors, global variables and functions to the visitor.
+         * And after we visit it, it will contain the global environment variables in the GlobalEnv dictionary.
+         */
         var globalEnvVisitor = new GlobalEnvStatementVisitor(
             SemanticErrors, 
-            GlobalVariables, 
-            GlobalEnv, 
-            Functions);
+            GlobalVariables,
+            Functions,
+            GlobalEnv);
         
+        /*
+         * We will pass the semantic errors, global variables and functions to the visitor.
+         * And after we visit it, it will contain the parameters in the Parameters hashset.
+         * ParameterStatementVisitor doesn't need to know about the global environment variables.
+         */
         var parameterStatementVisitor = new ParameterStatementVisitor(
-            SemanticErrors, 
-            GlobalVariables, 
-            GlobalEnv, 
-            Functions);
+            SemanticErrors,
+            GlobalVariables,
+            Functions,
+            Parameters);
         
+        var stageStatementVisitor = new StageStatementVisitor(
+            SemanticErrors,
+            GlobalVariables,
+            Functions,
+            GlobalEnv,
+            Parameters);
+
         for (var i = 0; i < context.ChildCount; i++)
         {
             switch (i)
@@ -74,9 +94,15 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
                     pipeline.SetGlobalEnv(globalEnvVisitor
                         .VisitGlobalEnvStatement(context.globalEnvStatement()));
                     break;
+                //ParameterStatement is index 1
                 case 1:
                     pipeline.SetParameterStatement(parameterStatementVisitor
                         .VisitParameterStatement(context.parameterStatement()));
+                    break;
+                //StagesStatement is index 2
+                case 2:
+                    pipeline.SetStageStatement(stageStatementVisitor
+                        .VisitStagesStatement(context.stagesStatement()));
                     break;
             }
         }

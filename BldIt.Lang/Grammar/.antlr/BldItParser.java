@@ -35,7 +35,7 @@ public class BldItParser extends Parser {
 		RULE_parameterBlock = 30, RULE_stagesBlock = 31, RULE_stageStatements = 32, 
 		RULE_stageStatement = 33, RULE_stageBlock = 34, RULE_envAssignments = 35, 
 		RULE_envAssignment = 36, RULE_paramAssignments = 37, RULE_paramAssignment = 38, 
-		RULE_paramDefualtValue = 39, RULE_pipelineExpression = 40;
+		RULE_paramValue = 39, RULE_pipelineExpression = 40;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"bldItFile", "statements", "statement", "simpleStatement", "compoundStatement", 
@@ -45,7 +45,7 @@ public class BldItParser extends Parser {
 			"multOp", "addOp", "compareOp", "boolOp", "constant", "pipeline", "globalEnvStatement", 
 			"parameterStatement", "stagesStatement", "globalEnvBlock", "parameterBlock", 
 			"stagesBlock", "stageStatements", "stageStatement", "stageBlock", "envAssignments", 
-			"envAssignment", "paramAssignments", "paramAssignment", "paramDefualtValue", 
+			"envAssignment", "paramAssignments", "paramAssignment", "paramValue", 
 			"pipelineExpression"
 		};
 	}
@@ -2151,8 +2151,9 @@ public class BldItParser extends Parser {
 		public TerminalNode IDENTIFIER() { return getToken(BldItParser.IDENTIFIER, 0); }
 		public TerminalNode COLON() { return getToken(BldItParser.COLON, 0); }
 		public TerminalNode PARAM_TYPE() { return getToken(BldItParser.PARAM_TYPE, 0); }
-		public ParamDefualtValueContext paramDefualtValue() {
-			return getRuleContext(ParamDefualtValueContext.class,0);
+		public TerminalNode ASSIGN_OP() { return getToken(BldItParser.ASSIGN_OP, 0); }
+		public ParamValueContext paramValue() {
+			return getRuleContext(ParamValueContext.class,0);
 		}
 		public ParamAssignmentContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -2173,13 +2174,15 @@ public class BldItParser extends Parser {
 			match(COLON);
 			setState(326);
 			match(PARAM_TYPE);
-			setState(328);
+			setState(329);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ASSIGN_OP) {
 				{
 				setState(327);
-				paramDefualtValue();
+				match(ASSIGN_OP);
+				setState(328);
+				paramValue();
 				}
 			}
 
@@ -2196,25 +2199,22 @@ public class BldItParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ParamDefualtValueContext extends ParserRuleContext {
-		public TerminalNode ASSIGN_OP() { return getToken(BldItParser.ASSIGN_OP, 0); }
+	public static class ParamValueContext extends ParserRuleContext {
 		public TerminalNode STRING() { return getToken(BldItParser.STRING, 0); }
 		public TerminalNode BOOL() { return getToken(BldItParser.BOOL, 0); }
-		public ParamDefualtValueContext(ParserRuleContext parent, int invokingState) {
+		public ParamValueContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_paramDefualtValue; }
+		@Override public int getRuleIndex() { return RULE_paramValue; }
 	}
 
-	public final ParamDefualtValueContext paramDefualtValue() throws RecognitionException {
-		ParamDefualtValueContext _localctx = new ParamDefualtValueContext(_ctx, getState());
-		enterRule(_localctx, 78, RULE_paramDefualtValue);
+	public final ParamValueContext paramValue() throws RecognitionException {
+		ParamValueContext _localctx = new ParamValueContext(_ctx, getState());
+		enterRule(_localctx, 78, RULE_paramValue);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(330);
-			match(ASSIGN_OP);
 			setState(331);
 			_la = _input.LA(1);
 			if ( !(_la==STRING || _la==BOOL) ) {
@@ -2314,7 +2314,7 @@ public class BldItParser extends Parser {
 		"\3\36\3\36\3\37\3\37\3\37\3\37\3\37\3 \3 \3 \3 \3 \3!\3!\3!\3!\3!\3\""+
 		"\6\"\u0125\n\"\r\"\16\"\u0126\3#\3#\3#\3#\3$\3$\3%\3%\5%\u0131\n%\3%\3"+
 		"%\6%\u0135\n%\r%\16%\u0136\3&\3&\3&\3&\3\'\3\'\5\'\u013f\n\'\3\'\3\'\6"+
-		"\'\u0143\n\'\r\'\16\'\u0144\3(\3(\3(\3(\5(\u014b\n(\3)\3)\3)\3*\3*\3*"+
+		"\'\u0143\n\'\r\'\16\'\u0144\3(\3(\3(\3(\3(\5(\u014c\n(\3)\3)\3*\3*\3*"+
 		"\2\3$+\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668:<"+
 		">@BDFHJLNPR\2\7\3\2\17\21\3\2\r\16\4\2\23\26  \3\2\"&\3\2$%\2\u014b\2"+
 		"X\3\2\2\2\4_\3\2\2\2\6e\3\2\2\2\bj\3\2\2\2\nt\3\2\2\2\fv\3\2\2\2\16\u0080"+
@@ -2325,7 +2325,7 @@ public class BldItParser extends Parser {
 		"\62\u00f9\3\2\2\2\64\u00fb\3\2\2\2\66\u0108\3\2\2\28\u010c\3\2\2\2:\u0110"+
 		"\3\2\2\2<\u0114\3\2\2\2>\u0119\3\2\2\2@\u011e\3\2\2\2B\u0124\3\2\2\2D"+
 		"\u0128\3\2\2\2F\u012c\3\2\2\2H\u0134\3\2\2\2J\u0138\3\2\2\2L\u0142\3\2"+
-		"\2\2N\u0146\3\2\2\2P\u014c\3\2\2\2R\u014f\3\2\2\2TW\7*\2\2UW\5\6\4\2V"+
+		"\2\2N\u0146\3\2\2\2P\u014d\3\2\2\2R\u014f\3\2\2\2TW\7*\2\2UW\5\6\4\2V"+
 		"T\3\2\2\2VU\3\2\2\2WZ\3\2\2\2XV\3\2\2\2XY\3\2\2\2Y[\3\2\2\2ZX\3\2\2\2"+
 		"[\\\5\64\33\2\\]\7\2\2\3]\3\3\2\2\2^`\5\6\4\2_^\3\2\2\2`a\3\2\2\2a_\3"+
 		"\2\2\2ab\3\2\2\2b\5\3\2\2\2cf\5\b\5\2df\5\n\6\2ec\3\2\2\2ed\3\2\2\2f\7"+
@@ -2395,11 +2395,11 @@ public class BldItParser extends Parser {
 		"\u013f\3\2\2\2\u013f\u0140\3\2\2\2\u0140\u0141\7*\2\2\u0141\u0143\3\2"+
 		"\2\2\u0142\u013c\3\2\2\2\u0143\u0144\3\2\2\2\u0144\u0142\3\2\2\2\u0144"+
 		"\u0145\3\2\2\2\u0145M\3\2\2\2\u0146\u0147\7(\2\2\u0147\u0148\7\33\2\2"+
-		"\u0148\u014a\7)\2\2\u0149\u014b\5P)\2\u014a\u0149\3\2\2\2\u014a\u014b"+
-		"\3\2\2\2\u014bO\3\2\2\2\u014c\u014d\7\35\2\2\u014d\u014e\t\6\2\2\u014e"+
+		"\u0148\u014b\7)\2\2\u0149\u014a\7\35\2\2\u014a\u014c\5P)\2\u014b\u0149"+
+		"\3\2\2\2\u014b\u014c\3\2\2\2\u014cO\3\2\2\2\u014d\u014e\t\6\2\2\u014e"+
 		"Q\3\2\2\2\u014f\u0150\5$\23\2\u0150S\3\2\2\2\36VXaejmtz~\u0098\u00a3\u00ac"+
 		"\u00b2\u00b5\u00b9\u00c6\u00c9\u00d3\u00e5\u00e7\u0100\u0103\u0126\u0130"+
-		"\u0136\u013e\u0144\u014a";
+		"\u0136\u013e\u0144\u014b";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

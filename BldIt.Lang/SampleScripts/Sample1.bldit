@@ -26,6 +26,9 @@ pipe:
     globalEnv:
         var1 = "Some/Random/Path"
         currentEnv = GetCurrentEnvironment(false)
+    parameters:
+        ReleaseName: stringParam
+        IsInternal: boolParam = false
     stages:
         stage "Release Software":
             script:

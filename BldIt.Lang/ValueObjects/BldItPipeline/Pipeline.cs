@@ -9,7 +9,7 @@ public class Pipeline
 
     public ParameterStatement ParameterStatement { get; set; }
 
-    public List<Stage> Stages { get; }
+    public StageStatement StageStatement { get; set; }
     
     //Post actions class here later
     
@@ -17,7 +17,7 @@ public class Pipeline
     {
         GlobalEnvStatement = new GlobalEnvStatement();
         ParameterStatement = new ParameterStatement();
-        Stages = new List<Stage>();
+        StageStatement = new StageStatement();
     }
     
     public void SetGlobalEnv(GlobalEnvStatement globalEnvStatement)
@@ -30,8 +30,8 @@ public class Pipeline
         ParameterStatement = parameterStatement;
     }
     
-    public void AddStage(Stage stage)
+    public void SetStageStatement(StageStatement stageStatement)
     {
-        Stages.Add(stage);
+        StageStatement = stageStatement;
     }
 }

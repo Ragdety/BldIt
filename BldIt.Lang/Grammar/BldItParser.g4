@@ -137,16 +137,16 @@ envAssignment: IDENTIFIER ASSIGN_OP pipelineExpression;
  *    ReleaseName: stringParam
  *    IsInternal: boolParam = false
  *
- * IsInternal is a boolean parameter with default value of false.
  * ReleaseName is a string parameter with no default value.
+ * IsInternal is a boolean parameter with default value of false.
  * 
  * Note for myself: I still need to figure out how to implement choice parameters...
  */
 paramAssignments: ((paramAssignment) SEMICOLON? NEWLINE)+;
 
 //If defaultValue is null, parameter will be empty by default
-paramAssignment: IDENTIFIER COLON PARAM_TYPE paramDefaultValue?;
-paramDefaultValue: ASSIGN_OP (STRING | BOOL);
+paramAssignment: IDENTIFIER COLON PARAM_TYPE (ASSIGN_OP paramValue)?;
+paramValue: STRING | BOOL;
 
 
 //Might allow different exprs in the future, like bat expr (returning stdOut or exit code)

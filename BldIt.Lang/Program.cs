@@ -2,7 +2,7 @@
 using BldIt.Lang.Visitors;
 
 //This should be a command line arg to be used like so: "bldit.exe SampleScripts/Sample1.bldit"
-const string filePath = "C:\\Users\\Ragdety\\Desktop\\Programming\\BldIt\\BldIt.Lang\\SampleScripts\\Sample1.bldit"; //args[0];
+const string filePath = "C:\\Users\\ragde\\OneDrive\\Desktop\\Programming\\BldIt\\BldIt.Lang\\SampleScripts\\Sample1.bldit"; //args[0];
 const string blditFileType = "bldit";
 
 var fileName = Path.GetFileName(filePath);

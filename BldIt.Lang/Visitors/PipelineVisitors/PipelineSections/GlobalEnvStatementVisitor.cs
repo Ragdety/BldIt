@@ -11,21 +11,19 @@ public class GlobalEnvStatementVisitor : BldItParserBaseVisitor<GlobalEnvStateme
 {
     protected List<string> SemanticErrors { get; }
     protected Dictionary<string, Expression> GlobalVariables { get; }
-    
-    protected Dictionary<string, Expression> GlobalEnv { get; }
-    
     protected Dictionary<string, Func<Expression?[], Expression?>> Functions { get; }
+    protected Dictionary<string, Expression> GlobalEnv { get; }
 
     public GlobalEnvStatementVisitor(
         List<string> semanticErrors, 
-        Dictionary<string, Expression> globalVariables, 
-        Dictionary<string, Expression> globalEnv, 
-        Dictionary<string, Func<Expression?[], Expression?>> functions)
+        Dictionary<string, Expression> globalVariables,
+        Dictionary<string, Func<Expression?[], Expression?>> functions,
+        Dictionary<string, Expression> globalEnv)
     {
         SemanticErrors = semanticErrors;
         GlobalVariables = globalVariables;
-        GlobalEnv = globalEnv;
         Functions = functions;
+        GlobalEnv = globalEnv;
     }
     
     public override GlobalEnvStatement VisitGlobalEnvStatement(BldItParser.GlobalEnvStatementContext context)
@@ -48,7 +46,6 @@ public class GlobalEnvStatementVisitor : BldItParserBaseVisitor<GlobalEnvStateme
         
         foreach (var env in envs)
         {
-            var t = env.GetText();
             var envName = env.IDENTIFIER().GetText();
             var expressionVisitor = new ExpressionVisitor(SemanticErrors, GlobalVariables, Functions);
             var envValue = expressionVisitor.Visit(env);

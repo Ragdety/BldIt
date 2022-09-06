@@ -4,7 +4,7 @@ namespace BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections;
 
 public class GlobalEnvStatement : PipelineSection
 {
-    private Dictionary<string, Expression> EnvironmentVariables { get; }
+    public Dictionary<string, Expression> EnvironmentVariables { get; }
     
     public GlobalEnvStatement()
     {
