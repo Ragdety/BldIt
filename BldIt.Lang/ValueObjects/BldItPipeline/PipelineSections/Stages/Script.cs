@@ -2,12 +2,7 @@
 
 namespace BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
 
-public class Stage : PipelineSection
+public class Script : CompoundStageStep
 {
-    public List<StageStep> StageSteps { get; }
     
-    public Stage()
-    {
-        StageSteps = new List<StageStep>();
-    }
 }

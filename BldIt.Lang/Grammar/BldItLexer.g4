@@ -95,6 +95,8 @@ IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
  * Pipeline
  */
 PARAM_TYPE: 'stringParam' | 'boolParam' | 'choiceParam';
+SCRIPT: 'script';
+ECHO: 'echo';
 
 
 //Other tokens:

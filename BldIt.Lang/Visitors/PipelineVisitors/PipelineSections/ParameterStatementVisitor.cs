@@ -30,7 +30,7 @@ public class ParameterStatementVisitor : BldItParserBaseVisitor<ParameterStateme
         var parameterStatement = context.GetText();
         if (context.parameterBlock() is {} parameterBlock)
             return VisitParameterBlock(parameterBlock);
-        throw new CompilingException($"Invalid global environment statement: {parameterStatement}");
+        throw new CompilingException($"Invalid parameter statement: {parameterStatement}");
     }
 
     public override ParameterStatement VisitParameterBlock(BldItParser.ParameterBlockContext context)

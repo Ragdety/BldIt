@@ -17,7 +17,7 @@ public class SimpleStatementVisitor : StatementVisitor
         : base(semanticErrors, globalVariables, functions)
     {
         functions["print"] = Write;
-        functions["echo"]  = Echo;
+        //functions["echo"]  = Echo;
     }
 
     public override Statement VisitSimpleStatement(BldItParser.SimpleStatementContext context)
@@ -109,5 +109,5 @@ public class SimpleStatementVisitor : StatementVisitor
         return new StringValue(output);
     }
 
-    private static Expression Echo(Expression?[] arguments) => Write(arguments);
+    //private static Expression Echo(Expression?[] arguments) => Write(arguments);
 }

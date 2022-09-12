@@ -78,7 +78,7 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
             Functions,
             Parameters);
         
-        var stageStatementVisitor = new StageStatementVisitor(
+        var stageStatementVisitor = new StagesStatementVisitor(
             SemanticErrors,
             GlobalVariables,
             Functions,

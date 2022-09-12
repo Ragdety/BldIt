@@ -119,13 +119,39 @@ stagesStatement: STAGES COLON stagesBlock;
 //Pipeline Blocks
 globalEnvBlock: NEWLINE INDENT envAssignments DEDENT;
 parameterBlock: NEWLINE INDENT paramAssignments DEDENT;
-stagesBlock: NEWLINE INDENT stageStatements DEDENT;
+stagesBlock: NEWLINE INDENT stageStatement+ DEDENT;
+//At least one stage is required^
 
-//At least one stage is required
-stageStatements: stageStatement+;
-stageStatement: STAGE /*stageName*/ COLON stageBlock;
-//stageName: PIPELINE_IDENTIFIER;
-stageBlock: block;
+stageStatement: STAGE STRING COLON stageBlock;
+stageBlock: simpleStepStatement | NEWLINE INDENT stepStatement+ DEDENT;
+
+//Steps statements
+stepStatement: simpleStepStatement | compoundStepStatement;
+
+//simpleStepStatement: (echoStep | runStep | errorStep) SEMICOLON? NEWLINE;
+simpleStepStatement: pipelineSimpleStepCall SEMICOLON? NEWLINE;
+
+compoundStepStatement: 
+  scriptStep |
+  handleErrorsStep;
+
+pipelineSimpleStepCall: 
+  IDENTIFIER OPEN_PAREN (pipelineExpression (COMMA pipelineExpression)*)? CLOSE_PAREN;
+
+//TODO: Implement these simple statements
+echoStep: ECHO pipelineExpression;
+runStep: STRING;
+errorStep: STRING;
+
+//TODO: Implement these compound statements
+handleErrorsStep: STRING;
+
+//Script Statement
+scriptStep: SCRIPT COLON scriptBlock;
+scriptBlock: NEWLINE INDENT (stepStatements | statements) DEDENT;
+stepStatements: stepStatement+;
+
+//Step Statements
 
 //Pipeline assignments:
 envAssignments: ((envAssignment) SEMICOLON? NEWLINE)+;

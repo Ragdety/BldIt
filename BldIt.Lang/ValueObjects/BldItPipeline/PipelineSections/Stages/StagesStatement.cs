@@ -1,10 +1,10 @@
 ﻿namespace BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
 
-public class StageStatement
+public class StagesStatement
 {
-    public HashSet<Stage> Stages { get; set; }
+    public HashSet<Stage> Stages { get; }
 
-    public StageStatement()
+    public StagesStatement()
     {
         Stages = new HashSet<Stage>();
     }
