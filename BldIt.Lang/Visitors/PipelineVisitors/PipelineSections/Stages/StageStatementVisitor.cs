@@ -32,9 +32,12 @@ public class StageStatementVisitor : BldItParserBaseVisitor<Stage>
     public override Stage VisitStageBlock(BldItParser.StageBlockContext context)
     {
         var stepsStatements = context.stepStatement();
-        //var b = stepsStatements[0].GetChild(0).GetText();
         var stageStepsStatementVisitor = new StepStatementVisitor(SemanticErrors, GlobalVariables, Functions, GlobalEnv, Parameters);
-        var stage = new Stage();
+        var stageName = context.parent.GetChild(1).GetText();
+        var stage = new Stage(stageName)
+        {
+            StageState = StageState.NotStarted
+        };
 
         //If only one simpleStep statement is available:
         if (context.simpleStepStatement() is { } simpleStepStatement)

@@ -40,7 +40,7 @@ public class CompoundStepStatementVisitor : StepStatementVisitor
         throw new NotImplementedException();
     }
 
-    public override Script VisitScriptBlock(BldItParser.ScriptBlockContext context)
+    public override ScriptStep VisitScriptBlock(BldItParser.ScriptBlockContext context)
     {
         throw new NotImplementedException();
         
@@ -53,13 +53,13 @@ public class CompoundStepStatementVisitor : StepStatementVisitor
             
             var stages = stagesStatementVisitor.VisitStepStatements(stepStatements);
             
-            return (Script) stages;
+            return (ScriptStep) stages;
         }
            
         if (context.statements() is not { } scriptStatement)
             throw new CompilingException($"Invalid script block: {scriptBlock}");
         
-        var stageStep = new Script();
+        var stageStep = new ScriptStep("script");
             
         var statementsVisitor = new StatementVisitor(SemanticErrors, GlobalVariables, Functions);
         var statementResult = statementsVisitor.Visit(scriptStatement);

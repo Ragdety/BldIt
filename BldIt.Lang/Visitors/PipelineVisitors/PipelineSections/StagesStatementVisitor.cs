@@ -80,7 +80,7 @@ public class StagesStatementVisitor : BldItParserBaseVisitor<StagesStatement>
         var envVariable = arguments[0];
         
         //Check if it is a string
-        if (envVariable?.Type != typeof(StringValue))
+        if (envVariable?.Type != typeof(string))
             throw new CompilingException("GetEnv() function expects a string as the parameter");
         
         //Cast it from Expression to StringValue to be able to use it down below 

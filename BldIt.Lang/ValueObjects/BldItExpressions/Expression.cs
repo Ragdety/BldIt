@@ -12,33 +12,15 @@ public abstract class Expression
     {
         get
         {
-            switch (ExpressionType)
+            return ExpressionType switch
             {
-                case ExpressionType.Boolean:
-                    return typeof(BoolValue);
-                case ExpressionType.Additive:
-                    return typeof(Constant<>);
-                case ExpressionType.Constant:
-                    return typeof(Constant<>);
-                case ExpressionType.Void:
-                    return typeof(VoidValue);
-                case ExpressionType.Identifier:
-                    return typeof(Identifier);
-                case ExpressionType.FunctionCall:
-                    break;
-                case ExpressionType.Parenthesized:
-                    break;
-                case ExpressionType.Not:
-                    break;
-                case ExpressionType.Multiplicative:
-                    break;
-                case ExpressionType.Comparison:
-                    break;
-                default:
-                    return GetType();
-            }
-
-            return GetType();
+                ExpressionType.Boolean => typeof(BoolValue),
+                ExpressionType.Additive => typeof(Constant<>),
+                ExpressionType.Constant => typeof(Constant<>),
+                ExpressionType.Void => typeof(VoidValue),
+                ExpressionType.Identifier => typeof(Identifier),
+                _ => GetType()
+            };
         }
     }
 

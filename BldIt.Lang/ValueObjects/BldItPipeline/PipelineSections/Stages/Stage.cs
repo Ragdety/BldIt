@@ -5,9 +5,12 @@ namespace BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
 public class Stage : PipelineSection
 {
     public List<StageStep> StageSteps { get; }
-    
-    public Stage()
+    public string StageName { get; }
+    public StageState StageState { get; set; }
+
+    public Stage(string stageName)
     {
         StageSteps = new List<StageStep>();
+        StageName = stageName;
     }
 }

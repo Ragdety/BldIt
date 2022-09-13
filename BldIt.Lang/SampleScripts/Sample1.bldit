@@ -39,9 +39,11 @@ fun GetCurrentEnvironment(isDev):
 pipe:
     globalEnv:
         var1 = "Some/Random/Path"
-        currentEnv = GetCurrentEnvironment(false)
+        currentEnv = GetCurrentEnvironment(true)
     parameters:
         ReleaseName: stringParam
         IsInternal: boolParam = false
     stages:
-        stage "Release Software": echo("Hi")
+        stage "Release Software": 
+            echo(GetEnv("currentEnv"))
+            echo("Inside Release Software stage")
