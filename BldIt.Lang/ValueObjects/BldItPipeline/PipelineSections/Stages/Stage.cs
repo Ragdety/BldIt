@@ -4,13 +4,14 @@ namespace BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
 
 public class Stage : PipelineSection
 {
-    public List<StageStep> StageSteps { get; }
-    public string StageName { get; }
-    public StageState StageState { get; set; }
+    public List<StageStep> Steps { get; }
+    public string Name { get; }
+    public StageState State { get; set; }
 
-    public Stage(string stageName)
+    public Stage(string name)
     {
-        StageSteps = new List<StageStep>();
-        StageName = stageName;
+        Steps = new List<StageStep>();
+        Name = name;
+        State = StageState.NotStarted;
     }
 }

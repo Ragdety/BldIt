@@ -38,7 +38,7 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         {
             "echo" => VisitEchoStep(context),
             //"run" => VisitRunStep(context),
-            //"error" => VisitErrorStep(context),
+            "error" => VisitErrorStep(context),
             _ => throw new CompilingException($"Step {stepIdentifier} is not supported")
         };
     }
@@ -46,56 +46,32 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
     private EchoStep VisitEchoStep(BldItParser.PipelineSimpleStepCallContext context)
     {
         var stepExpressions = context.pipelineExpression();
-        var stepIdentifier = context.IDENTIFIER().GetText();
         
         if (stepExpressions.Length is < 1 or > 1)
-            throw new CompilingException("Step 'echo' requires 1 argument");
+            throw new CompilingException("Step \'echo\' requires 1 argument");
         
         var pipelineExpressionVisitor = new PipelineExpressionVisitor(SemanticErrors, GlobalVariables, Functions, GlobalEnv, Parameters);
-        
-        var pipelineExpressionText = context.pipelineExpression()[0].GetText();
         var expressionResult = pipelineExpressionVisitor.VisitPipelineExpression(context.pipelineExpression()[0]);
-        var exprType = expressionResult.Type;
-        
         var exprTypeValueObject = ExpressionTypeHelper.GetValueFromType(expressionResult);
-        object value;
 
-        switch (exprTypeValueObject)
-        {
-            case IntegerValue:
-            {
-                if (expressionResult is not IntegerValue valueObject)
-                    throw new CompilingException($"Pipeline expression {pipelineExpressionText} is not valid");
-                value = new IntegerValue(valueObject.Value);
-                break;
-            }
-            case FloatValue:
-            {
-                if (expressionResult is not FloatValue valueObject)
-                    throw new CompilingException($"Pipeline expression {pipelineExpressionText} is not valid");
-                value = new FloatValue(valueObject.Value);
-                break;
-            }
-            case StringValue:
-            {
-                if (expressionResult is not StringValue valueObject)
-                    throw new CompilingException($"Pipeline expression {pipelineExpressionText} is not valid");
-                value = new StringValue(valueObject.Value);
-                break;
-            }
-            case BoolValue:
-            {
-                if (expressionResult is not BoolValue valueObject)
-                    throw new CompilingException($"Pipeline expression {pipelineExpressionText} is not valid");
-                value = new BoolValue(valueObject.Value);
-                break;
-            }
-            default:
-                throw new CompilingException($"Invalid expression type {exprType} for step {stepIdentifier}");
-        }
+        Console.WriteLine(exprTypeValueObject.ToString());
         
-        Console.WriteLine(value.ToString());
+        return new EchoStep(exprTypeValueObject.ToString());
+    }
+    
+    private ErrorStep VisitErrorStep(BldItParser.PipelineSimpleStepCallContext context)
+    {
+        var stepExpressions = context.pipelineExpression();
         
-        return new EchoStep(stepIdentifier, value.ToString());
+        if (stepExpressions.Length is < 1 or > 1)
+            throw new CompilingException("Step \'error\' requires 1 argument");
+        
+        var pipelineExpressionVisitor = new PipelineExpressionVisitor(SemanticErrors, GlobalVariables, Functions, GlobalEnv, Parameters);
+        var expressionResult = pipelineExpressionVisitor.VisitPipelineExpression(context.pipelineExpression()[0]);
+        var exprTypeValueObject = ExpressionTypeHelper.GetValueFromType(expressionResult);
+
+        Console.Error.WriteLine(exprTypeValueObject.ToString());
+        
+        return new ErrorStep(exprTypeValueObject.ToString());
     }
 }

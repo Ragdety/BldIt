@@ -4,10 +4,11 @@ namespace BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
 
 public class ScriptStep : CompoundStageStep
 {
-    private ScriptStep(CompoundStepType stepType, string stepIdentifier) : base(stepType, stepIdentifier)
+    private ScriptStep(CompoundStepType stepType) : base(stepType)
     {
+        StepIdentifier = "script";
     }
     
-    public ScriptStep(string stepIdentifier) 
-        : this(CompoundStepType.ScriptStep, stepIdentifier) { }
+    public ScriptStep() 
+        : this(CompoundStepType.ScriptStep) { }
 }

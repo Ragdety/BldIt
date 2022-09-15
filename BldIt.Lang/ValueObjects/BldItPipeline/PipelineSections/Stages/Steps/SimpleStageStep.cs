@@ -3,8 +3,10 @@
 public abstract class SimpleStageStep : StageStep
 {
     protected SimpleStepType StepType { get; }
-    
-    protected SimpleStageStep(SimpleStepType stepType, string stepIdentifier) : base(stepIdentifier)
+
+    public override string StepIdentifier { get; protected init; } = nameof(SimpleStageStep);
+
+    protected SimpleStageStep(SimpleStepType stepType)
     {
         StepType = stepType;
     }

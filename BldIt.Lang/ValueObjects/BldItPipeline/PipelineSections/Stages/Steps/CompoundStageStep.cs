@@ -4,8 +4,9 @@ public abstract class CompoundStageStep : StageStep
 {
     protected CompoundStepType StepType { get; }
     
-    protected CompoundStageStep(CompoundStepType stepType, string stepIdentifier) : base(stepIdentifier)
+    protected CompoundStageStep(CompoundStepType stepType)
     {
         StepType = stepType;
+        StepIdentifier = nameof(CompoundStageStep);
     }
 }

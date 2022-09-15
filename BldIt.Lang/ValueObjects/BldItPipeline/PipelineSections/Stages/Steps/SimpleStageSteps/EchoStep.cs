@@ -2,15 +2,20 @@
 
 public class EchoStep : SimpleStageStep
 {
-    public string StepIdentifier { get; }
-    public string? Output { get; }
+    public string? Message { get; }
+    public override string StepIdentifier { get; protected init; } 
+        = nameof(EchoStep).Replace("Step", "").ToLower();
 
-    private EchoStep(SimpleStepType stepType, string stepIdentifier, string? output) : base(stepType, stepIdentifier)
+    protected EchoStep(SimpleStepType stepType, string? message) : base(stepType)
     {
-        StepIdentifier = stepIdentifier;
-        Output = output;
+        Message = message;
     }
-    
-    public EchoStep(string stepIdentifier, string? output) 
-        : this(SimpleStepType.EchoStep, stepIdentifier, output) { }
+
+    public EchoStep(string? output)
+        : this(SimpleStepType.EchoStep, output) { }
+
+    public override string? ToString()
+    {
+        return Message;
+    }
 }

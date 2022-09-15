@@ -59,7 +59,7 @@ public class CompoundStepStatementVisitor : StepStatementVisitor
         if (context.statements() is not { } scriptStatement)
             throw new CompilingException($"Invalid script block: {scriptBlock}");
         
-        var stageStep = new ScriptStep("script");
+        var stageStep = new ScriptStep();
             
         var statementsVisitor = new StatementVisitor(SemanticErrors, GlobalVariables, Functions);
         var statementResult = statementsVisitor.Visit(scriptStatement);

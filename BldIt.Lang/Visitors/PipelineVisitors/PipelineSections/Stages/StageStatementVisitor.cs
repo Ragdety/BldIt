@@ -3,6 +3,7 @@ using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineParameterTypes;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
+using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps;
 using BldIt.Lang.Visitors.PipelineVisitors.PipelineSections.Stages.Steps;
 
 namespace BldIt.Lang.Visitors.PipelineVisitors.PipelineSections.Stages;
@@ -34,16 +35,14 @@ public class StageStatementVisitor : BldItParserBaseVisitor<Stage>
         var stepsStatements = context.stepStatement();
         var stageStepsStatementVisitor = new StepStatementVisitor(SemanticErrors, GlobalVariables, Functions, GlobalEnv, Parameters);
         var stageName = context.parent.GetChild(1).GetText();
-        var stage = new Stage(stageName)
-        {
-            StageState = StageState.NotStarted
-        };
+        var stage = new Stage(stageName);
 
         //If only one simpleStep statement is available:
         if (context.simpleStepStatement() is { } simpleStepStatement)
         {
             var step = stageStepsStatementVisitor.VisitSimpleStepStatement(simpleStepStatement);
-            stage.StageSteps.Add(step);
+            stage.Steps.Add(step);
+            stage = StageStateHelper.SetStageFailedBasedOnSteps(stage);
             return stage;
         }
 
@@ -53,9 +52,11 @@ public class StageStatementVisitor : BldItParserBaseVisitor<Stage>
             foreach (var stepStatement in stepStatements)
             {
                 var step = stageStepsStatementVisitor.VisitStepStatement(stepStatement);
-                stage.StageSteps.Add(step);
+                //var id = step.StepIdentifier;
+                stage.Steps.Add(step);
             }
 
+            stage = StageStateHelper.SetStageFailedBasedOnSteps(stage);
             return stage;
         }
 

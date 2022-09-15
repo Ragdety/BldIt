@@ -36,7 +36,7 @@ fun GetCurrentEnvironment(isDev):
         //            echo "Sending email..."
         //        sendEmail()
 
-pipe:
+pipeline:
     globalEnv:
         var1 = "Some/Random/Path"
         currentEnv = GetCurrentEnvironment(true)
@@ -47,3 +47,4 @@ pipe:
         stage "Release Software": 
             echo(GetEnv("currentEnv"))
             echo("Inside Release Software stage")
+            error("Test Error")
