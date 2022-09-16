@@ -26,4 +26,8 @@
         <Content Include="Grammar\BldItLexer.g4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\BldIt.Api\BldIt.Api.csproj" />
+    </ItemGroup>
+
 </Project>

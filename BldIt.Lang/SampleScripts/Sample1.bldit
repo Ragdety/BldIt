@@ -39,12 +39,12 @@ fun GetCurrentEnvironment(isDev):
 pipeline:
     globalEnv:
         var1 = "Some/Random/Path"
-        currentEnv = GetCurrentEnvironment(true)
+        currentEnv = GetCurrentEnvironment(false)
     parameters:
         ReleaseName: stringParam
         IsInternal: boolParam = false
     stages:
         stage "Release Software": 
+            run("C:\Users\ragde\OneDrive\Desktop\Programming\BldIt\delete.bat")
             echo(GetEnv("currentEnv"))
             echo("Inside Release Software stage")
-            error("Test Error")
