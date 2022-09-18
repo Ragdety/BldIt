@@ -1,4 +1,5 @@
-﻿using BldIt.Api.Services.Processes;
+﻿using Antlr4.Runtime;
+using BldIt.Api.Services.Processes;
 using BldIt.Lang.Exceptions;
 using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
@@ -8,6 +9,7 @@ using BldIt.Lang.ValueObjects.BldItPipeline.PipelineExpressions;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineParameterTypes;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps;
+using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps.Enums;
 using BldIt.Lang.Visitors.PipelineVisitors.PipelineExpressions;
 
 namespace BldIt.Lang.Visitors.PipelineVisitors.PipelineSections.Stages.Steps;
@@ -73,6 +75,13 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
 
         Console.Error.WriteLine(exprTypeValueObject.ToString());
         
+        //If the parent is a handleErrorsStep
+        if (IsHandleErrorParent(context)) return new ErrorStep(exprTypeValueObject.ToString());
+        
+        //Otherwise, exit the program
+        Console.Out.WriteLine("Error signal. Skipping all other actions...");
+        Environment.Exit(-255);
+
         return new ErrorStep(exprTypeValueObject.ToString());
     }
     
@@ -102,14 +111,14 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         
         var arguments =
             stepExpressions.Length > 1 ? 
-                pipelineExpressionVisitor.VisitPipelineExpression(stepExpressions[2]) 
+                pipelineExpressionVisitor.VisitPipelineExpression(stepExpressions[1]) 
                 : new StringValue("");
         
         //If run step is called without working directory, use current directory
         //Working directory is the 3rd argument like this: run("command", "arguments", "working directory")
         var workingDirectory =
             stepExpressions.Length > 2 ? 
-                pipelineExpressionVisitor.VisitPipelineExpression(stepExpressions[3]) 
+                pipelineExpressionVisitor.VisitPipelineExpression(stepExpressions[2]) 
                 : new StringValue("");
         
         CheckRunStepExpressionTypes(command, arguments, workingDirectory);
@@ -139,13 +148,28 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         async void OutputHandler(string output)
         {
             //await _hub.Clients.All.SendAsync("OutputReceived", output, cancellationToken);
-            //TODO: We should send the output to the frontend here.
-            //TODO: Or connect the output stream of the main BldIt lang process to the frontend
             await Console.Out.WriteLineAsync(output);
         }
         
         var exitCode = launcherService.Run(OutputHandler);
-        runStep.ErrorCode = exitCode;
+        if (exitCode != 0)
+        {
+            Console.Out.WriteLine("ERROR: Script failed with exit code " + exitCode);
+            
+            //If the parent is a handleErrorsStep
+            if(IsHandleErrorParent(context))
+            {
+                //Then do not terminate the pipeline, step is success b/c of the handleErrorsStep
+                runStep.Status = RunStepStatus.Success;
+                return runStep;
+            }
+            
+            //If not, then terminate the pipeline
+            Console.Out.WriteLine("Skipping all other actions...");
+            Environment.Exit(exitCode);
+        }
+        
+        runStep.Status = RunStepStatus.Success;
         return runStep;
     }
 
@@ -154,8 +178,20 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         if (command is not StringValue)
             throw new InvalidDataTypeException("Step \'run\' requires a string as the first argument (command)");
         if (arguments is not StringValue)
-            throw new InvalidDataTypeException("Step \'run\' requires a string of command arguments as the second argument");
+            throw new InvalidDataTypeException(
+                "Step \'run\' requires a string of command arguments as the second argument\n" + 
+                "Ex: run(\"command\", \"arg1 arg2 arg3\")");
         if (workingDir is not StringValue)
             throw new InvalidDataTypeException("Step \'run\' requires a string as the third argument (working directory)");
+    }
+    
+    private static bool IsHandleErrorParent(RuleContext context)
+    {
+        if (context.parent is BldItParser.CompoundStepStatementContext compoundStep)
+        {
+            return compoundStep.handleErrorsStep() is { };
+        }
+
+        return false;
     }
 }

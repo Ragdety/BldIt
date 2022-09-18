@@ -1,5 +1,6 @@
 ﻿using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps;
+using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps.Enums;
 
 namespace BldIt.Lang.Visitors.PipelineVisitors.PipelineSections.Stages;
 
@@ -18,13 +19,13 @@ public static class StageStateHelper
             if (step is ErrorStep || step.StepIdentifier == "error")
             {
                 stage.State = StageState.Failed;
-                break;
+                Environment.Exit(-255);
             }
 
             if (step is RunStep || step.StepIdentifier == "run")
             {
                 var runStep = (RunStep)step;
-                if (runStep.ErrorCode == 0) continue;
+                if (runStep.Status == RunStepStatus.Success) continue;
                 stage.State = StageState.Failed;
                 break;
             }

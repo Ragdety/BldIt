@@ -44,7 +44,10 @@ pipeline:
         ReleaseName: stringParam
         IsInternal: boolParam = false
     stages:
-        stage "Release Software": 
-            run("C:\Users\ragde\OneDrive\Desktop\Programming\BldIt\delete.bat")
-            echo(GetEnv("currentEnv"))
-            echo("Inside Release Software stage")
+        stage "Testing script": 
+            run("C:\Users\ragde\OneDrive\Desktop\Programming\BldIt\BldIt.Lang\SampleScripts\Sample1.bat", "arg1")
+            //run("curl", "-X GET https://localhost:5001/api/v1/projects -H 'accept: */*'")
+        stage "PostStage1":
+            echo("Inside PostStage1")
+        stage "PostStage2":
+            echo("Inside PostStage2")

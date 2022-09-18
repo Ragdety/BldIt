@@ -138,11 +138,6 @@ compoundStepStatement:
 pipelineSimpleStepCall: 
   IDENTIFIER OPEN_PAREN (pipelineExpression (COMMA pipelineExpression)*)? CLOSE_PAREN;
 
-//TODO: Implement these simple statements
-echoStep: ECHO pipelineExpression;
-runStep: STRING;
-errorStep: STRING;
-
 //TODO: Implement these compound statements
 handleErrorsStep: STRING;
 
