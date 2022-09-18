@@ -1,4 +1,6 @@
-﻿namespace BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps;
+﻿using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.Enums;
+
+namespace BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps;
 
 public abstract class SimpleStageStep : StageStep
 {

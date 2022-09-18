@@ -1,4 +1,5 @@
-﻿using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps.Enums;
+﻿using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.Enums;
+using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps.Enums;
 
 namespace BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps;
 
