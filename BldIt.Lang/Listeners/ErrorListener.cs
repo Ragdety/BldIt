@@ -1,10 +1,12 @@
 ﻿using Antlr4.Runtime;
+using Microsoft.Extensions.Logging;
 
 namespace BldIt.Lang.Listeners;
 
 public class ErrorListener : BaseErrorListener
 {
-    public static bool HasError { get; private set; }
+    public static bool HasErrors { get; private set; }
+    public static List<SyntaxError> SyntaxErrors { get; } = new();
 
     public override void SyntaxError(
         IRecognizer recognizer, 
@@ -14,13 +16,15 @@ public class ErrorListener : BaseErrorListener
         string msg,
         RecognitionException e)
     {
-        HasError = true;
+        HasErrors = true;
         List<string> stack = ((Parser) recognizer).GetRuleInvocationStack().ToList();
         stack.Reverse();
+
+        SyntaxErrors.Add(
+            new SyntaxError(line, charPositionInLine + 1, offendingSymbol.Text, msg, stack));
         
-        Console.Error.WriteLine("Syntax Error!");
-        Console.Error.WriteLine($"Token \"{offendingSymbol.Text}\" " +
-                                $"at line {line}:{charPositionInLine + 1}: {msg}");
-        Console.Error.WriteLine($"Rule Stack: {stack}");
+        // _log.LogError("Syntax Error!");
+        // _log.LogError($"Token \"{offendingSymbol.Text}\" at line {line}:{charPositionInLine + 1}: {msg}");
+        // _log.LogDebug("Rule Stack: {Stack}", stack);
     }
 }

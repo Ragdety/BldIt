@@ -10,8 +10,6 @@ public class BldItFileVisitor : BldItParserBaseVisitor<BldItFile>
 {
     public List<string> SemanticErrors { get; }
     public Dictionary<string, Expression> GlobalVariables { get; }
-    
-    //Dict<identifier, function<arguments, result>>
     public Dictionary<string, Func<Expression?[], Expression?>> Functions { get; }
 
     public BldItFileVisitor()
@@ -23,9 +21,9 @@ public class BldItFileVisitor : BldItParserBaseVisitor<BldItFile>
 
     public override BldItFile VisitBldItFile(BldItParser.BldItFileContext context)
     {
-        //TODO: Use dependency injection to handle creation of objects
         var bldItFile = new BldItFile();
         
+        //TODO: Use dependency injection to handle creation of visitor objects
         //Helper object to transform each subtree into a Statement object
         var statementVisitorVisitor = new StatementVisitor(SemanticErrors, GlobalVariables, Functions);
         
