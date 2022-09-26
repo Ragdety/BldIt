@@ -4,12 +4,8 @@ using BldIt.Lang.Visitors;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
-var configBuilder = new ConfigurationBuilder();
-BuildConfig(configBuilder);
-var config = configBuilder.Build();
-
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(config)
+    .MinimumLevel.Debug()
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .CreateLogger();
@@ -58,13 +54,4 @@ catch (Exception e)
 {
     Log.Logger.Error(e.StackTrace);
     Log.Logger.Error(e.Message);
-}
-
-static void BuildConfig(IConfigurationBuilder builder)
-{
-    builder.SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("BLDIT_ENVIRONMENT") ?? "Production"}.json",
-            optional: true)
-        .AddEnvironmentVariables();
 }
