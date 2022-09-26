@@ -25,12 +25,9 @@ const string blditFileType = "bldit";
 var fileName = Path.GetFileName(filePath);
 var fileType = fileName.Split('.')[1];
 if (fileType != blditFileType)
-{
     throw new CompilingException("Invalid file type");
-}
 
 var fileContents = File.ReadAllText(filePath);
-
 var bldItParser = new BldIt.Lang.Parsing.BldItParser();
 
 //Main starting point of the DSL.

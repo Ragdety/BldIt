@@ -74,6 +74,39 @@ ELSE: 'else';
 EQUALITY: '==' | '!=' ; //| 'eq' | 'neq' ;
 NOT: 'not ' | '!' ;
 
+/*
+ * Pipeline
+ */
+PARAM_TYPE: 'stringParam' | 'boolParam' | 'choiceParam';
+SCRIPT: 'script';
+
+
+//Old skipping:
+//Combination of these 2 (WS/NL) causes the program to work BUT with <missing NL> instead of \r\n
+//WS: [ \r\n]+ -> skip;
+//For spaces just switch out '\t'* with ' '*
+//For tabs just switch out '  '* with '\t'*
+//NL: ('\r'? '\n' '\t'*);
+//COMMENT: '//' .*? '\r'?'\n' -> skip;
+
+//Combination of these 2 removes the <missing NL> but program does not continue after...
+//WS: [ \t]+ -> skip;
+//NL: ('\r'? '\n' '\t'*);
+
+//Other tokens:
+NEWLINE
+ : ( {this.atStartOfInput()}?   SPACES
+   | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
+   )
+   {this.onNewLine();}
+ ;
+ 
+//Python skipping
+SKIP_: ( SPACES | COMMENT | LINE_JOINING ) -> skip;
+fragment SPACES: [ \t]+;
+fragment COMMENT: ('//' | '#') ~[\r\n\f]*;
+fragment LINE_JOINING: '\\' SPACES? ( '\r'? '\n' | '\r' | '\f');
+
 //Data Types
 INTEGER: [0-9]+;
 FLOAT: [0-9]+ '.' [0-9]+;
@@ -90,38 +123,3 @@ ENDLINE: SEMICOLON;
  * allow any number of letters, numbers, and underscores after
  */
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
-
-/*
- * Pipeline
- */
-PARAM_TYPE: 'stringParam' | 'boolParam' | 'choiceParam';
-SCRIPT: 'script';
-ECHO: 'echo';
-
-
-//Other tokens:
-NEWLINE
- : ( {this.atStartOfInput()}?   SPACES
-   | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
-   )
-   {this.onNewLine();}
- ;
- 
-//Python skipping
-SKIP_: ( SPACES | COMMENT | LINE_JOINING ) -> skip;
-fragment SPACES: [ \t]+;
-fragment COMMENT: ('//' | '#') ~[\r\n\f]*;
-fragment LINE_JOINING: '\\' SPACES? ( '\r'? '\n' | '\r' | '\f');
-
-
-//Old skipping:
-//Combination of these 2 (WS/NL) causes the program to work BUT with <missing NL> instead of \r\n
-//WS: [ \r\n]+ -> skip;
-//For spaces just switch out '\t'* with ' '*
-//For tabs just switch out '  '* with '\t'*
-//NL: ('\r'? '\n' '\t'*);
-//COMMENT: '//' .*? '\r'?'\n' -> skip;
-
-//Combination of these 2 removes the <missing NL> but program does not continue after...
-//WS: [ \t]+ -> skip;
-//NL: ('\r'? '\n' '\t'*);

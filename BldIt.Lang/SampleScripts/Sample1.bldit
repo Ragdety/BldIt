@@ -23,19 +23,6 @@ fun GetCurrentEnvironment(isDev):
     return ASPNETCORE_ENVIRONMENT
 
 
-//Stage 1 code goes here
-            //script:
-            //    print("INSIDE SCRIPTTTTTTTTT")
-                //if currentEnv == "Development":
-                //    deployToDevServer();
-                //else:
-                //    deployToProdServer();
-        //stage "Release Email":
-        //    script:
-        //        fun sendEmail():
-        //            echo "Sending email..."
-        //        sendEmail()
-
 pipeline:
     globalEnv:
         var1 = "Some/Random/Path"
@@ -46,8 +33,7 @@ pipeline:
     stages:
         stage "Testing script": 
             run("C:\Users\ragde\OneDrive\Desktop\Programming\BldIt\BldIt.Lang\SampleScripts\Sample1.bat", "arg1")
-            //run("curl", "-X GET https://localhost:5001/api/v1/projects -H 'accept: */*'")
         stage "PostStage1":
-            echo("Inside PostStage1")
+            echo("Inside PostStage1");
         stage "PostStage2":
-            echo("Inside PostStage2")
+            echo("Inside PostStage2");
