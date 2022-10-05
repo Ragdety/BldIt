@@ -1,13 +1,13 @@
 ﻿using BldIt.Lang.Exceptions;
 using BldIt.Lang.Listeners;
 using BldIt.Lang.Visitors;
-using Microsoft.Extensions.Configuration;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .Enrich.FromLogContext()
-    .WriteTo.Console()
+    .WriteTo.Console(
+        outputTemplate: "[{Level} - Pipeline] {Message}{NewLine}{Exception}")
     .CreateLogger();
 
 Log.Logger.Information("Starting Pipeline");

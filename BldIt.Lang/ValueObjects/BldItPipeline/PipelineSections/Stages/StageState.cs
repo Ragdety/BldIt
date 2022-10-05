@@ -4,7 +4,8 @@ public enum StageState
 {
     NotStarted,
     Running,
-    Completed,
-    Failed,
+    Success,
+    Unstable,
+    Failure,
     Cancelled
 }

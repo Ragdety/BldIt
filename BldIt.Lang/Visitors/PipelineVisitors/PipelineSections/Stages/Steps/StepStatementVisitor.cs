@@ -11,7 +11,11 @@ public class StepStatementVisitor : BldItParserBaseVisitor<StageStep>
     protected List<string> SemanticErrors { get; }
     protected Dictionary<string, Expression> GlobalVariables { get; }
     protected Dictionary<string, Func<Expression?[], Expression?>> Functions { get; }
-    protected Dictionary<string, Expression> GlobalEnv { get; }
+    
+    //We are able to set the GlobalEnv here since BUILD_RESULT will be modified
+    //Since this is protected, nobody will be able to set GlobalEnv outside of this class
+    //Therefore, I believe we can assign a setter to this property...
+    protected Dictionary<string, Expression> GlobalEnv { get; set; }
     protected HashSet<Parameter> Parameters { get; }
 
     public StepStatementVisitor(

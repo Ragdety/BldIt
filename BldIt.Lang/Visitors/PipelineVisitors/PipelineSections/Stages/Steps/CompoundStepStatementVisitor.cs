@@ -25,8 +25,8 @@ public class CompoundStepStatementVisitor : StepStatementVisitor
         var stepText = context.GetText();
         if (context.scriptStep() is { } scriptStep)
             return VisitScriptStep(scriptStep);
-        if (context.handleErrorsStep() is {} handleErrorsStep)
-            return VisitHandleErrorsStep(handleErrorsStep);
+        if (context.handleErrorStep() is {} handleErrorsStep)
+            return VisitHandleErrorStep(handleErrorsStep);
         throw new CompilingException($"Invalid step: {stepText}");
     }
 
@@ -35,7 +35,7 @@ public class CompoundStepStatementVisitor : StepStatementVisitor
         return VisitScriptBlock(context.scriptBlock());
     }
 
-    public override CompoundStageStep VisitHandleErrorsStep(BldItParser.HandleErrorsStepContext context)
+    public override CompoundStageStep VisitHandleErrorStep(BldItParser.HandleErrorStepContext context)
     {
         throw new NotImplementedException();
     }
@@ -46,14 +46,15 @@ public class CompoundStepStatementVisitor : StepStatementVisitor
         
         //TODO: Implement this method
         var scriptBlock = context.GetText();
-        if (context.stepStatements() is { } stepStatements)
+        if (context.stepStatement() is { } stepStatement)
         {
             var stagesStatementVisitor =
                 new StepStatementVisitor(SemanticErrors, GlobalVariables, Functions, GlobalEnv, Parameters);
             
-            var stages = stagesStatementVisitor.VisitStepStatements(stepStatements);
+            //Loop here
+            //var stages = stagesStatementVisitor.VisitStepStatement(stepStatement);
             
-            return (ScriptStep) stages;
+            //return (ScriptStep) stages;
         }
            
         if (context.statements() is not { } scriptStatement)

@@ -131,20 +131,32 @@ stepStatement: simpleStepStatement | compoundStepStatement;
 //simpleStepStatement: (echoStep | runStep | errorStep) SEMICOLON? NEWLINE;
 simpleStepStatement: pipelineSimpleStepCall SEMICOLON? NEWLINE;
 
+pipelineSimpleStepCall: 
+  IDENTIFIER OPEN_PAREN (NEWLINE? pipelineExpression (NEWLINE? COMMA 
+                         NEWLINE? pipelineExpression)*)? CLOSE_PAREN;
+
 compoundStepStatement: 
   scriptStep |
-  handleErrorsStep;
+  handleErrorStep;
 
-pipelineSimpleStepCall: 
-  IDENTIFIER OPEN_PAREN (pipelineExpression (COMMA pipelineExpression)*)? CLOSE_PAREN;
+/*
+ * handleError():
+ *     step1
+ *     step2
+ * OR:
+ * handleError(buildStatus, stageStatus):
+ *     step1
+ *     step2
+ */
+handleErrorStep: 
+  IDENTIFIER OPEN_PAREN CLOSE_PAREN handleErrorBlock |
+  IDENTIFIER OPEN_PAREN pipelineExpression COMMA pipelineExpression CLOSE_PAREN handleErrorBlock;
 
-//TODO: Implement these compound statements
-handleErrorsStep: STRING;
+handleErrorBlock: NEWLINE INDENT stepStatement+ DEDENT;
 
 //Script Statement
 scriptStep: SCRIPT COLON scriptBlock;
-scriptBlock: NEWLINE INDENT (stepStatements | statements) DEDENT;
-stepStatements: stepStatement+;
+scriptBlock: NEWLINE INDENT (stepStatement+ | statements) DEDENT;
 
 //Step Statements
 

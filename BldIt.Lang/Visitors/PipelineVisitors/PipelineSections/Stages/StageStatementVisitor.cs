@@ -1,10 +1,11 @@
 ﻿using BldIt.Lang.Exceptions;
 using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
+using BldIt.Lang.ValueObjects.BldItPipeline;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineParameterTypes;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
-using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps;
 using BldIt.Lang.Visitors.PipelineVisitors.PipelineSections.Stages.Steps;
+using Serilog;
 
 namespace BldIt.Lang.Visitors.PipelineVisitors.PipelineSections.Stages;
 
@@ -13,7 +14,7 @@ public class StageStatementVisitor : BldItParserBaseVisitor<Stage>
     protected List<string> SemanticErrors { get; }
     protected Dictionary<string, Expression> GlobalVariables { get; }
     protected Dictionary<string, Func<Expression?[], Expression?>> Functions { get; }
-    protected Dictionary<string, Expression> GlobalEnv { get; }
+    protected Dictionary<string, Expression> GlobalEnv { get; set; }
     protected HashSet<Parameter> Parameters { get; }
 
     public StageStatementVisitor(
@@ -40,23 +41,37 @@ public class StageStatementVisitor : BldItParserBaseVisitor<Stage>
         //If only one simpleStep statement is available:
         if (context.simpleStepStatement() is { } simpleStepStatement)
         {
+            stage.State = StageState.Running;
             var step = stageStepsStatementVisitor.VisitSimpleStepStatement(simpleStepStatement);
             stage.Steps.Add(step);
+            
+            //Assumes build was successful, this will be changed below if a step fails.
+            GlobalEnv = BuildResultStatusHelper.SetBuildResult(GlobalEnv, PipelineConstants.BuildConstants.BuildSuccessValue);
+            
             stage = StageStateHelper.SetStageFailedBasedOnSteps(stage);
+            GlobalEnv = BuildResultStatusHelper.CheckAndSetBuildResultBasedOnHandleErrorStep(GlobalEnv, stage);
+            Log.Logger.Debug("Build Result: {BuildResult}", GlobalEnv["BUILD_RESULT"].ToString());
             return stage;
         }
 
         //If multiple simpleStep statements are available, loop through them:
         if (context.stepStatement() is {} stepStatements)
         {
+            stage.State = StageState.Running;
             foreach (var stepStatement in stepStatements)
             {
                 var step = stageStepsStatementVisitor.VisitStepStatement(stepStatement);
-                //var id = step.StepIdentifier;
                 stage.Steps.Add(step);
             }
 
+            //Assumes build was successful, this will be changed below if a step fails.
+            GlobalEnv = BuildResultStatusHelper.SetBuildResult(GlobalEnv, PipelineConstants.BuildConstants.BuildSuccessValue);
+            
+            //This should ideally check only handleError steps, since any other stage will exit the program immediately
+            //TODO: Change this function SetStageFailedBasedOnSteps() to SetStageFailedBasedOnHandleErrorStep()
             stage = StageStateHelper.SetStageFailedBasedOnSteps(stage);
+            GlobalEnv = BuildResultStatusHelper.CheckAndSetBuildResultBasedOnHandleErrorStep(GlobalEnv, stage);
+            Log.Logger.Debug("Build Result: {BuildResult}", GlobalEnv["BUILD_RESULT"].ToString());
             return stage;
         }
 

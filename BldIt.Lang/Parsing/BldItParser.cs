@@ -16,6 +16,8 @@ public class BldItParser
             var bldItLexer = new BldItLexer(inputStream);
             var commonTokenStream = new CommonTokenStream(bldItLexer);
             parser = new Grammar.BldItParser(commonTokenStream);
+
+            //parser.ErrorHandler = new BldItErrorStrategy();
             
             //Syntax Error handling
             parser.RemoveErrorListeners();

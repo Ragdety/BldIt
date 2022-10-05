@@ -1,4 +1,6 @@
 ﻿using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
+using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps;
+using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.CompoundStageSteps;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps.Enums;
 
@@ -13,23 +15,76 @@ public static class StageStateHelper
     /// <returns></returns>
     public static Stage SetStageFailedBasedOnSteps(Stage stage)
     {
-        var steps = stage.Steps;
-        foreach (var step in steps)
+        foreach (var step in stage.Steps)
         {
-            if (step is ErrorStep || step.StepIdentifier == "error")
+            if (step.StepIdentifier == "handleError")
             {
-                stage.State = StageState.Failed;
-                Environment.Exit(-255);
+                var handleErrorStep = (HandleErrorStep) step;
+
+                //If stage result is set to success in handleError step,
+                //set stage as success regardless of steps' status
+                if (handleErrorStep.DesiredStageResult == "SUCCESS")
+                {
+                    stage.State = StageState.Success;
+                    
+                    //Keep checking for other steps after handleError (if any)
+                    //After handleErrorStep, any step with error will override the stage state,
+                    //since step is not inside handleErrorStep
+                    continue;
+                }
+                
+                //Otherwise, check if any step inside handleError step has failed
+                foreach (var stepWithErrorHandling in handleErrorStep.StepsWithErrorHandling)
+                {
+                    if (StepHasFailed(stepWithErrorHandling))
+                    {
+                        handleErrorStep.ErrorCaught = true;
+                        //handleErrorStep.StageResult is set when visiting handleErrorStep
+                        stage.State = handleErrorStep.DesiredStageResult switch
+                        {
+                            "FAILURE" => StageState.Failure,
+                            "UNSTABLE" => StageState.Unstable,
+                            "SUCCESS" => StageState.Success,
+                            _ => throw new ArgumentOutOfRangeException()
+                        };
+                    }
+                }
             }
 
-            if (step is RunStep || step.StepIdentifier == "run")
+            if (StepHasFailed(step))
             {
-                var runStep = (RunStep)step;
-                if (runStep.Status == RunStepStatus.Success) continue;
-                stage.State = StageState.Failed;
+                Environment.Exit(-255);
                 break;
             }
+
+            stage.State = StageState.Success;
         }
         return stage;
+    }
+    
+    private static bool StepHasFailed(StageStep step)
+    {
+        switch (step.StepIdentifier)
+        {
+            case "error":
+                return true;
+            case "run":
+            {
+                var runStep = (RunStep)step;
+                return runStep.Status != RunStepStatus.Success;
+            }
+            case "handleError":
+            {
+                var handleErrorStep = (HandleErrorStep)step;
+                
+                //If the desired stage result is success, then we can assume no step has failed
+                if (handleErrorStep.DesiredStageResult == "SUCCESS") return false;
+                
+                //Check if any other step has failed
+                return handleErrorStep.StepsWithErrorHandling.Any(StepHasFailed);
+            }
+            default:
+                return false;
+        }
     }
 }

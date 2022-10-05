@@ -4,7 +4,5 @@ public enum RunStepStatus
 {
     NotRun,
     Success,
-    Unstable,
-    Failure,
-    Aborted
+    Failure
 }

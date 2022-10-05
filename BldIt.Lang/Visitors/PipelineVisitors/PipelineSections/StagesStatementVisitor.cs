@@ -32,7 +32,7 @@ public class StagesStatementVisitor : BldItParserBaseVisitor<StagesStatement>
         Parameters = parameters;
         Stages = new HashSet<Stage>();
         
-        //Add 2 functions here (GetEnv() and GetParam()), these will be able to be used inside the "script" step
+        //Add 2 functions here (GetEnv() and GetParam()), these will be able to be used throughout the pipeline execution
         Functions["GetEnv"] = GetEnv;
         //Functions["GetParam"] = GetParam;
     }
@@ -40,6 +40,13 @@ public class StagesStatementVisitor : BldItParserBaseVisitor<StagesStatement>
     
     public override StagesStatement VisitStagesStatement(BldItParser.StagesStatementContext context)
     {
+        //Set an environment variable for build result
+        GlobalEnv["BUILD_RESULT"] = new StringValue("UNKNOWN");
+        
+        //Initialize these 2 functions to be used inside "stages" statement
+        Functions["GetBuildResult"] = GetBuildResult;
+        Functions["GetStageResult"] = GetStageResult;
+        
         var stagesStatement = context.GetText();
         if (context.stagesBlock() is {} stagesBlock)
             return VisitStagesBlock(stagesBlock);
@@ -62,7 +69,6 @@ public class StagesStatementVisitor : BldItParserBaseVisitor<StagesStatement>
 
         foreach (var stageStatement in stageStatements)
         {
-            var t = stageStatement.GetText();
             var stage = stageStatementVisitor.VisitStageBlock(stageStatement.stageBlock());
             stagesStatement.AddStage(stage);
         }
@@ -74,14 +80,14 @@ public class StagesStatementVisitor : BldItParserBaseVisitor<StagesStatement>
     {
         //If it doesn't contain arguments or more than 1 argument, throw an exception
         if (arguments.Length is > 1 or < 1)
-            throw new CompilingException("GetEnv() function must have 1 argument only (the environment variable name)");
+            throw new CompilingException("GetEnv(\"EnvName\") function must have 1 argument only (the environment variable name)");
 
         //Get the env variable from the one and only function argument
         var envVariable = arguments[0];
         
         //Check if it is a string
         if (envVariable?.Type != typeof(string))
-            throw new CompilingException("GetEnv() function expects a string as the parameter");
+            throw new CompilingException("GetEnv(\"EnvName\") function expects a string as the parameter");
         
         //Cast it from Expression to StringValue to be able to use it down below 
         var envVariableString = (StringValue) envVariable;
@@ -92,5 +98,36 @@ public class StagesStatementVisitor : BldItParserBaseVisitor<StagesStatement>
         if (Environment.GetEnvironmentVariable(envVariableString.Value) is {} envVariableValue)
             return new StringValue(envVariableValue);
         throw new KeyNotFoundException($"Environment variable {envVariableString.Value} does not exist");
+    }
+
+    private Expression GetBuildResult(Expression?[] arguments)
+    {
+        if (arguments.Length > 1)
+            throw new CompilingException("GetBuildResult() function must be invoked with 0 arguments");
+
+        //Get the build result from the global environment
+        var buildResult = GetEnv(new Expression?[] {new StringValue("BUILD_RESULT")});
+        var buildResultString = (StringValue) buildResult;
+        return buildResultString ?? throw new InvalidOperationException();
+    }
+    
+    private Expression GetStageResult(Expression?[] arguments)
+    {
+        if (arguments.Length is > 1 or < 1)
+            throw new CompilingException("GetStageResult(\"StageName\") function must have 1 argument only (the stage name)");
+
+        //Get the stageName from the one and only function argument
+        var stageName = arguments[0];
+        
+        //Check if it is a string
+        if (stageName?.Type != typeof(string))
+            throw new CompilingException("GetStageResult(\"StageName\") function expects a string as the parameter");
+        
+        //Cast it from Expression to StringValue to be able to use it down below 
+        var stageNameString = (StringValue) stageName;
+        
+        if(Stages.Any(stage => stage.Name == stageNameString.Value))
+            return new StringValue(Stages.First(stage => stage.Name == stageNameString.Value).State.ToString());
+        throw new UndefinedStageException(stageNameString.Value);
     }
 }

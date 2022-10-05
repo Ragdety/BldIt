@@ -1,9 +1,4 @@
 i = 1;
-//a = 3
-//b = a
-//c = 10 % b
-//d = c
-//e = d * 3 //e should be 3...
 
 def IsLegalAgeInUSA(age):
     return age >= 21
@@ -27,13 +22,17 @@ pipeline:
     globalEnv:
         var1 = "Some/Random/Path"
         currentEnv = GetCurrentEnvironment(false)
+        Sample1WkDir = "C:\Users\ragde\OneDrive\Desktop\Programming\BldIt"
+        Sample1Batch = GetEnv("Sample1WkDir") + "\BldIt.Lang\SampleScripts\Sample1.bat"
     parameters:
         ReleaseName: stringParam
         IsInternal: boolParam = false
     stages:
         stage "Testing script": 
-            run("C:\Users\ragde\OneDrive\Desktop\Programming\BldIt\BldIt.Lang\SampleScripts\Sample1.bat", "arg1")
+            //run(GetEnv("Sample1Batch"), "arg1")
+            run(GetEnv("Sample1Batch"), "arg1", GetEnv("Sample1WkDir"))
+            //("An error")
         stage "PostStage1":
-            echo("Inside PostStage1");
+            echo("Inside PostStage1")
         stage "PostStage2":
-            echo("Inside PostStage2");
+            echo("Inside PostStage2")

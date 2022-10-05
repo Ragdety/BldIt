@@ -1,5 +1,4 @@
 ﻿using Antlr4.Runtime;
-using Microsoft.Extensions.Logging;
 
 namespace BldIt.Lang.Listeners;
 
@@ -20,6 +19,15 @@ public class ErrorListener : BaseErrorListener
         List<string> stack = ((Parser) recognizer).GetRuleInvocationStack().ToList();
         stack.Reverse();
 
+        //Dirty solution for comments "//" Since it'll be replaced with "  " and this throws an error.
+        //So, skipping the error with this for now.
+        //TODO: Implement DefaultErrorStrategy for comments later
+        if (offendingSymbol.Text == "  ")
+        {
+            HasErrors = false;
+            return;
+        }
+        
         SyntaxErrors.Add(
             new SyntaxError(line, charPositionInLine + 1, offendingSymbol.Text, msg, stack));
         

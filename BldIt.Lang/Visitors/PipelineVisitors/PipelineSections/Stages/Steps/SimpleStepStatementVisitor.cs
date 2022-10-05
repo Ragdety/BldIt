@@ -5,12 +5,14 @@ using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItExpressions.ConstantTypes;
 using BldIt.Lang.ValueObjects.BldItExpressions.ExpressionHelpers;
+using BldIt.Lang.ValueObjects.BldItPipeline;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineExpressions;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineParameterTypes;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps.Enums;
 using BldIt.Lang.Visitors.PipelineVisitors.PipelineExpressions;
+using Serilog;
 
 namespace BldIt.Lang.Visitors.PipelineVisitors.PipelineSections.Stages.Steps;
 
@@ -73,16 +75,25 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         var expressionResult = pipelineExpressionVisitor.VisitPipelineExpression(context.pipelineExpression()[0]);
         var exprTypeValueObject = ExpressionTypeHelper.GetValueFromType(expressionResult);
 
-        Console.Error.WriteLine(exprTypeValueObject.ToString());
+        Log.Logger.Error(exprTypeValueObject.ToString());
+
+        var errorStep = new ErrorStep(exprTypeValueObject.ToString());
         
         //If the parent is a handleErrorsStep
-        if (IsHandleErrorParent(context)) return new ErrorStep(exprTypeValueObject.ToString());
-        
-        //Otherwise, exit the program
-        Console.Out.WriteLine("Error signal. Skipping all other actions...");
-        Environment.Exit(-255);
+        if (IsHandleErrorParent(context))
+        {
+            Log.Logger.Debug("Error handling was enabled");
+        }
+        else
+        {
+            //Otherwise, log an error, return error step without error handling enabled
+            Log.Logger.Error("Error signal. Skipping all other actions...");
+            GlobalEnv = BuildResultStatusHelper.SetBuildResult(GlobalEnv, PipelineConstants.BuildConstants.BuildFailureValue);
+            Log.Logger.Debug("Build Result: {BuildResult}", GlobalEnv["BUILD_RESULT"].ToString());
+            Environment.Exit(-255);
+        }
 
-        return new ErrorStep(exprTypeValueObject.ToString());
+        return errorStep;
     }
     
     private RunStep VisitRunStep(BldItParser.PipelineSimpleStepCallContext context)
@@ -144,7 +155,6 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         if(runStep.WorkingDirectory is not null)
             launcherService.WorkingDirectory = runStep.WorkingDirectory;
 
-        //Sends process output to frontend
         async void OutputHandler(string output)
         {
             //await _hub.Clients.All.SendAsync("OutputReceived", output, cancellationToken);
@@ -152,24 +162,30 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         }
         
         var exitCode = launcherService.Run(OutputHandler);
-        if (exitCode != 0)
+
+        if (exitCode == 0)
         {
-            Console.Out.WriteLine("ERROR: Script failed with exit code " + exitCode);
-            
-            //If the parent is a handleErrorsStep
-            if(IsHandleErrorParent(context))
-            {
-                //Then do not terminate the pipeline, step is success b/c of the handleErrorsStep
-                runStep.Status = RunStepStatus.Success;
-                return runStep;
-            }
-            
-            //If not, then terminate the pipeline
-            Console.Out.WriteLine("Skipping all other actions...");
+            runStep.Status = RunStepStatus.Success;
+            return runStep;
+        }
+        
+        Log.Logger.Error("ERROR: Script failed with exit code {ExitCode}", exitCode);
+        
+        //If the parent is a handleErrorsStep
+        if(IsHandleErrorParent(context))
+        {
+            Log.Logger.Debug("Error handling was enabled");
+        }
+        else
+        {
+            //Otherwise, log an error, set build status, and exit program
+            Log.Logger.Error("Error signal. Skipping all other actions...");
+            GlobalEnv = BuildResultStatusHelper.SetBuildResult(GlobalEnv, PipelineConstants.BuildConstants.BuildFailureValue);
+            Log.Logger.Debug("Build Result: {BuildResult}", GlobalEnv["BUILD_RESULT"].ToString());
             Environment.Exit(exitCode);
         }
         
-        runStep.Status = RunStepStatus.Success;
+        runStep.Status = RunStepStatus.Failure;
         return runStep;
     }
 
@@ -189,7 +205,7 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
     {
         if (context.parent is BldItParser.CompoundStepStatementContext compoundStep)
         {
-            return compoundStep.handleErrorsStep() is { };
+            return compoundStep.handleErrorStep() is { };
         }
 
         return false;
