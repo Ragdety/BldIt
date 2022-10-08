@@ -17,6 +17,7 @@ public class StepStatementVisitor : BldItParserBaseVisitor<StageStep>
     //Therefore, I believe we can assign a setter to this property...
     protected Dictionary<string, Expression> GlobalEnv { get; set; }
     protected HashSet<Parameter> Parameters { get; }
+    public bool IsInsideHandleError { get; init; }
 
     public StepStatementVisitor(
         List<string> semanticErrors, 
@@ -30,6 +31,7 @@ public class StepStatementVisitor : BldItParserBaseVisitor<StageStep>
         Functions = functions;
         GlobalEnv = globalEnv;
         Parameters = parameters;
+        IsInsideHandleError = false;
     }
 
     public override StageStep VisitStepStatement(BldItParser.StepStatementContext context)
@@ -49,7 +51,8 @@ public class StepStatementVisitor : BldItParserBaseVisitor<StageStep>
                 GlobalVariables, 
                 Functions, 
                 GlobalEnv, 
-                Parameters)
+                Parameters,
+                IsInsideHandleError)
             .VisitSimpleStepStatement(context);
     }
 
@@ -60,7 +63,8 @@ public class StepStatementVisitor : BldItParserBaseVisitor<StageStep>
                 GlobalVariables, 
                 Functions, 
                 GlobalEnv, 
-                Parameters)
+                Parameters,
+                IsInsideHandleError)
             .VisitCompoundStepStatement(context);
     }
 }

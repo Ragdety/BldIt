@@ -7,35 +7,13 @@ options {
     superClass=BldIt.Lang.External.Python3LexerIndent.PythonLexerBase;
 }
 
-// @lexer::header {
-// using BldIt.Lang.External.AntlrDenter;
-// }
-
-// @lexer::members {
-// private DenterHelper denter;
-  
-// public override IToken NextToken()
-// {
-//     if (denter == null)
-//     {
-//         denter = DenterHelper.Builder()
-//             .Nl(NL)
-//             .Indent(BldItParser.INDENT)
-//             .Dedent(BldItParser.DEDENT)
-//             .PullToken(base.NextToken);
-//     }
-
-//     return denter.NextToken();
-// }
-// }
-
-
 //Bldit Pipeline keywords:
 PIPELINE: ('pipeline' | 'pipe');
 GLOBALENV: 'globalEnv';
 PARAMETERS: 'parameters';
 STAGES: 'stages';
 STAGE: 'stage';
+HANDLE_ERROR: 'handleError';
 //PIPELINE_IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
 
 

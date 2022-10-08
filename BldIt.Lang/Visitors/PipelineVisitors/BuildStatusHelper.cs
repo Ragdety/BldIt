@@ -44,12 +44,9 @@ public static class BuildResultStatusHelper
             {
                 var handleErrorStep = (HandleErrorStep) step;
                 
-                //If an error was caught within the handleError step
-                if (handleErrorStep.ErrorCaught)
-                {
-                    //Set the status to the desired build result from handleError step
-                    result = new StringValue(handleErrorStep.DesiredBuildResult);
-                }
+                //If an error was caught within the handleError step, set to DesiredBuildResult
+                //Otherwise, set to SUCCESS since no error was found
+                result = handleErrorStep.ErrorCaught ? new StringValue(handleErrorStep.DesiredBuildResult) : new StringValue("SUCCESS");
             }
         }
         

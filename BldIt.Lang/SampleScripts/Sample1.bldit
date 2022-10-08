@@ -1,4 +1,4 @@
-i = 1;
+﻿i = 1;
 
 def IsLegalAgeInUSA(age):
     return age >= 21
@@ -29,9 +29,9 @@ pipeline:
         IsInternal: boolParam = false
     stages:
         stage "Testing script": 
-            //run(GetEnv("Sample1Batch"), "arg1")
-            run(GetEnv("Sample1Batch"), "arg1", GetEnv("Sample1WkDir"))
-            //("An error")
+            handleError("SUCCESS", "FAILURE"):
+                run(GetEnv("Sample1Batch"), "arg1", GetEnv("Sample1WkDir"))
+            //run(GetEnv("Sample1Batch"), "arg1", GetEnv("Sample1WkDir"))
         stage "PostStage1":
             echo("Inside PostStage1")
         stage "PostStage2":

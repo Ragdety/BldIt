@@ -149,8 +149,8 @@ compoundStepStatement:
  *     step2
  */
 handleErrorStep: 
-  IDENTIFIER OPEN_PAREN CLOSE_PAREN handleErrorBlock |
-  IDENTIFIER OPEN_PAREN pipelineExpression COMMA pipelineExpression CLOSE_PAREN handleErrorBlock;
+  HANDLE_ERROR OPEN_PAREN CLOSE_PAREN COLON handleErrorBlock |
+  HANDLE_ERROR OPEN_PAREN STRING COMMA STRING CLOSE_PAREN COLON handleErrorBlock;
 
 handleErrorBlock: NEWLINE INDENT stepStatement+ DEDENT;
 

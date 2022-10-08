@@ -4,6 +4,7 @@ using BldIt.Lang.ValueObjects.BldItPipeline;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineParameterTypes;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
 using BldIt.Lang.Visitors.PipelineVisitors.PipelineSections;
+using Serilog;
 
 namespace BldIt.Lang.Visitors.PipelineVisitors;
 
@@ -38,7 +39,7 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
     /// Represents the set of stages in the pipeline.
     /// No duplicate stage names are allowed.
     /// </summary>
-    protected HashSet<Stage> Stages { get; }
+    protected HashSet<Stage> Stages { get; private set; }
 
     public PipelineVisitor(
         List<string> semanticErrors, 
@@ -103,7 +104,21 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
                 case 2:
                     pipeline.SetStageStatement(stageStatementVisitor
                         .VisitStagesStatement(context.stagesStatement()));
+
+                    Stages = pipeline.StagesStatement.Stages;
+                    var buildSuccess = BuildResultStatusHelper.IsBuildSuccess(GlobalEnv);
+                    if (!buildSuccess)
+                    {
+                        Log.Logger.Error("Build failed with errors");
+                        Environment.ExitCode = 1;
+                    }
+                    else
+                    {
+                        Log.Logger.Information("Build was successful");
+                        Environment.ExitCode = 0;
+                    }
                     break;
+                //Post Build Actions will go here:
             }
         }
         

@@ -1,12 +1,11 @@
-﻿using Antlr4.Runtime;
-using BldIt.Api.Services.Processes;
+﻿using BldIt.Api.Services.Processes;
 using BldIt.Lang.Exceptions;
 using BldIt.Lang.Grammar;
+using BldIt.Lang.Listeners;
 using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItExpressions.ConstantTypes;
 using BldIt.Lang.ValueObjects.BldItExpressions.ExpressionHelpers;
 using BldIt.Lang.ValueObjects.BldItPipeline;
-using BldIt.Lang.ValueObjects.BldItPipeline.PipelineExpressions;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineParameterTypes;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages.Steps.SimpleStageSteps;
@@ -18,14 +17,18 @@ namespace BldIt.Lang.Visitors.PipelineVisitors.PipelineSections.Stages.Steps;
 
 public class SimpleStepStatementVisitor : StepStatementVisitor
 {
-    public SimpleStepStatementVisitor(
-        List<string> semanticErrors, 
-        Dictionary<string, Expression> globalVariables, 
-        Dictionary<string, Func<Expression?[], Expression?>> functions, 
-        Dictionary<string, Expression> globalEnv, 
-        HashSet<Parameter> parameters) 
+    private new bool IsInsideHandleError { get; }
+
+    public SimpleStepStatementVisitor(List<string> semanticErrors,
+        Dictionary<string, Expression> globalVariables,
+        Dictionary<string, Func<Expression?[], Expression?>> functions,
+        Dictionary<string, Expression> globalEnv,
+        HashSet<Parameter> parameters,
+        bool isInsideHandleError)
         : base(semanticErrors, globalVariables, functions, globalEnv, parameters)
-    { }
+    {
+        IsInsideHandleError = isInsideHandleError;
+    }
 
     public override SimpleStageStep VisitSimpleStepStatement(BldItParser.SimpleStepStatementContext context)
     {
@@ -80,7 +83,7 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         var errorStep = new ErrorStep(exprTypeValueObject.ToString());
         
         //If the parent is a handleErrorsStep
-        if (IsHandleErrorParent(context))
+        if (IsInsideHandleError)
         {
             Log.Logger.Debug("Error handling was enabled");
         }
@@ -138,6 +141,8 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         var argumentsValue = ExpressionTypeHelper.GetValueFromType(arguments);
         var workingDirectoryValue = ExpressionTypeHelper.GetValueFromType(workingDirectory);
 
+        //var isOs = OperatingSystem.IsWindows();
+        
         var runStep = new RunStep(
             commandValue.ToString() 
             ?? throw new CompilingException("Command value is null"),
@@ -170,11 +175,11 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
         }
         
         Log.Logger.Error("ERROR: Script failed with exit code {ExitCode}", exitCode);
-        
+
         //If the parent is a handleErrorsStep
-        if(IsHandleErrorParent(context))
+        if(IsInsideHandleError)
         {
-            Log.Logger.Debug("Error handling was enabled");
+            Log.Logger.Debug("Inside handleErrorsStep");
         }
         else
         {
@@ -199,15 +204,5 @@ public class SimpleStepStatementVisitor : StepStatementVisitor
                 "Ex: run(\"command\", \"arg1 arg2 arg3\")");
         if (workingDir is not StringValue)
             throw new InvalidDataTypeException("Step \'run\' requires a string as the third argument (working directory)");
-    }
-    
-    private static bool IsHandleErrorParent(RuleContext context)
-    {
-        if (context.parent is BldItParser.CompoundStepStatementContext compoundStep)
-        {
-            return compoundStep.handleErrorStep() is { };
-        }
-
-        return false;
     }
 }

@@ -14,6 +14,12 @@ public class HandleErrorStep : CompoundStageStep
     /// By default, it is false
     /// </summary>
     public bool ErrorCaught { get; set; }
+    
+    public override string StepIdentifier { get; protected init; } = nameof(HandleErrorStep)
+        .Replace("Step", "")
+        .ToLower()
+        //From handleerror to handleError
+        .Replace("ee", "eE");
 
     private HandleErrorStep(CompoundStepType stepType) : base(stepType)
     {

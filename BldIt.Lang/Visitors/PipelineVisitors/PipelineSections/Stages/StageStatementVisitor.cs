@@ -44,11 +44,9 @@ public class StageStatementVisitor : BldItParserBaseVisitor<Stage>
             stage.State = StageState.Running;
             var step = stageStepsStatementVisitor.VisitSimpleStepStatement(simpleStepStatement);
             stage.Steps.Add(step);
+
             
-            //Assumes build was successful, this will be changed below if a step fails.
-            GlobalEnv = BuildResultStatusHelper.SetBuildResult(GlobalEnv, PipelineConstants.BuildConstants.BuildSuccessValue);
-            
-            stage = StageStateHelper.SetStageFailedBasedOnSteps(stage);
+            stage = StageStateHelper.SetStageFailedBasedOnHandleErrorStep(stage);
             GlobalEnv = BuildResultStatusHelper.CheckAndSetBuildResultBasedOnHandleErrorStep(GlobalEnv, stage);
             Log.Logger.Debug("Build Result: {BuildResult}", GlobalEnv["BUILD_RESULT"].ToString());
             return stage;
@@ -65,11 +63,10 @@ public class StageStatementVisitor : BldItParserBaseVisitor<Stage>
             }
 
             //Assumes build was successful, this will be changed below if a step fails.
-            GlobalEnv = BuildResultStatusHelper.SetBuildResult(GlobalEnv, PipelineConstants.BuildConstants.BuildSuccessValue);
+            //GlobalEnv = BuildResultStatusHelper.SetBuildResult(GlobalEnv, PipelineConstants.BuildConstants.BuildSuccessValue);
             
             //This should ideally check only handleError steps, since any other stage will exit the program immediately
-            //TODO: Change this function SetStageFailedBasedOnSteps() to SetStageFailedBasedOnHandleErrorStep()
-            stage = StageStateHelper.SetStageFailedBasedOnSteps(stage);
+            stage = StageStateHelper.SetStageFailedBasedOnHandleErrorStep(stage);
             GlobalEnv = BuildResultStatusHelper.CheckAndSetBuildResultBasedOnHandleErrorStep(GlobalEnv, stage);
             Log.Logger.Debug("Build Result: {BuildResult}", GlobalEnv["BUILD_RESULT"].ToString());
             return stage;

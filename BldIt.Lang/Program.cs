@@ -1,4 +1,5 @@
-﻿using BldIt.Lang.Exceptions;
+﻿using Antlr4.Runtime.Tree;
+using BldIt.Lang.Exceptions;
 using BldIt.Lang.Listeners;
 using BldIt.Lang.Visitors;
 using Serilog;
@@ -30,6 +31,12 @@ var bldItParser = new BldIt.Lang.Parsing.BldItParser();
 var parser = bldItParser.Parser(fileContents);
 var ast = parser?.bldItFile();
 if (ast is null) throw new ArgumentNullException(nameof(ast));
+
+//Walker to keep track of rule stack inside BldItParserListener
+//Singleton rule stack class
+// var tnsWalker = new ParseTreeWalker();
+// var tnsListener = new BldItParserListener(parser!);
+// tnsWalker.Walk(tnsListener, ast);
 
 if(ErrorListener.HasErrors)
 {

@@ -13,7 +13,7 @@ public static class StageStateHelper
     /// </summary>
     /// <param name="stage">Stage to set the state</param>
     /// <returns></returns>
-    public static Stage SetStageFailedBasedOnSteps(Stage stage)
+    public static Stage SetStageFailedBasedOnHandleErrorStep(Stage stage)
     {
         foreach (var step in stage.Steps)
         {
@@ -49,6 +49,8 @@ public static class StageStateHelper
                         };
                     }
                 }
+                //We should continue to not override above's result
+                continue;
             }
 
             if (StepHasFailed(step))

@@ -4,4 +4,4 @@ echo Current Env from Pipeline: %currentEnv%
 echo Argument 1: %1
 echo %cd%
 REM curl https://localhost:5001/api/v1/projects
-exit /b 0
+exit /b 1

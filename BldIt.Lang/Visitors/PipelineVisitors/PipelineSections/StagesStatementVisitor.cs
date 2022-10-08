@@ -2,9 +2,11 @@
 using BldIt.Lang.Grammar;
 using BldIt.Lang.ValueObjects.BldItExpressions;
 using BldIt.Lang.ValueObjects.BldItExpressions.ConstantTypes;
+using BldIt.Lang.ValueObjects.BldItPipeline;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineParameterTypes;
 using BldIt.Lang.ValueObjects.BldItPipeline.PipelineSections.Stages;
 using BldIt.Lang.Visitors.PipelineVisitors.PipelineSections.Stages;
+using Serilog;
 
 namespace BldIt.Lang.Visitors.PipelineVisitors.PipelineSections;
 
@@ -13,7 +15,7 @@ public class StagesStatementVisitor : BldItParserBaseVisitor<StagesStatement>
     protected List<string> SemanticErrors { get; }
     protected Dictionary<string, Expression> GlobalVariables { get; }
     protected Dictionary<string, Func<Expression?[], Expression?>> Functions { get; }
-    protected Dictionary<string, Expression> GlobalEnv { get; }
+    protected Dictionary<string, Expression> GlobalEnv { get; private set; }
     protected HashSet<Parameter> Parameters { get; }
     protected HashSet<Stage> Stages { get; }
  
@@ -71,6 +73,12 @@ public class StagesStatementVisitor : BldItParserBaseVisitor<StagesStatement>
         {
             var stage = stageStatementVisitor.VisitStageBlock(stageStatement.stageBlock());
             stagesStatement.AddStage(stage);
+            
+            var buildResult = GlobalEnv["BUILD_RESULT"].ToString();
+            
+            //If the build is unknown, it means none of the steps failed, so we can set the build result to success
+            if (buildResult == PipelineConstants.BuildConstants.BuildUnknownValue)
+                GlobalEnv = BuildResultStatusHelper.SetBuildResult(GlobalEnv, PipelineConstants.BuildConstants.BuildSuccessValue);
         }
 
         return stagesStatement;
