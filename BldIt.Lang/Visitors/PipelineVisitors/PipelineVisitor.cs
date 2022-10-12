@@ -112,6 +112,11 @@ public class PipelineVisitor : BldItParserBaseVisitor<Pipeline>
                         Log.Logger.Error("Build failed with errors");
                         Environment.ExitCode = 1;
                     }
+                    else if (BuildResultStatusHelper.GetBuildResult(GlobalEnv) == PipelineConstants.BuildConstants.BuildUnknownValue)
+                    {
+                        Log.Logger.Warning("No build status");
+                        Environment.ExitCode = -1;
+                    }
                     else
                     {
                         Log.Logger.Information("Build was successful");

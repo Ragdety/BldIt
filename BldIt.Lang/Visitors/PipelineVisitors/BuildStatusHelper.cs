@@ -24,6 +24,12 @@ public static class BuildResultStatusHelper
         globalEnv["BUILD_RESULT"] = new StringValue(status);
         return globalEnv;
     }
+    
+    public static string GetBuildResult(Dictionary<string, Expression> globalEnv)
+    {
+        var result = (StringValue) globalEnv["BUILD_RESULT"];
+        return result.Value;
+    }
 
     public static Dictionary<string, Expression> CheckAndSetBuildResultBasedOnHandleErrorStep(
         Dictionary<string, Expression> globalEnv,
@@ -43,10 +49,20 @@ public static class BuildResultStatusHelper
             foreach (var step in handleErrorSteps)
             {
                 var handleErrorStep = (HandleErrorStep) step;
+
+                //If the build was previously set to failure, keep it regardless of any other steps
+                if (GetBuildResult(globalEnv) == PipelineConstants.BuildConstants.BuildFailureValue)
+                {
+                    break;
+                }
                 
                 //If an error was caught within the handleError step, set to DesiredBuildResult
-                //Otherwise, set to SUCCESS since no error was found
-                result = handleErrorStep.ErrorCaught ? new StringValue(handleErrorStep.DesiredBuildResult) : new StringValue("SUCCESS");
+                if (handleErrorStep.ErrorCaught)
+                {
+                    result = new StringValue(handleErrorStep.DesiredBuildResult);
+                }
+                
+                //Otherwise, set keep the same as before
             }
         }
         

@@ -29,10 +29,14 @@ pipeline:
         IsInternal: boolParam = false
     stages:
         stage "Testing script": 
+            //handleError(buildStatus, stageStatus)
             handleError("SUCCESS", "FAILURE"):
                 run(GetEnv("Sample1Batch"), "arg1", GetEnv("Sample1WkDir"))
-            //run(GetEnv("Sample1Batch"), "arg1", GetEnv("Sample1WkDir"))
+        stage "Python Stage":
+            echo("Python Version: ")
+            run("python", "--version")
         stage "PostStage1":
-            echo("Inside PostStage1")
+            handleError("FAILURE", "FAILURE"):
+                error("Inside PostStage1")
         stage "PostStage2":
             echo("Inside PostStage2")
