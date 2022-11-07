@@ -48,6 +48,10 @@ public static class StageStateHelper
                             _ => throw new ArgumentOutOfRangeException()
                         };
                     }
+                    else
+                    {
+                        stage.State = StageState.Success;
+                    }
                 }
                 //We should continue to not override above's result
                 continue;

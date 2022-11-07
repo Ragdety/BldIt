@@ -60,4 +60,6 @@ catch (Exception e)
 {
     Log.Logger.Error(e.StackTrace);
     Log.Logger.Error(e.Message);
+    Log.Logger.Error("Finished with errors");
+    Environment.ExitCode = 1;
 }

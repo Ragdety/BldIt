@@ -37,7 +37,11 @@ public class CompoundStepStatementVisitor : StepStatementVisitor
 
     public override CompoundStageStep VisitScriptStep(BldItParser.ScriptStepContext context)
     {
-        return VisitScriptBlock(context.scriptBlock());
+        var text = context.GetText();
+
+        var scriptStep = VisitScriptBlock(context.scriptBlock());
+
+        return scriptStep;
     }
 
     public override CompoundStageStep VisitHandleErrorStep(BldItParser.HandleErrorStepContext context)
@@ -96,31 +100,39 @@ public class CompoundStepStatementVisitor : StepStatementVisitor
 
     public override ScriptStep VisitScriptBlock(BldItParser.ScriptBlockContext context)
     {
-        throw new NotImplementedException();
-        
-        //TODO: Implement this method
-        var scriptBlock = context.GetText();
-        if (context.stepStatement() is { } stepStatement)
-        {
-            var stagesStatementVisitor =
-                new StepStatementVisitor(SemanticErrors, GlobalVariables, Functions, GlobalEnv, Parameters);
-            
-            //Loop here
-            //var stages = stagesStatementVisitor.VisitStepStatement(stepStatement);
-            
-            //return (ScriptStep) stages;
-        }
-           
-        if (context.statements() is not { } scriptStatement)
-            throw new CompilingException($"Invalid script block: {scriptBlock}");
-        
-        var stageStep = new ScriptStep();
-            
-        var statementsVisitor = new StatementVisitor(SemanticErrors, GlobalVariables, Functions);
-        var statementResult = statementsVisitor.Visit(scriptStatement);
-        
-        return stageStep;
+        var scriptStatements = context.scriptStatements().scriptStatament();
+        var scriptStep = new ScriptStep();
 
+        foreach (var scriptStatement in scriptStatements)
+        {
+            var scriptStatementText = scriptStatement.GetText();
+ 
+            if (scriptStatement.stepStatement() is { } stepStatement)
+            {
+                if (stepStatement.compoundStepStatement() is { } compoundStep)
+                {
+                    if(compoundStep.scriptStep() is {})
+                        throw new CompilingException("Script block cannot contain another script block");
+                }
+                
+                var stepStatementVisitor = 
+                    new StepStatementVisitor(SemanticErrors, GlobalVariables, Functions, GlobalEnv, Parameters)
+                    {
+                        IsInsideHandleError = IsInsideHandleError
+                    };
+                
+                stepStatementVisitor.VisitStepStatement(stepStatement);
+            }
+            else if (scriptStatement.statement() is { } statement)
+            {
+                var statementsVisitor = new StatementVisitor(SemanticErrors, GlobalVariables, Functions);
+                var statementResult = statementsVisitor.VisitStatement(statement);
+            }
+            else
+                throw new CompilingException($"Invalid script statement {scriptStatementText} ");
+        }
+
+        return scriptStep;
     }
     
     private static void CheckBuildResultValue(string buildResult)

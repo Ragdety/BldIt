@@ -1,7 +1,7 @@
 ﻿i = 1;
 
-def IsLegalAgeInUSA(age):
-    return age >= 21
+def IsLegalAgeInUSA(a):
+    return a >= 21
 
 //Param must be of different name than the function above
 //Need to handle this better in the future...
@@ -21,22 +21,23 @@ fun GetCurrentEnvironment(isDev):
 pipeline:
     globalEnv:
         var1 = "Some/Random/Path"
-        currentEnv = GetCurrentEnvironment(false)
+        currentEnv = GetCurrentEnvironment(true)
         Sample1WkDir = "C:\Users\ragde\OneDrive\Desktop\Programming\BldIt"
         Sample1Batch = GetEnv("Sample1WkDir") + "\BldIt.Lang\SampleScripts\Sample1.bat"
     parameters:
         ReleaseName: stringParam
         IsInternal: boolParam = false
     stages:
-        stage "Testing script": 
-            //handleError(buildStatus, stageStatus)
-            handleError("SUCCESS", "FAILURE"):
-                run(GetEnv("Sample1Batch"), "arg1", GetEnv("Sample1WkDir"))
-        stage "Python Stage":
-            echo("Python Version: ")
-            run("python", "--version")
-        stage "PostStage1":
-            handleError("FAILURE", "FAILURE"):
-                error("Inside PostStage1")
-        stage "PostStage2":
-            echo("Inside PostStage2")
+        stage "Testing handleError":
+            handleError("SUCCESS", "SUCCESS"):
+                run(GetEnv("Sample1Batch"), "arg1 arg2", GetEnv("Sample1WkDir"))
+        stage "Testing script":
+            script:
+                echo("Python Version: ")
+                if IsLegalAgeInUSA(17):
+                    print("You are legal age in USA")
+                else:
+                    print("You are not legal age in USA")
+                run("python", "--version")
+                run("pip",    "--version")
+        stage "PostStage1": echo("Inside PostStage2")

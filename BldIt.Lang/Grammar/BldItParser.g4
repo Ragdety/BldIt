@@ -156,7 +156,9 @@ handleErrorBlock: NEWLINE INDENT stepStatement+ DEDENT;
 
 //Script Statement
 scriptStep: SCRIPT COLON scriptBlock;
-scriptBlock: NEWLINE INDENT (stepStatement+ | statements) DEDENT;
+scriptBlock: NEWLINE INDENT scriptStatements DEDENT;
+scriptStatements: scriptStatament+;
+scriptStatament: stepStatement | statement;
 
 //Step Statements
 

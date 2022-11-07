@@ -29,8 +29,12 @@ public class StatementVisitor : BldItParserBaseVisitor<Statement>
     {
         if (context.simpleStatement() is { })
             return new SimpleStatementVisitor(SemanticErrors, GlobalVariables, Functions).VisitSimpleStatement(context.simpleStatement());
-        if (context.compoundStatement() is { }) 
-            return new CompoundStatementVisitor(SemanticErrors, GlobalVariables, Functions).VisitCompoundStatement(context.compoundStatement());
+        if (context.compoundStatement() is { })
+        {
+            var compoundStatementVisitor = new CompoundStatementVisitor(SemanticErrors, GlobalVariables, Functions);
+            return compoundStatementVisitor.VisitCompoundStatement(context.compoundStatement());
+        }
+            
         SemanticErrors.Add($"Invalid statement: {context.GetText()}");
         throw new CompilingException("Invalid Statement");
     }

@@ -14,6 +14,7 @@ namespace BldIt.Lang.Visitors.StatementVisitors.Compound;
 public class CompoundStatementVisitor : StatementVisitor
 {
     public Dictionary<string, Expression> LocalVariables { get; }
+    //public Dictionary<string, Expression> OriginalGlobalVariables { get; }
 
     public CompoundStatementVisitor(
         List<string> semanticErrors,
@@ -109,7 +110,7 @@ public class CompoundStatementVisitor : StatementVisitor
         while (condition(boolValue.Value))
         {
             //Visit Block
-            Visit(context.block());
+            VisitBlock(context.block());
             
             //Then reevaluate the condition
             expressionResult = expressionVisitor.Visit(context.expression());
@@ -132,11 +133,12 @@ public class CompoundStatementVisitor : StatementVisitor
         var functionParameters = context.parameters() != null ? 
             context.parameters().IDENTIFIER().ToArray() : 
             Array.Empty<ITerminalNode>();
-
-        var globalVariablesBeforeFunc = 
-            GlobalVariables.Select(x => x)
-                .ToDictionary(x => x.Key, x => x.Value);
-
+        
+        //
+        // var globalVariablesBeforeFunc = 
+        //     GlobalVariables.Select(x => x)
+        //         .ToDictionary(x => x.Key, x => x.Value);
+        
         Expression FunctionDelegate(Expression?[] arguments)
         {
             /*
@@ -149,23 +151,33 @@ public class CompoundStatementVisitor : StatementVisitor
              */
             for (var i = 0; i < functionParameters.Length; i++)
             {
-                GlobalVariables.Add(functionParameters[i].GetText(), arguments[i] ?? new NullValue(null));
+                //Add variables inside function to local variables
+                LocalVariables.Add(functionParameters[i].GetText(), arguments[i] ?? new NullValue(null));
+            }
+
+            foreach (var localVariable in LocalVariables)
+            {
+                //Temporarily add local variables to global variables (simulating the stack)
+                GlobalVariables.Add(localVariable.Key, localVariable.Value);
             }
 
             var returnStatement = VisitFunctionBlock(context.functionBlock());
             var result = (ReturnStatement) returnStatement;
 
-            //After we evaluate the result, clean up variables.
+            //After we evaluate the result, clean up local variables.
             //Must be after that since we still want to access those when evaluating return's expression
             
             //CLEAN UP:
-            //Select keys that were not previously in globalVariablesBeforeFunc, loop, and remove each one
-            foreach (var key in GlobalVariables
-                         .Select(kv => kv.Key)
-                         .Where(key => !globalVariablesBeforeFunc.ContainsKey(key)))
+            //Select keys that were previously in local variables
+            var prev = GlobalVariables
+                .Select(kv => kv.Key)
+                .Where(key => !LocalVariables.ContainsKey(key));
+            
+            foreach (var key in prev)
             {
                 GlobalVariables.Remove(key);
             }
+            LocalVariables.Clear();
             return result.Expression;
         }
 
@@ -177,12 +189,13 @@ public class CompoundStatementVisitor : StatementVisitor
     {
         var t = context.GetText();
         var statements = context.statements().statement().ToArray();
-        
+        var statementVisitor = new StatementVisitor(SemanticErrors, GlobalVariables, Functions);
+
         //Loop through each statement
         foreach (var statementContext in statements)
         {
             //If the result is a return statement, return (exit out of the function)
-            var res = VisitStatement(statementContext);
+            var res = statementVisitor.VisitStatement(statementContext);
             if (res is ReturnStatement)
                 return res;
         }

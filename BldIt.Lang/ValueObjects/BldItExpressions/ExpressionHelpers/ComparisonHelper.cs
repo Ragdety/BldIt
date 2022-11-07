@@ -60,7 +60,9 @@ public static class ComparisonHelper
             float leftFloat when right is float rightFloat => leftFloat == rightFloat,
             int lI when right is float rF => lI == rF,
             float lF when right is int rI => lF == rI,
-            _ => throw new InvalidDataTypeException("Cannot perform equal operation on given types")
+            string lS when right is string rS => lS == rS,
+            _ => throw new InvalidDataTypeException($"Cannot perform not equal operation on given types: " +
+                                                    $"{left?.GetType().Name} and {right?.GetType().Name}")
         };
     }
     
@@ -72,7 +74,9 @@ public static class ComparisonHelper
             float leftFloat when right is float rightFloat => leftFloat != rightFloat,
             int lI when right is float rF => lI != rF,
             float lF when right is int rI => lF != rI,
-            _ => throw new InvalidDataTypeException("Cannot perform not equal operation on given types")
+            string lS when right is string rS => lS != rS,
+            _ => throw new InvalidDataTypeException($"Cannot perform not equal operation on given types: " +
+                                                    $"{left?.GetType().Name} and {right?.GetType().Name}")
         };
     }
 }
