@@ -3,7 +3,7 @@
 setlocal enabledelayedexpansion
 set PATH=C:\Program Files\dotnet;%USERPROFILE%\.dotnet\tools;!PATH!
 
-pushd ..\..\..\
+pushd ..\..\..\..\
 dotnet build
 
 echo INFO: Exit with code: !errorlevel!
