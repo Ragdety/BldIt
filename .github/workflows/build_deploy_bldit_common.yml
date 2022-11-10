@@ -3,7 +3,9 @@ name: Build and deploy BldIt.Common
 on:
   push:
     branches:
-      - master
+      - main
+    paths:
+      - 'src/BldIt.Common/**'
 
 jobs:
   build:
