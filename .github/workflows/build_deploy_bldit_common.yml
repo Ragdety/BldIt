@@ -3,37 +3,33 @@ name: Build and deploy BldIt.Common
 on:
   push:
     branches:
-    - main
+      - master
     paths:
-    - 'src/BldIt.Common/**'
+      - 'src/BldIt.Common/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet-version: ['6.0.x']
-
     steps:
-    - name: Check out 
-      uses: actions/checkout@v3
-    
-    - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: ${{ matrix.dotnet-version }}
-        
-    - name: Install dependencies
-      run: dotnet restore
-      
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-      
-    - name: Deploy
-      uses: jfrog/setup-jfrog-cli@v3
-      env:
-        JF_URL: ${{ secrets.JF_URL }}
-        JF_USER: ${{ secrets.JF_USER }}
-        JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
-      - run: |
+      - uses: actions/checkout@v3
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+      - name: Build with dotnet
+        run: dotnet build src/BldIt.Common/BldIt.Common.csproj --configuration Release
+      - name: Test with dotnet
+        run: dotnet test src/BldIt.Common/BldIt.Common.csproj --configuration Release
+  
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_URL: ${{ secrets.JF_URL }}
+          JF_USER: ${{ secrets.JF_USER }}
+          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+        run: |
           jf rt ping
