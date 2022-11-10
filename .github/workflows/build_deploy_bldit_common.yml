@@ -3,9 +3,9 @@ name: Build and deploy BldIt.Common
 on:
   push:
     branches:
-      - main
+    - main
     paths:
-      - 'src/BldIt.Common/**'
+    - 'src/BldIt.Common/**'
 
 jobs:
   build:
@@ -15,25 +15,25 @@ jobs:
         dotnet-version: ['6.0.x']
 
     steps:
-      - name: Check out 
-        uses: actions/checkout@v3
+    - name: Check out 
+      uses: actions/checkout@v3
+    
+    - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+        
+    - name: Install dependencies
+      run: dotnet restore
       
-      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ matrix.dotnet-version }}
-          
-      - name: Install dependencies
-        run: dotnet restore
-        
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-        
-      - name: Deploy
-        uses: jfrog/setup-jfrog-cli@v3
-        env:
-          JF_URL: ${{ secrets.JF_URL }}
-          JF_USER: ${{ secrets.JF_USER }}
-          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
-        - run: |
-            jf rt ping
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: Deploy
+      uses: jfrog/setup-jfrog-cli@v3
+      env:
+        JF_URL: ${{ secrets.JF_URL }}
+        JF_USER: ${{ secrets.JF_USER }}
+        JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+      - run: |
+          jf rt ping
