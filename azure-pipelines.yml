@@ -1,0 +1,55 @@
+# Build and Create Nuget Package for BldIt common/shared code
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+# $(Rev:r) is the run number
+name: 1.0.$(Rev:r)
+jobs:
+- job: BuildAndTest 
+  displayName: Build and Test BldIt.Common
+  steps:
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: 'restore'
+      projects: '**/BldIt.Common.csproj'
+      feedsToUse: 'select'
+      vstsFeed: '3e8a153a-8472-4708-beaf-1973bfc7812c'
+  - task: DotNetCoreCLI@2
+    displayName: dotnet build
+    inputs:
+      command: 'build'
+      projects: '**/BldIt.Common.csproj'
+  - task: DotNetCoreCLI@2
+    displayName: dotnet test
+    inputs:
+      command: test
+      projects: '**/BldIt.Common.csproj'
+- job: CreateNugetPackage
+  displayName: Create Nuget
+  dependsOn: BuildAndTest
+  condition: succeeded()
+  steps:
+  - task: DotNetCoreCLI@2
+    displayName: dotnet pack
+    inputs:
+      command: 'pack'
+      packagesToPack: '**/BldIt.Common.csproj'
+      versioningScheme: 'byBuildNumber'
+  - task: DotNetCoreCLI@2
+    displayName: dotnet push
+    inputs:
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: '3e8a153a-8472-4708-beaf-1973bfc7812c'
+  - task: PublishBuildArtifacts@1
+    displayName: publish artifacts
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      TargetPath: '\\BldIt.Common\$(Build.DefinitionName)\$(Build.BuildNumber)'
+      publishLocation: 'Container'
