@@ -29,11 +29,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Add NuGet Artifactory
+      - name: Setup NuGet
         uses: nuget/setup-nuget@v1
-        
-      - name: Restore nuget dependencies
-        run: nuget restore $BLDIT_COMMON_CS_PROJ
 
       - name: Add Artifactory NuGet Source
         run: |
