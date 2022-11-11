@@ -1,0 +1,37 @@
+
+11/11/2022:
+
+Setting up CI-CD for BldIt.Common:
+-When working with yml file lessons learned:
+	-Cannot use both "uses" and "run" in the same step, 
+	 must have "run" followed with a hyphen "-  run: code" (If we decide to include "uses").
+	-How to add env variables to reduce duplication.
+	-Remembered how to run build only when a path changes (with "paths").
+	-How to use ${{}} for github secrets and variables.
+	-Yml must use actions/checkout@v3 if paths from repo are referenced
+	 (This action checks out the code so we can use paths inside workflow steps).
+
+-When working with "dotnet nuget" & "nuget" commands:
+	-Each one seems to refer to a different nuget config file.
+	-Use only 1 version of the command (either "nuget" or "dotnet nuget")
+	 OR specify nuget config file in the command.
+	-Overall understanding of how to package and publish into custom nuget packages.
+
+-When working with jfrog:
+	-MUST use a local repo type in order to upload packages and prevent 400 request.
+	-Possible to use curl when uploading to get more information about the http request.
+	-Overall understanding of how to use a custom/private nuget artifactory.
+
+
+Archievements:
+-Better understanding of GitHub Actions.
+-Good understanding of packaging with nuget & publishing to private nuget server.
+-Learned about JFrog!
+
+Future Goals:
+-Familiarize more with shell scripting for advanced tasks.
+
+
+
+
+
