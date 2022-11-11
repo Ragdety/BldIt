@@ -9,7 +9,7 @@ on:
 
 env:
   BLDIT_COMMON_CS_PROJ: 'src/BldIt.Common/BldIt.Common.csproj'
-  ARTIFACTORY_NAME: BldItNuGetArtifactory
+  ARTIFACTORY_NAME: Artifactory
   PACKAGE_VERSION: 1.0.${{ github.run_number }}
 
 jobs:
