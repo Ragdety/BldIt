@@ -49,9 +49,7 @@ jobs:
       
       - name: Pack with dotnet
         run: |
-          dotnet pack "$BLDIT_COMMON_CS_PROJ" --configuration Release \
-          --output ./artifacts \
-          -p:PackageVersion=1.0.${{ github.run_number }}
+          dotnet pack $BLDIT_COMMON_CS_PROJ --configuration Release --output ./artifacts -p:PackageVersion=1.0.${{ github.run_number }}
       
       - name: Deploy to NuGet Artifactory
         run: |
