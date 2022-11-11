@@ -7,6 +7,10 @@ on:
     paths:
       - 'src/BldIt.Common/**'
 
+env:
+  BLDIT_COMMON_CS_PROJ: 'src/BldIt.Common/BldIt.Common.csproj'
+  ARTIFACTORY_NAME: BldItArtifactory
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,23 +21,22 @@ jobs:
         with:
           dotnet-version: 6.0.x
       - name: Build with dotnet
-        run: dotnet build src/BldIt.Common/BldIt.Common.csproj --configuration Release
+        run: dotnet build $BLDIT_COMMON_CS_PROJ --configuration Release
       - name: Test with dotnet
-        run: dotnet test src/BldIt.Common/BldIt.Common.csproj --configuration Release
+        run: dotnet test $BLDIT_COMMON_CS_PROJ --configuration Release
   
   deploy:
     needs: build
-    env:
-      ARTIFACTORY_NAME: BldItArtifactory
     runs-on: ubuntu-latest
     steps:
       - name: Add NuGet Artifactory
         uses: nuget/setup-nuget@v1
         
       - name: Restore nuget dependencies
-        run: nuget restore src/BldIt.Common/BldIt.Common.csproj
-        
-      - run: |
+        run: nuget restore $BLDIT_COMMON_CS_PROJ
+
+      - name: Add Artifactory NuGet Source
+        run: |
           echo "Adding artifactory" \
           nuget sources Add \
           -Name $ARTIFACTORY_NAME \
@@ -42,14 +45,14 @@ jobs:
           -password "${{ secrets.ARTIFACTORY_NUGET_PASSWORD }}"
       
       - name: Authenticate NuGet Artifactory
-      - run: |
+        run: |
           echo "Authenticating with artifactory" \
           nuget setapikey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} \
           -Source $ARTIFACTORY_NAME
       
       - name: Pack with dotnet
         run: |
-          dotnet pack src/BldIt.Common/BldIt.Common.csproj \ 
+          dotnet pack $BLDIT_COMMON_CS_PROJ \ 
           --configuration Release \
           --output ./artifacts \
           -p:PackageVersion=1.0.${{ github.run_number }}
