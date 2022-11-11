@@ -33,6 +33,8 @@ jobs:
   
       - name: Setup NuGet
         uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: 5.x
 
       - name: Add Artifactory NuGet Source
         run: |
