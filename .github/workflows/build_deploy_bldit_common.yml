@@ -9,7 +9,7 @@ on:
 
 env:
   BLDIT_COMMON_CS_PROJ: 'src/BldIt.Common/BldIt.Common.csproj'
-  ARTIFACTORY_NAME: Artifactory
+  ARTIFACTORY_NAME: BldItNuGetArtifactory
   PACKAGE_VERSION: 1.0.${{ github.run_number }}
 
 jobs:
@@ -40,12 +40,11 @@ jobs:
       - name: Add Artifactory NuGet Source
         run: |
           echo "Adding artifactory"
-          dotnet nuget add source \
-          --name $ARTIFACTORY_NAME \
-          --username ${{ secrets.ARTIFACTORY_NUGET_USERNAME }} \
-          --password "${{ secrets.ARTIFACTORY_NUGET_PASSWORD }}" \
-          --store-password-in-clear-text \
-          ${{ secrets.ARTIFACTORY_NUGET_URL }} 
+          nuget sources Add \
+          -Name $ARTIFACTORY_NAME \
+          -Source ${{ secrets.ARTIFACTORY_NUGET_URL }} \
+          -username ${{ secrets.ARTIFACTORY_NUGET_USERNAME }} \
+          -password "${{ secrets.ARTIFACTORY_NUGET_PASSWORD }}"
       
       - name: Authenticate NuGet Artifactory
         run: |
@@ -59,7 +58,7 @@ jobs:
       - name: Deploy BldIt.Common to NuGet Artifactory
         run: |
           echo "Deploying to artifactory"
-          dotnet nuget push ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg \
-          --source $ARTIFACTORY_NAME \
-          --api-key ${{ secrets.ARTIFACTORY_NUGET_API_KEY }}
+          nuget push ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg \
+          -Source $ARTIFACTORY_NAME \
+          -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }}
           
