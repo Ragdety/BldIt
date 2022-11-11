@@ -23,12 +23,41 @@ jobs:
   
   deploy:
     needs: build
+    env:
+      ARTIFACTORY_NAME: BldItArtifactory
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to NuGet
-        uses: jfrog/setup-jfrog-cli@v3
-        env:
-          JF_URL: ${{ secrets.JF_URL }}
-          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+      - name: Add NuGet Artifactory
+        uses: nuget/setup-nuget@v1
+        
+      - name: Restore nuget dependencies
+        run: nuget restore src/BldIt.Common/BldIt.Common.csproj
+        
       - run: |
-          jf rt ping
+          echo "Adding artifactory" \
+          nuget sources Add \
+          -Name $ARTIFACTORY_NAME \
+          -Source ${{ secrets.ARTIFACTORY_NUGET_URL }} \
+          -username ${{ secrets.ARTIFACTORY_NUGET_USERNAME }} \
+          -password "${{ secrets.ARTIFACTORY_NUGET_PASSWORD }}"
+      
+      - name: Authenticate NuGet Artifactory
+      - run: |
+          echo "Authenticating with artifactory" \
+          nuget setapikey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} \
+          -Source $ARTIFACTORY_NAME
+      
+      - name: Pack with dotnet
+        run: |
+          dotnet pack src/BldIt.Common/BldIt.Common.csproj \ 
+          --configuration Release \
+          --output ./artifacts \
+          -p:PackageVersion=1.0.${{ github.run_number }}
+      
+      - name: Deploy to NuGet Artifactory
+        run: |
+          echo "Deploying to artifactory" \
+          nuget push ./artifacts/BldIt.Common.*.nupkg \
+          -Source $ARTIFACTORY_NAME \
+          -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }}
+          
