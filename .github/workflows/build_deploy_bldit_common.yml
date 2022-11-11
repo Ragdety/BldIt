@@ -58,14 +58,15 @@ jobs:
       - name: Deploy BldIt.Common to NuGet Artifactory
         run: |
           echo "Deploying to artifactory"
-          for f in ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg
-          do
-            curl -vX PUT -u "${{ secrets.ARTIFACTORY_NUGET_API_KEY }}" -F package=@$f ${{ secrets.ARTIFACTORY_NUGET_URL }}
-          done
-        shell: bash
+          nuget push ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg \
+          -Source $ARTIFACTORY_NAME \
+          -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} 
           
-#          echo "Deploying to artifactory"
-#          nuget push ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg \
-#          -Source $ARTIFACTORY_NAME \
-#          -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }}
-#          -SkipDuplicate
+          
+#  For more information about the http request (in case a 4xx error happens), use:
+#  for f in ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg
+#  do
+#  curl -vX PUT -u "${{ secrets.ARTIFACTORY_NUGET_API_KEY }}" -F package=@$f ${{ secrets.ARTIFACTORY_NUGET_URL }}
+#  done
+#  
+#  shell: bash
