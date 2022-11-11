@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'src/BldIt.Common/**'
+    #paths:
+    #  - 'src/BldIt.Common/**'
 
 env:
   BLDIT_COMMON_CS_PROJ: 'src/BldIt.Common/BldIt.Common.csproj'
