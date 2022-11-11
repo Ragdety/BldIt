@@ -9,7 +9,7 @@ on:
 
 env:
   BLDIT_COMMON_CS_PROJ: 'src/BldIt.Common/BldIt.Common.csproj'
-  ARTIFACTORY_NAME: BldItArtifactory
+  ARTIFACTORY_NAME: Artifactory
 
 jobs:
   build:
