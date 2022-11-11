@@ -58,8 +58,14 @@ jobs:
       - name: Deploy BldIt.Common to NuGet Artifactory
         run: |
           echo "Deploying to artifactory"
-          nuget push ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg \
-          -Source $ARTIFACTORY_NAME \
-          -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }}
-          -SkipDuplicate
+          for f in ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg
+          do
+            curl -vX PUT -u "${{ secrets.ARTIFACTORY_NUGET_API_KEY }}" -F package=@$f ${{ secrets.ARTIFACTORY_NUGET_URL }}
+          done
+        shell: bash
           
+#          echo "Deploying to artifactory"
+#          nuget push ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg \
+#          -Source $ARTIFACTORY_NAME \
+#          -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }}
+#          -SkipDuplicate
