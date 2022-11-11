@@ -29,6 +29,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+  
       - name: Setup NuGet
         uses: nuget/setup-nuget@v1
 
@@ -48,8 +50,7 @@ jobs:
       
       - name: Pack BldIt.Common
         run: |
-          cd src/BldIt.Common
-          dotnet pack --configuration Release --output ./artifacts -p:PackageVersion=1.0.${{ github.run_number }}
+          dotnet pack $BLDIT_COMMON_CS_PROJ --configuration Release --output ./artifacts -p:PackageVersion=1.0.${{ github.run_number }}
       
       - name: Deploy BldIt.Common to NuGet Artifactory
         run: |
