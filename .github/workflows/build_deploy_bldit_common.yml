@@ -34,7 +34,7 @@ jobs:
 
       - name: Add Artifactory NuGet Source
         run: |
-          echo "Adding artifactory" \
+          echo "Adding artifactory"
           nuget sources Add \
           -Name $ARTIFACTORY_NAME \
           -Source ${{ secrets.ARTIFACTORY_NUGET_URL }} \
@@ -43,18 +43,17 @@ jobs:
       
       - name: Authenticate NuGet Artifactory
         run: |
-          echo "Authenticating with artifactory" \
-          nuget setapikey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} \
-          -Source $ARTIFACTORY_NAME
+          echo "Authenticating with artifactory"
+          nuget setapikey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} -Source $ARTIFACTORY_NAME
       
-      - name: Pack with dotnet
+      - name: Pack BldIt.Common
         run: |
-          cd src/BldIt.Common \
+          cd src/BldIt.Common
           dotnet pack --configuration Release --output ./artifacts -p:PackageVersion=1.0.${{ github.run_number }}
       
-      - name: Deploy to NuGet Artifactory
+      - name: Deploy BldIt.Common to NuGet Artifactory
         run: |
-          echo "Deploying to artifactory" \
+          echo "Deploying to artifactory"
           nuget push ./artifacts/BldIt.Common.*.nupkg \
           -Source $ARTIFACTORY_NAME \
           -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }}
