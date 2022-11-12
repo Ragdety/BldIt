@@ -11,7 +11,7 @@ public static class Extensions
 {
     public static IServiceCollection AddIdentityRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IIdentityRepository, IdentityRepository>();
+        services.AddScoped<IIdentityManager, IdentityManager>();
         
         return services;
     }

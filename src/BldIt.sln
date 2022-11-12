@@ -28,11 +28,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "identity", "identity", "{31
 		services\identity\UpdateApiSharedLib.bat = services\identity\UpdateApiSharedLib.bat
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Identity.Service", "services\identity\BldIt.Identity.Service\BldIt.Identity.Service.csproj", "{3451AAE9-10A7-434B-B0C1-CD1BE8874C82}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Identity.Api", "services\identity\BldIt.Identity.Api\BldIt.Identity.Api.csproj", "{3451AAE9-10A7-434B-B0C1-CD1BE8874C82}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Identity.Contracts", "services\identity\BldIt.Identity.Contracts\BldIt.Identity.Contracts.csproj", "{31D844CB-B355-4307-ABFB-998E68608D49}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Identity.Core", "services\identity\BldIt.Identity.Core\BldIt.Identity.Core.csproj", "{49A7B1C3-CCC6-4A55-81E4-76910B12E7B3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "projects", "projects", "{88EE4654-6488-46DD-80CE-3446781AEBAC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "builds", "builds", "{E60AA9F4-E0E0-4AC2-BBD5-A3359EA637A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +57,8 @@ Global
 		{3451AAE9-10A7-434B-B0C1-CD1BE8874C82} = {314C2DCA-1342-4C9C-9BF2-A243FB33B5D3}
 		{31D844CB-B355-4307-ABFB-998E68608D49} = {314C2DCA-1342-4C9C-9BF2-A243FB33B5D3}
 		{49A7B1C3-CCC6-4A55-81E4-76910B12E7B3} = {314C2DCA-1342-4C9C-9BF2-A243FB33B5D3}
+		{88EE4654-6488-46DD-80CE-3446781AEBAC} = {4C2EFCA6-89B0-4B7A-B35E-8A2E1AFB2862}
+		{E60AA9F4-E0E0-4AC2-BBD5-A3359EA637A7} = {4C2EFCA6-89B0-4B7A-B35E-8A2E1AFB2862}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6C1AC2F0-2AC6-4991-9536-EAD2C0C9F201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

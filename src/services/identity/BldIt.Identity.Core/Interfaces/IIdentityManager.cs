@@ -3,7 +3,7 @@ using BldIt.Identity.Contracts.Results;
 
 namespace BldIt.Identity.Core.Interfaces;
 
-public interface IIdentityRepository
+public interface IIdentityManager
 {
     Task<AuthenticationResult> RegisterAsync(RegisterUserDto userToRegister);
     Task<AuthenticationResult> LoginAsync(LoginUserDto userToLogin);

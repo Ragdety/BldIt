@@ -9,28 +9,27 @@ pause
 
 :: Install latest version of the BldIt API shared library
 
+set apiPrjPath=BldIt.Identity.Api
 set contractsPrjPath=BldIt.Identity.Contracts
 set corePrjPath=BldIt.Identity.Core
-set servicePrjPath=BldIt.Identity.Service
 set sharedApiLibName=BldIt.Api.Shared
 
+pushd %apiPrjPath%
+echo.
+echo INFO: Adding %sharedApiLibName% to %apiPrjPath%.csproj
+dotnet add package %sharedApiLibName%
+if [!errorlevel!] neq [0] goto :error
+popd
 
 pushd %contractsPrjPath%
-echo INFO: Adding %sharedApiLibName% to ^*.csproj
+echo INFO: Adding %sharedApiLibName% to %contractsPrjPath%.csproj
 dotnet add package %sharedApiLibName%
 if [!errorlevel!] neq [0] goto :error
 popd
 
 pushd %corePrjPath%
 echo.
-echo INFO: Adding %sharedApiLibName% to ^*.csproj
-dotnet add package %sharedApiLibName%
-if [!errorlevel!] neq [0] goto :error
-popd
-
-pushd %servicePrjPath%
-echo.
-echo INFO: Adding %sharedApiLibName% to ^*.csproj
+echo INFO: Adding %sharedApiLibName% to %corePrjPath%.csproj
 dotnet add package %sharedApiLibName%
 if [!errorlevel!] neq [0] goto :error
 popd

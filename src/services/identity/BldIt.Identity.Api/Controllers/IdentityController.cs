@@ -1,4 +1,5 @@
-﻿using BldIt.Api.Shared;
+﻿using System.Globalization;
+using BldIt.Api.Shared;
 using BldIt.Identity.Contracts.Dtos;
 using BldIt.Identity.Contracts.Responses;
 using BldIt.Identity.Core.Interfaces;
@@ -6,16 +7,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BldIt.Identity.Service.Controllers
 {
+    [ApiController]
     public class IdentityController : Controller
     {
-        private readonly IIdentityRepository _identityRepository;
+        private readonly IIdentityManager _identityManager;
         private readonly ILogger<IdentityController> _logger;
 
         public IdentityController(
-            IIdentityRepository identityRepository, 
+            IIdentityManager identityManager, 
             ILogger<IdentityController> logger)
         {
-            _identityRepository = identityRepository;
+            _identityManager = identityManager;
             _logger = logger;
         }
 
@@ -31,7 +33,7 @@ namespace BldIt.Identity.Service.Controllers
                 });
             }
             
-            var authResponse = await _identityRepository.RegisterAsync(userToRegister);
+            var authResponse = await _identityManager.RegisterAsync(userToRegister);
 
             if (!authResponse.Success)
             {
@@ -53,7 +55,7 @@ namespace BldIt.Identity.Service.Controllers
         [HttpPost(Routes.Identity.Login)]
         public async Task<IActionResult> LoginAsync([FromBody] LoginUserDto userToLogin)
         {
-            var authResponse = await _identityRepository.LoginAsync(userToLogin);
+            var authResponse = await _identityManager.LoginAsync(userToLogin);
 
             if (!authResponse.Success)
             {
@@ -64,8 +66,8 @@ namespace BldIt.Identity.Service.Controllers
                 });
             }
 
-            //_logger.LogInformation("Now: {0}", DateTime.UtcNow.ToLocalTime().ToString());
-            //_logger.LogInformation("JWT is validTo: {0}", authResponse.ValidTo.ToString());
+            _logger.LogDebug("Now: {S}", DateTime.UtcNow.ToLocalTime().ToString(CultureInfo.InvariantCulture));
+            _logger.LogDebug("JWT is validTo: {S}", authResponse.ValidTo.ToString(CultureInfo.InvariantCulture));
             
             return Ok(new AuthSuccessResponse
             {

@@ -13,13 +13,17 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace BldIt.Identity.Core.Repos
 {
-    public class IdentityRepository : IIdentityRepository
+    /// <summary>
+    /// Manages authentication for a specific user.
+    /// This is NOT a repo since it only handles registration and authentication.
+    /// </summary>
+    public class IdentityManager : IIdentityManager
     {
         //We can directly use UserManager since we injected it
         private readonly UserManager<User> _userManager;
         private readonly JwtSettings _jwtSettings;
 
-        public IdentityRepository(
+        public IdentityManager(
             UserManager<User> userManager, 
             JwtSettings jwtSettings)
         {
