@@ -6,7 +6,7 @@
 
         public struct Identity
         {
-            private const string Version = "v1";
+            public const string Version = "v1";
             private const string Base = Root + "/" + Version;
             private const string IdentityBase = Base + "/identity";
 
@@ -16,7 +16,7 @@
         
         public struct Projects
         {
-            private const string Version = "v1";
+            public const string Version = "v1";
             private const string Base = Root + "/" + Version;
             private const string ProjectsBase = Base + "/projects";
 
@@ -29,8 +29,7 @@
 
         public struct Jobs
         {
-            
-            private const string Version = "v1";
+            public const string Version = "v1";
             private const string Base = Root + "/" + Version;
             private const string JobsBase = Projects.Get + "/jobs";
 
@@ -48,7 +47,7 @@
         
         public struct Builds
         {
-            private const string Version = "v1";
+            public const string Version = "v1";
             private const string Base = Root + "/" + Version;
             private const string BuildsBase = Jobs.GetName;
 
