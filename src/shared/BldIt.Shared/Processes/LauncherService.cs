@@ -195,8 +195,8 @@ namespace BldIt.Shared.Processes
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                
                 process.WaitForExit();
+                
                 exitCode = process.ExitCode;
             }
 

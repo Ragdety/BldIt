@@ -1,4 +1,4 @@
-name: Build and deploy BldIt.Common
+name: Build and deploy BldIt.Shared
 
 on:
   push:
