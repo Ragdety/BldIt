@@ -2,7 +2,7 @@
 using System.Collections.Specialized;
 using System.Diagnostics;
 
-namespace BldIt.Common.Processes
+namespace BldIt.Shared.Processes
 {
     /// <summary>
     /// Encapsulates an executable program.
