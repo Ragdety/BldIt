@@ -9,6 +9,7 @@ on:
 
 env:
   BLDIT_COMMON_CS_PROJ: 'src/shared/BldIt.Shared/BldIt.Shared.csproj'
+  BLDIT_PACKAGE_NAME: BldIt.Shared
   ARTIFACTORY_NAME: BldItNuGetArtifactory
   PACKAGE_VERSION: 1.0.${{ github.run_number }}
 
@@ -51,14 +52,14 @@ jobs:
           echo "Authenticating with artifactory"
           nuget setapikey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} -Source $ARTIFACTORY_NAME
       
-      - name: Pack BldIt.Shared
+      - name: Pack with dotnet
         run: |
           dotnet pack $BLDIT_COMMON_CS_PROJ --configuration Release --output ./artifacts -p:PackageVersion=$PACKAGE_VERSION
       
-      - name: Deploy BldIt.Shared to NuGet Artifactory
+      - name: Deploy to NuGet Artifactory
         run: |
           echo "Deploying to artifactory"
-          nuget push ./artifacts/BldIt.Shared.$PACKAGE_VERSION.nupkg \
+          nuget push ./artifacts/$BLDIT_PACKAGE_NAME.$PACKAGE_VERSION.nupkg \
           -Source $ARTIFACTORY_NAME \
           -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} 
           

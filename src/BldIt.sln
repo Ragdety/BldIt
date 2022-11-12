@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{675AB3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Shared", "shared\BldIt.Shared\BldIt.Shared.csproj", "{D04A97EE-E29D-4CB9-A2EA-D7185D9610E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Api.Shared", "shared\BldIt.Api.Shared\BldIt.Api.Shared.csproj", "{6C4CBDE0-585A-4962-8627-2BACCE099CD3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,7 @@ Global
 		{CE231C33-E095-44B6-B1CC-C9CDC5269FDA} = {4C2EFCA6-89B0-4B7A-B35E-8A2E1AFB2862}
 		{675AB3B4-ED96-4CD2-BC69-4A9FD6A88EC3} = {AF3A7DF8-3D59-4199-AE17-7B2C1C771CFC}
 		{D04A97EE-E29D-4CB9-A2EA-D7185D9610E4} = {675AB3B4-ED96-4CD2-BC69-4A9FD6A88EC3}
+		{6C4CBDE0-585A-4962-8627-2BACCE099CD3} = {675AB3B4-ED96-4CD2-BC69-4A9FD6A88EC3}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6C1AC2F0-2AC6-4991-9536-EAD2C0C9F201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -67,5 +70,9 @@ Global
 		{D04A97EE-E29D-4CB9-A2EA-D7185D9610E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D04A97EE-E29D-4CB9-A2EA-D7185D9610E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D04A97EE-E29D-4CB9-A2EA-D7185D9610E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C4CBDE0-585A-4962-8627-2BACCE099CD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C4CBDE0-585A-4962-8627-2BACCE099CD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C4CBDE0-585A-4962-8627-2BACCE099CD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C4CBDE0-585A-4962-8627-2BACCE099CD3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

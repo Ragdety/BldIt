@@ -1,14 +1,15 @@
-name: Build and deploy BldIt.Common
+name: Build and deploy BldIt.Api.Shared
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'src/BldIt.Common/**'
+      - 'src/shared/BldIt.Api.Shared/**'
 
 env:
-  BLDIT_COMMON_CS_PROJ: 'src/BldIt.Common/BldIt.Common.csproj'
+  BLDIT_COMMON_CS_PROJ: 'src/shared/BldIt.Api.Shared/BldIt.Api.Shared.csproj'
+  BLDIT_PACKAGE_NAME: BldIt.Api.Shared
   ARTIFACTORY_NAME: BldItNuGetArtifactory
   PACKAGE_VERSION: 1.0.${{ github.run_number }}
 
@@ -51,22 +52,13 @@ jobs:
           echo "Authenticating with artifactory"
           nuget setapikey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} -Source $ARTIFACTORY_NAME
       
-      - name: Pack BldIt.Common
+      - name: Pack with dotnet
         run: |
           dotnet pack $BLDIT_COMMON_CS_PROJ --configuration Release --output ./artifacts -p:PackageVersion=$PACKAGE_VERSION
       
-      - name: Deploy BldIt.Common to NuGet Artifactory
+      - name: Deploy to NuGet Artifactory
         run: |
           echo "Deploying to artifactory"
-          nuget push ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg \
+          nuget push ./artifacts/$BLDIT_PACKAGE_NAME.$PACKAGE_VERSION.nupkg \
           -Source $ARTIFACTORY_NAME \
           -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} 
-          
-          
-#  For more information about the http request (in case a 4xx error happens), use:
-#  for f in ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg
-#  do
-#  curl -vX PUT -u "${{ secrets.ARTIFACTORY_NUGET_API_KEY }}" -F package=@$f ${{ secrets.ARTIFACTORY_NUGET_URL }}
-#  done
-#  
-#  shell: bash
