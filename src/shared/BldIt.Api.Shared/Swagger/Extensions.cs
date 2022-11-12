@@ -5,12 +5,13 @@ namespace BldIt.Api.Shared.Swagger;
 
 public static class Extensions
 {
-    public static IServiceCollection AddSwaggerWithAuth(this IServiceCollection services, string apiTitle, string apiVersion)
+    public static IServiceCollection AddSwaggerWithAuth(this IServiceCollection services, string serviceName, string serviceVersion)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc(apiVersion, new OpenApiInfo { Title = apiTitle, Version = apiVersion });
+            var title = $"BldIt.{serviceName}.Api";
+            c.SwaggerDoc(serviceVersion, new OpenApiInfo { Title = title, Version = serviceVersion });
     
             //To add jwt auth
             var securityScheme = new OpenApiSecurityScheme
