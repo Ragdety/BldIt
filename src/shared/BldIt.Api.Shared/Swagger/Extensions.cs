@@ -5,7 +5,10 @@ namespace BldIt.Api.Shared.Swagger;
 
 public static class Extensions
 {
-    public static IServiceCollection AddSwaggerWithAuth(this IServiceCollection services, string serviceName, string serviceVersion)
+    public static IServiceCollection AddSwaggerWithAuth(
+        this IServiceCollection services, 
+        string serviceName, 
+        string serviceVersion)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
@@ -42,6 +45,21 @@ public static class Extensions
             c.AddSecurityRequirement(security);
             c.ResolveConflictingActions (apiDescriptions => apiDescriptions.First());
         });
+        return services;
+    }
+
+    public static IServiceCollection AddSwaggerWithBldItService(
+        this IServiceCollection services, 
+        string serviceName,
+        string serviceVersion)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(c =>
+        {
+            var title = $"BldIt.{serviceName}.Api";
+            c.SwaggerDoc(serviceVersion, new OpenApiInfo {Title = title, Version = serviceVersion});
+        });
+
         return services;
     }
 }
