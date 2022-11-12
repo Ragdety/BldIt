@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BldIt.Identity.Service.Controllers
 {
     [ApiController]
-    public class IdentityController : Controller
+    public class IdentityController : ControllerBase
     {
         private readonly IIdentityManager _identityManager;
         private readonly ILogger<IdentityController> _logger;

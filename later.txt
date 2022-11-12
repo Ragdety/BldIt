@@ -1,0 +1,27 @@
+https://dev.to/gbengelebs/how-to-containerize-an-asp-netcore-api-and-mysql-with-docker-compose-1m5c
+https://andrewlock.net/creating-a-custom-error-handler-middleware-function/
+
+
+Axios interceptors:
+https://lightrains.com/blogs/axios-intercepetors-react
+https://daily.dev/blog/a-guide-to-writing-clean-api-calls-using-axios
+
+
+
+ANTLR:
+https://www.thinkprogramming.co.uk/writing-predicate-parser-for-search-in-csharp-with-antlr-4-part-two/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
