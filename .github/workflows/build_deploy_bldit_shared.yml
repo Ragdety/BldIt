@@ -58,7 +58,7 @@ jobs:
       - name: Deploy BldIt.Shared to NuGet Artifactory
         run: |
           echo "Deploying to artifactory"
-          nuget push ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg \
+          nuget push ./artifacts/BldIt.Shared.$PACKAGE_VERSION.nupkg \
           -Source $ARTIFACTORY_NAME \
           -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} 
           
