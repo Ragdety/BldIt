@@ -6,10 +6,7 @@ namespace BldIt.Api.Shared.Services.Storage;
 
 public static class Extensions
 {
-    public static IServiceCollection AddFileServices(
-        this IServiceCollection services, 
-        IConfiguration config, 
-        IWebHostEnvironment environment)
+    public static IServiceCollection AddFileServices(this IServiceCollection services, IConfiguration config)
     {
         var settingsSection = config.GetSection(nameof(FileSettings));
         var settings = settingsSection.Get<FileSettings>();
@@ -17,7 +14,8 @@ public static class Extensions
         //If no workingDir is provided, use BldIt Temp folder
         if (string.IsNullOrEmpty(settings.WorkingDirectory))
         {
-            var bldItHome = Environment.GetEnvironmentVariable(BldItApiConstants.BldItEnvironmentNames.BLDIT_HOME);
+            var bldItHome = 
+                Environment.GetEnvironmentVariable(BldItApiConstants.BldItEnvironmentNames.BLDIT_HOME);
             
             if (bldItHome == null)
             {
