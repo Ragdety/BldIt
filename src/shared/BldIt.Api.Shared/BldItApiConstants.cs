@@ -2,6 +2,13 @@
 
 public static class BldItApiConstants
 {
+    // ReSharper disable once UnusedType.Global
+    public static class BldItEnvironmentNames
+    {
+        // ReSharper disable once InconsistentNaming
+        public const string BLDIT_HOME = nameof(BLDIT_HOME);
+    }
+    
     public static class Services
     {
         // ReSharper disable once UnusedType.Global
@@ -11,8 +18,8 @@ public static class BldItApiConstants
             
             public static class Collections
             {
-                public const string Users = "Users";
-                public const string Roles = "Roles";
+                public const string Users = nameof(Users);
+                public const string Roles = nameof(Roles);
             }
         }
         
@@ -23,7 +30,7 @@ public static class BldItApiConstants
             
             public static class Collections
             {
-                public const string Builds = "Builds";
+                public const string Builds = nameof(Builds);
             }
         }
         
@@ -34,7 +41,7 @@ public static class BldItApiConstants
             
             public static class Collections
             {
-                public const string Projects = "Projects";
+                public const string Projects = nameof(Projects);
             }
         }
     }

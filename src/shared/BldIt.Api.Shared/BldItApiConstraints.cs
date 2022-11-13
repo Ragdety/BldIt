@@ -34,6 +34,8 @@ namespace BldIt.Api.Shared
                 public const string Local = nameof(Local);
                 public const string S3 = nameof(S3);
             }
+            
+            public const string BldItTempFolderName = "temp";
 
             public const string BldItTempPrefix = "bldit_temp_";
         }
