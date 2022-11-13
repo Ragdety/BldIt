@@ -35,6 +35,17 @@ public static class BldItApiConstants
         }
         
         // ReSharper disable once UnusedType.Global
+        public struct Jobs
+        {
+            public const string Name = $"BldIt{nameof(Jobs)}Service";
+            
+            public static class Collections
+            {
+                public const string Jobs = nameof(Jobs);
+            }
+        }
+        
+        // ReSharper disable once UnusedType.Global
         public struct Projects
         {
             public const string Name = $"BldIt{nameof(Projects)}Service";
