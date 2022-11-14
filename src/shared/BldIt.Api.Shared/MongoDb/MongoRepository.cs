@@ -15,28 +15,28 @@ public class MongoRepository<T, TKey> : IRepository<T, TKey> where T : IEntity<T
         DbCollection = database.GetCollection<T>(collectionName);
     }
 
-    public async Task<IReadOnlyCollection<T>> GetAllAsync()
+    public virtual async Task<IReadOnlyCollection<T>> GetAllAsync()
     {
         return await DbCollection.Find(FilterBuilder.Empty).ToListAsync();
     }
 
-    public async Task<IReadOnlyCollection<T>> GetAllAsync(Expression<Func<T, bool>> filter)
+    public virtual async Task<IReadOnlyCollection<T>> GetAllAsync(Expression<Func<T, bool>> filter)
     {
         return await DbCollection.Find(filter).ToListAsync();
     }
 
-    public async Task<T> GetAsync(TKey id)
+    public virtual async Task<T> GetAsync(TKey id)
     {
         var filter = FilterBuilder.Eq(entity => entity.Id, id);
         return await DbCollection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<T> GetAsync(Expression<Func<T, bool>> filter)
+    public virtual async Task<T> GetAsync(Expression<Func<T, bool>> filter)
     {
         return await DbCollection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task CreateAsync(T entity)
+    public virtual async Task CreateAsync(T entity)
     {
         if (entity == null)
         {
@@ -46,7 +46,7 @@ public class MongoRepository<T, TKey> : IRepository<T, TKey> where T : IEntity<T
         await DbCollection.InsertOneAsync(entity);
     }
 
-    public async Task UpdateAsync(T entity)
+    public virtual async Task UpdateAsync(T entity)
     {
         if (entity == null)
         {
@@ -57,7 +57,7 @@ public class MongoRepository<T, TKey> : IRepository<T, TKey> where T : IEntity<T
         await DbCollection.ReplaceOneAsync(filter, entity);
     }
 
-    public async Task RemoveAsync(TKey id)
+    public virtual async Task RemoveAsync(TKey id)
     {
         var filter = FilterBuilder.Eq(entity => entity.Id, id);
         await DbCollection.DeleteOneAsync(filter);
