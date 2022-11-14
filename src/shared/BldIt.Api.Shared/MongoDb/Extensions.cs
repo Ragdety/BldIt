@@ -31,7 +31,7 @@ public static class Extensions
         this IServiceCollection services, 
         string collectionName) where T : IEntity<TKey>
     {
-        services.AddSingleton<IRepository<T, TKey>>(serviceProvider => 
+        services.AddScoped<IRepository<T, TKey>>(serviceProvider => 
         {
             var database = serviceProvider.GetService<IMongoDatabase>();
             return new MongoRepository<T, TKey>(database ?? 
