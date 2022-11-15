@@ -10,16 +10,21 @@ public class BldItWorkspacePathConfig
     private const string TempFolderName = "Temp";
     private const string ProjectNamePrefix = "{projectName}";
 
-    public BldItWorkspacePathConfig()
-    {
-        var bldItHome = Environment.GetEnvironmentVariable(BldItApiConstants.BldItEnvironmentNames.BLDIT_HOME);
-        BldItHome = bldItHome ?? throw new ArgumentNullException(nameof(bldItHome));
-    }
-    
     public BldItWorkspacePathConfig(IOptionsMonitor<BldItWorkspacePathSettings> options)
     {
         var settings = options.CurrentValue;
-        BldItHome = settings.BldItHome;
+
+        //If no settings are set, create object taking the environment variable
+        if (settings == null)
+        {
+            var bldItHome = Environment.GetEnvironmentVariable(BldItApiConstants.BldItEnvironmentNames.BLDIT_HOME);
+            BldItHome = bldItHome ?? throw new ArgumentNullException(nameof(bldItHome));
+        }
+        else
+        {
+            //Otherwise, take the value from settings
+            BldItHome = settings.BldItHome;
+        }
     }
 
     public string BldItHome { get; }
