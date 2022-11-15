@@ -1,9 +1,9 @@
 using BldIt.Api.Shared;
+using BldIt.Api.Shared.Services.Auth;
 using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
 using BldIt.Identity.Core.Models;
 using BldIt.Identity.Service;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

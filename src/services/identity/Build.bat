@@ -4,9 +4,10 @@ setlocal enabledelayedexpansion
 
 :: Build the Identity project
 
-set apiPrj=BldIt.Identity.Api\BldIt.Identity.Api.csproj
-set contractsPrj=BldIt.Identity.Contracts\BldIt.Identity.Contracts.csproj
-set corePrj=BldIt.Identity.Core\BldIt.Identity.Core.csproj
+set prjName=BldIt.Identity
+set apiPrj=%prjName%.Api\%prjName%.Api.csproj
+set contractsPrj=%prjName%.Contracts\%prjName%.Contracts.csproj
+set corePrj=%prjName%.Core\%prjName%.Core.csproj
 
 echo INFO: Building %apiPrj%
 dotnet build %apiPrj%
