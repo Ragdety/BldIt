@@ -33,6 +33,8 @@ public static class Extensions
 
             settings.WorkingDirectory = bldItTempDir;
         }
+        
+        services.Configure<FileSettings>(settingsSection);
 
         services.AddSingleton<TemporaryFileStorage>();
         switch (settings.Provider)
