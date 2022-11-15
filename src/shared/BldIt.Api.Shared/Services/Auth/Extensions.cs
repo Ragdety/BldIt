@@ -13,6 +13,12 @@ public static class Extensions
     {
         var settingsSection = configuration.GetSection(nameof(JwtSettings));
         var jwtSettings = settingsSection.Get<JwtSettings>();
+
+        if (jwtSettings == null)
+        {
+            throw new ArgumentNullException(nameof(jwtSettings));
+        }
+        
         services.Configure<JwtSettings>(settingsSection);
         
         services.AddSingleton(jwtSettings);
