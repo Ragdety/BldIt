@@ -1,4 +1,35 @@
 
+
+11/14/2022:
+Setting up a basic microservice arch (so far):
+I learned & achieved the following on different scenarios
+-When setting up BldIt.Api.Shared:
+	-I was able to determine shared components that are reusable through the entire system.
+	-Thanks to the ci/cd github actions pipeline I created, I was able to continuously push changes and
+	 I was able to write a script to automatically install the latest version from NuGet/JFrog (locally for any microservice).
+
+-When setting up microservices:
+	-Implemented clean arch for each micro.
+	-Able to break down features into specific microservices (to the best of my knowledge at this point).
+	-Created a script to automatically build any desired microservice project.
+	-Able to implement my own extensions & helper classes to support configuration of different services (such as BldIt paths)
+	-I was able to use identity microservice and projects microservice together for authentication (both independent from each other!)
+	
+
+Overall Archievements:
+-Better understanding of microservice arch
+-Ability to decouple microservices so they don't depend on each other
+ (So far I have achieved this with projects micro and identity micro)
+-Had fun!
+
+
+Future Goals:
+-Run micros in docker. Database, rabbitMQ, paths, etc in docker containers.
+-Make ci-cd pipeline for each micro using Azure Pipelines 
+ (And in the long-term ||Maybe short term ;)|| setup ci-cd pipeline using THIS system :p).
+-Learn more about communication between micros.
+
+
 11/11/2022:
 
 Setting up CI-CD for BldIt.Common:
@@ -23,7 +54,7 @@ Setting up CI-CD for BldIt.Common:
 	-Overall understanding of how to use a custom/private nuget artifactory.
 
 
-Archievements:
+Overall Archievements:
 -Better understanding of GitHub Actions.
 -Good understanding of packaging with nuget & publishing to private nuget server.
 -Learned about JFrog!
