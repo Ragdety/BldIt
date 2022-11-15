@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using BldIt.Api.Shared.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace BldIt.Api.Shared.Services.Storage;
 
@@ -14,15 +15,16 @@ public static class Extensions
         //If no workingDir is provided, use BldIt Temp folder
         if (string.IsNullOrEmpty(settings.WorkingDirectory))
         {
-            var bldItHome = 
-                Environment.GetEnvironmentVariable(BldItApiConstants.BldItEnvironmentNames.BLDIT_HOME);
-            
-            if (bldItHome == null)
+            var bldItPathConfig = services.BuildServiceProvider().GetRequiredService<BldItWorkspacePathConfig>();
+            var logger = services.BuildServiceProvider().GetRequiredService<ILogger>();
+
+            if (bldItPathConfig == null)
             {
-                throw new ArgumentNullException(nameof(bldItHome));
+                logger.LogError("BldItWorkspacePathConfig is null. Must call AddBldItWorkspacePathConfig() before AddFileServices()");
+                throw new ArgumentNullException(nameof(bldItPathConfig));
             }
             
-            var bldItTempDir = Path.Combine(bldItHome, BldItApiConstraints.Files.BldItTempFolderName);
+            var bldItTempDir = bldItPathConfig.TempPath;
 
             if (!Directory.Exists(bldItTempDir))
             {
@@ -31,9 +33,7 @@ public static class Extensions
 
             settings.WorkingDirectory = bldItTempDir;
         }
-        
-        services.Configure<FileSettings>(settingsSection);
-        
+
         services.AddSingleton<TemporaryFileStorage>();
         switch (settings.Provider)
         {
