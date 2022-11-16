@@ -1,4 +1,6 @@
-﻿namespace BldIt.Api.Shared.Services
+﻿using BldIt.Api.Shared.Services.Errors;
+
+namespace BldIt.Api.Shared.Services
 {
     public class UriService
     {
@@ -26,6 +28,31 @@
         {
             return new Uri(_baseUri + Routes.Projects.Get
                 .Replace("{projectId}", projectId));
+        }
+        
+        public Uri GetDocsUri()
+        {
+            return new Uri(_baseUri + Routes.Docs.DocsBase);
+        }
+        
+        public Uri GetDocErrorsUri()
+        {
+            return new Uri(_baseUri + Routes.Docs.Errors);
+        }
+        
+        public Uri GetDocsErrorTypeUri(string errorTypeMessage)
+        {
+            var baseErrorDocs = _baseUri + Routes.Docs.Errors;
+            var uriString = errorTypeMessage switch
+            {
+                ErrorTypeMessages.ExistingInstance => baseErrorDocs + '/' + nameof(ErrorTypeMessages.ExistingInstance),
+                ErrorTypeMessages.InvalidInstance  => baseErrorDocs + '/' + nameof(ErrorTypeMessages.InvalidInstance),
+                ErrorTypeMessages.InstanceNotFound => baseErrorDocs + '/' + nameof(ErrorTypeMessages.InstanceNotFound),
+                ErrorTypeMessages.InstanceNotOwned => baseErrorDocs + '/' + nameof(ErrorTypeMessages.InstanceNotOwned),
+                _ => baseErrorDocs
+            };
+
+            return new Uri(uriString);
         }
     }
 }

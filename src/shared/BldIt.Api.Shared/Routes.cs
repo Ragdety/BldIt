@@ -64,5 +64,14 @@
             public const string GetBuildById = Base + "/builds/{buildId}";
             public const string Build = BuildsBase + "/build";
         }
+
+        public struct Docs
+        {
+            public const string Version = "v1";
+            private const string Base = Root + "/" + Version;
+            
+            public const string DocsBase = Base + "/docs";
+            public const string Errors = DocsBase + "/errors";
+        }
     }
 }
