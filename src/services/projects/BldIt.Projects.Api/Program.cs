@@ -1,6 +1,7 @@
 using BldIt.Api.Shared;
 using BldIt.Api.Shared.Config;
 using BldIt.Api.Shared.Interfaces;
+using BldIt.Api.Shared.Middlewares;
 using BldIt.Api.Shared.MongoDb;
 using BldIt.Api.Shared.Services;
 using BldIt.Api.Shared.Services.Auth;
@@ -23,6 +24,9 @@ var serviceSettings =
     builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
 builder.Services.AddSwaggerWithAuth(serviceSettings.ServiceName, serviceSettings.ServiceVersion);
 //End Swagger Settings
+
+//Middlewares
+builder.Services.AddTransient<ProblemDetailsExceptionHandlingMiddleware>();
 
 //Add BldIt Auth config
 builder.Services.AddBldItAuth(builder.Configuration);
@@ -47,7 +51,7 @@ builder.Services.AddScoped<IProjectRepo, ProjectRepo>(serviceProvider =>
 //UriService: Used to generate links to resources
 builder.Services.AddSingleton(provider =>
 {
-    //Gets the absolute uri. Ex: https://localhost
+    //Gets the absolute uri. Ex: https://localhost or https://bldit.com
     var accessor = provider.GetRequiredService<IHttpContextAccessor>();
     var request = accessor.HttpContext?.Request;
     var absoluteUri = string.Concat(request?.Scheme, "://", request?.Host.ToUriComponent(), "/");
@@ -64,7 +68,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
 app.UseHttpsRedirection();
+app.UseMiddleware<ProblemDetailsExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

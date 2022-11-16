@@ -4,6 +4,7 @@ using BldIt.Api.Shared.Config;
 using BldIt.Api.Shared.Exceptions;
 using BldIt.Api.Shared.Responses;
 using BldIt.Api.Shared.Services;
+using BldIt.Api.Shared.Services.Errors;
 using BldIt.Projects.Contracts.Dtos;
 using BldIt.Projects.Core.Models;
 using BldIt.Projects.Core.Repos;
@@ -90,11 +91,18 @@ namespace BldIt.Projects.Service.Controllers
              */
 
             var existingProject = await _projectsRepository.GetByNameAsync(projectToCreate.ProjectName);
-            
-            if(existingProject != null)
-                throw new DomainValidationException(
-                    $"A project with name: {projectToCreate.ProjectName} already exists",
-                    "All projects have unique names, there cannot be a project with the same name");
+
+            if (existingProject != null)
+            {
+                throw new ProblemDetailsException(new ProblemDetails
+                {
+                    Detail = "All projects have unique names, there cannot be a project with the same name",
+                    Instance = Routes.Projects.Post,
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = ErrorTypeMessages.ExistingInstance,
+                    Type = _uriService.GetDocsErrorTypeUri(ErrorTypeMessages.ExistingInstance).ToString()
+                });
+            }
 
             var projPath = Path.Combine(_bldItWorkspacePathConfig.ProjectsPath, projectToCreate.ProjectName);
             EnsureProjectWorkspaceExists(projPath);
@@ -118,7 +126,14 @@ namespace BldIt.Projects.Service.Controllers
         {
             var project = await _projectsRepository.GetAsync(projectId);
             if (project == null) 
-                throw new DomainNotFoundException($"Project with id '{projectId}' was not found");
+                throw new ProblemDetailsException(new ProblemDetails
+                {
+                    Detail = $"Project with id '{projectId}' was not found",
+                    Instance = _uriService.GetProjectUri(projectId.ToString()).AbsolutePath,
+                    Status = StatusCodes.Status404NotFound,
+                    Title = ErrorTypeMessages.InstanceNotFound,
+                    Type = _uriService.GetDocsErrorTypeUri(ErrorTypeMessages.InstanceNotFound).ToString()
+                });
             
             if(Directory.Exists(project.ProjectWorkspacePath))
                 Directory.Delete(project.ProjectWorkspacePath, true);
