@@ -1,3 +1,3 @@
-﻿namespace BldIt.Projects.Contracts;
+﻿namespace BldIt.Projects.Contracts.Contracts;
 
 public record ProjectUpdated(Guid Id, string ProjectWorkspacePath);

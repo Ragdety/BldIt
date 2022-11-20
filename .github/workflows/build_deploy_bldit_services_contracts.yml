@@ -17,11 +17,12 @@ env:
   BLDIT_CONTRACT_ARTIFACTS: './bldit_contract_artifacts'
 
 jobs:
-  setup:
+  build:
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 2
       - name: Setup Python
@@ -30,36 +31,12 @@ jobs:
           python-version: '3.9'
       - name: Identify changed files
         run: python $PYTHON_SCRIPTS/set_bldit_contracts_to_build.py
-      - name: Did Builds Contracts changed?
-        if: ${{ env.BUILDS == 'true' }}
-        run: | 
-          echo YES!
-          echo $BUILDS_PROJECT
-      - name: Did Identity Contracts changed?
-        if: ${{ env.IDENTITY == 'true' }}
-        run: | 
-          echo YES!
-          echo $IDENTITY_PROJECT
-      - name: Did Jobs Contracts changed?
-        if: ${{ env.JOBS == 'true' }}
-        run: | 
-          echo YES!
-          echo $JOBS_PROJECT
-      - name: Did Projects Contracts changed?
-        if: ${{ env.PROJECTS == 'true' }}
-        run: | 
-          echo YES!
-          echo $PROJECTS_PROJECT
-  
-  build:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0.x
+          
       - name: Build Builds.Contracts
         if: ${{ env.BUILDS == 'true' }}
         run: dotnet build $BUILDS_PROJECT --configuration Release
@@ -80,7 +57,16 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Identify changed files
+        run: python $PYTHON_SCRIPTS/set_bldit_contracts_to_build.py
 
       - name: Setup NuGet
         uses: nuget/setup-nuget@v1
