@@ -41,23 +41,31 @@ decoded_result = result.stdout.decode('utf-8')
 # Split by each new line (skip last extra line the command outputs)
 changed_file_paths = decoded_result.split('\n')[0:-1]
 
+# Get the env file from GitHub
+env_file = os.environ.get('GITHUB_ENV')
+
 # Loop through each changed file path and set env var accordingly
 for file in changed_file_paths:
     if debug:
         print(file)
 
     if bldit_contracts_dict["CONTRACT_FOLDERS"]["BUILDS"] in file:
-        os.environ["BUILDS"] = "true"
-        os.environ["BUILDS_PROJECT"] = bldit_contracts_dict["CONTRACT_PROJECTS"]["BUILDS"]
+        with open(env_file, 'a') as env:
+            env.write("BUILDS=true")
+            env.write(f"BUILDS_PROJECT={bldit_contracts_dict["CONTRACT_PROJECTS"]["BUILDS"]}")
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["IDENTITY"] in file:
-        os.environ["IDENTITY"] = "true"
-        os.environ["IDENTITY_PROJECT"] = bldit_contracts_dict["CONTRACT_PROJECTS"]["IDENTITY"]
+        with open(env_file, 'a') as env:
+            env.write("IDENTITY=true")
+            env.write(f"IDENTITY_PROJECT={bldit_contracts_dict["CONTRACT_PROJECTS"]["IDENTITY"]}")
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["JOBS"] in file:
-        os.environ["JOBS"] = "true"
-        os.environ["JOBS_PROJECT"] = bldit_contracts_dict["CONTRACT_PROJECTS"]["JOBS"]
+        with open(env_file, 'a') as env:
+            env.write("JOBS=true")
+            env.write(f"JOBS_PROJECT={bldit_contracts_dict["CONTRACT_PROJECTS"]["JOBS"]}")
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["PROJECTS"] in file:
-        os.environ["PROJECTS"] = "true"
-        os.environ["PROJECTS_PROJECT"] = bldit_contracts_dict["CONTRACT_PROJECTS"]["PROJECTS"]
+        with open(env_file, 'a') as env:
+            env.write("PROJECTS=true")
+            env.write(f"PROJECTS_PROJECT={bldit_contracts_dict["CONTRACT_PROJECTS"]["PROJECTS"]}")
+
