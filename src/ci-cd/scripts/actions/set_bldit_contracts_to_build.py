@@ -52,20 +52,24 @@ for file in changed_file_paths:
     if bldit_contracts_dict["CONTRACT_FOLDERS"]["BUILDS"] in file:
         with open(env_file, 'a') as env:
             env.write("BUILDS=true")
-            env.write(f"BUILDS_PROJECT={bldit_contracts_dict["CONTRACT_PROJECTS"]["BUILDS"]}")
+            builds_project = bldit_contracts_dict["CONTRACT_PROJECTS"]["BUILDS"]
+            env.write(f"BUILDS_PROJECT={builds_project}")
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["IDENTITY"] in file:
         with open(env_file, 'a') as env:
             env.write("IDENTITY=true")
-            env.write(f"IDENTITY_PROJECT={bldit_contracts_dict["CONTRACT_PROJECTS"]["IDENTITY"]}")
+            identity_project = bldit_contracts_dict["CONTRACT_PROJECTS"]["IDENTITY"]
+            env.write(f"IDENTITY_PROJECT={identity_project}")
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["JOBS"] in file:
         with open(env_file, 'a') as env:
             env.write("JOBS=true")
-            env.write(f"JOBS_PROJECT={bldit_contracts_dict["CONTRACT_PROJECTS"]["JOBS"]}")
+            jobs_project = bldit_contracts_dict["CONTRACT_PROJECTS"]["JOBS"]
+            env.write(f"JOBS_PROJECT={jobs_project}")
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["PROJECTS"] in file:
         with open(env_file, 'a') as env:
             env.write("PROJECTS=true")
-            env.write(f"PROJECTS_PROJECT={bldit_contracts_dict["CONTRACT_PROJECTS"]["PROJECTS"]}")
+            projects_project = bldit_contracts_dict["CONTRACT_PROJECTS"]["PROJECTS"]
+            env.write(f"PROJECTS_PROJECT={projects_project}")
 
