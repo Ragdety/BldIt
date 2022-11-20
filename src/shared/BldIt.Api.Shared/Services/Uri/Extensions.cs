@@ -7,6 +7,8 @@ public static class Extensions
 {
     public static IServiceCollection AddUriService(this IServiceCollection services)
     {
+        services.AddHttpContextAccessor();
+        
         //UriService: Used to generate links to resources
         services.AddSingleton(provider =>
         {
