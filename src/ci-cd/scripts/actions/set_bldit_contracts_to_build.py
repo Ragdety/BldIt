@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 
 bldIt_builds_contracts   = "src/services/builds/BldIt.Builds.Contracts"
 bldIt_identity_contracts = "src/services/identity/BldIt.Identity.Contracts"
@@ -21,11 +22,20 @@ bldit_contracts_dict = {
     }
 }
 
-git_diff_command_raw = "git diff HEAD HEAD~ --name-only"
+git_diff_command_raw = "git diff HEAD^ HEAD --name-only"
 git_diff_cmd_list = git_diff_command_raw.split(' ')
 
 # Run git diff command to get list of changed files
 result = subprocess.run(git_diff_cmd_list, stdout=subprocess.PIPE)
+
+if not result.returncode == 0:
+    print("Error running git diff command")
+    sys.exit(1)
+
+debug = False
+if sys.argv[1] == "debug":
+    debug = True
+
 decoded_result = result.stdout.decode('utf-8')
 
 # Split by each new line (skip last extra line the command outputs)
@@ -33,6 +43,9 @@ changed_file_paths = decoded_result.split('\n')[0:-1]
 
 # Loop through each changed file path and set env var accordingly
 for file in changed_file_paths:
+    if debug:
+        print(file)
+
     if bldit_contracts_dict["CONTRACT_FOLDERS"]["BUILDS"] in file:
         os.environ["BUILDS"] = "true"
         os.environ["BUILDS_PROJECT"] = bldit_contracts_dict["CONTRACT_PROJECTS"]["BUILDS"]
