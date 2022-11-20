@@ -5,13 +5,4 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="BldIt.Api.Shared" Version="1.0.23" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\BldIt.Projects.Core\BldIt.Projects.Core.csproj" />
-    </ItemGroup>
-
 </Project>
