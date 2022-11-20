@@ -1,6 +1,6 @@
 ﻿using BldIt.Api.Shared.Services.Errors;
 
-namespace BldIt.Api.Shared.Services
+namespace BldIt.Api.Shared.Services.Uri
 {
     public class UriService
     {
@@ -11,36 +11,36 @@ namespace BldIt.Api.Shared.Services
             _baseUri = baseUri;
         }
         
-        public Uri GetJobByNameUri(Guid projectId, string jobName)
+        public System.Uri GetJobByNameUri(Guid projectId, string jobName)
         {
-            return new Uri(_baseUri + Routes.Jobs.GetName
+            return new System.Uri(_baseUri + Routes.Jobs.GetName
                 .Replace("{projectId}", projectId.ToString())
                 .Replace("{jobName}", jobName));
         }
         
-        public Uri GetJobByIdUri(Guid jobId)
+        public System.Uri GetJobByIdUri(Guid jobId)
         {
-            return new Uri(_baseUri + Routes.Jobs.GetId
+            return new System.Uri(_baseUri + Routes.Jobs.GetId
                 .Replace("{jobId}", jobId.ToString()));
         }
         
-        public Uri GetProjectUri(string projectId)
+        public System.Uri GetProjectUri(string projectId)
         {
-            return new Uri(_baseUri + Routes.Projects.Get
+            return new System.Uri(_baseUri + Routes.Projects.Get
                 .Replace("{projectId}", projectId));
         }
         
-        public Uri GetDocsUri()
+        public System.Uri GetDocsUri()
         {
-            return new Uri(_baseUri + Routes.Docs.DocsBase);
+            return new System.Uri(_baseUri + Routes.Docs.DocsBase);
         }
         
-        public Uri GetDocErrorsUri()
+        public System.Uri GetDocErrorsUri()
         {
-            return new Uri(_baseUri + Routes.Docs.Errors);
+            return new System.Uri(_baseUri + Routes.Docs.Errors);
         }
         
-        public Uri GetDocsErrorTypeUri(string errorTypeMessage)
+        public System.Uri GetDocsErrorTypeUri(string errorTypeMessage)
         {
             var baseErrorDocs = _baseUri + Routes.Docs.Errors;
             var uriString = errorTypeMessage switch
@@ -52,7 +52,7 @@ namespace BldIt.Api.Shared.Services
                 _ => baseErrorDocs
             };
 
-            return new Uri(uriString);
+            return new System.Uri(uriString);
         }
     }
 }
