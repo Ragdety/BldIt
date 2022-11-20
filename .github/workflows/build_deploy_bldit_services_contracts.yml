@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
-# Commenting these for testing purposes
-#    paths:
-#      - 'src/services/builds/BldIt.Builds.Contracts/**'
-#      - 'src/services/identity/BldIt.Identity.Contracts/**'
-#      - 'src/services/jobs/BldIt.Jobs.Contracts/**'
-#      - 'src/services/projects/BldIt.Projects.Contracts/**'
+    paths:
+      - 'src/services/builds/BldIt.Builds.Contracts/**'
+      - 'src/services/identity/BldIt.Identity.Contracts/**'
+      - 'src/services/jobs/BldIt.Jobs.Contracts/**'
+      - 'src/services/projects/BldIt.Projects.Contracts/**'
 
 env:
   ARTIFACTORY_NAME: BldItNuGetArtifactory
