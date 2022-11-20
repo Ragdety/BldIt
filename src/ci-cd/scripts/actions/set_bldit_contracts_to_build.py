@@ -33,7 +33,7 @@ if not result.returncode == 0:
     sys.exit(1)
 
 debug = False
-if sys.argv[1] == "debug":
+if len(sys.argv) == 2 and sys.argv[1] == "debug":
     debug = True
 
 decoded_result = result.stdout.decode('utf-8')
