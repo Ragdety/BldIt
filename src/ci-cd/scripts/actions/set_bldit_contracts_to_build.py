@@ -2,6 +2,17 @@ import os
 import subprocess
 import sys
 
+
+def write_to_github_env_file(env_var, value):
+    # Get the env file from GitHub
+    env_file = os.getenv('GITHUB_ENV')
+
+    print(f"Adding {env_var} to {env_file} with value {value}")
+    with open(env_file, 'a') as env:
+        env.write(f"{env_var}={value}\n")
+        env.close()
+
+
 bldIt_builds_contracts   = "src/services/builds/BldIt.Builds.Contracts"
 bldIt_identity_contracts = "src/services/identity/BldIt.Identity.Contracts"
 bldIt_jobs_contracts     = "src/services/jobs/BldIt.Jobs.Contracts"
@@ -41,35 +52,27 @@ decoded_result = result.stdout.decode('utf-8')
 # Split by each new line (skip last extra line the command outputs)
 changed_file_paths = decoded_result.split('\n')[0:-1]
 
-# Get the env file from GitHub
-env_file = os.environ.get('GITHUB_ENV')
-
 # Loop through each changed file path and set env var accordingly
 for file in changed_file_paths:
     if debug:
         print(file)
 
     if bldit_contracts_dict["CONTRACT_FOLDERS"]["BUILDS"] in file:
-        with open(env_file, 'a') as env:
-            env.write("BUILDS=true")
-            builds_project = bldit_contracts_dict["CONTRACT_PROJECTS"]["BUILDS"]
-            env.write(f"BUILDS_PROJECT={builds_project}")
+        print("Builds contracts changed")
+        write_to_github_env_file("BUILDS", "true")
+        write_to_github_env_file("BUILDS_PROJECT", bldit_contracts_dict["CONTRACT_PROJECTS"]["BUILDS"])
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["IDENTITY"] in file:
-        with open(env_file, 'a') as env:
-            env.write("IDENTITY=true")
-            identity_project = bldit_contracts_dict["CONTRACT_PROJECTS"]["IDENTITY"]
-            env.write(f"IDENTITY_PROJECT={identity_project}")
+        print("Identity contracts changed")
+        write_to_github_env_file("IDENTITY", "true")
+        write_to_github_env_file("IDENTITY_PROJECT", bldit_contracts_dict["CONTRACT_PROJECTS"]["IDENTITY"])
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["JOBS"] in file:
-        with open(env_file, 'a') as env:
-            env.write("JOBS=true")
-            jobs_project = bldit_contracts_dict["CONTRACT_PROJECTS"]["JOBS"]
-            env.write(f"JOBS_PROJECT={jobs_project}")
+        print("Jobs contracts changed")
+        write_to_github_env_file("JOBS", "true")
+        write_to_github_env_file("JOBS_PROJECT", bldit_contracts_dict["CONTRACT_PROJECTS"]["JOBS"])
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["PROJECTS"] in file:
-        with open(env_file, 'a') as env:
-            env.write("PROJECTS=true")
-            projects_project = bldit_contracts_dict["CONTRACT_PROJECTS"]["PROJECTS"]
-            env.write(f"PROJECTS_PROJECT={projects_project}")
-
+        print("Projects contracts changed")
+        write_to_github_env_file("PROJECTS", "true")
+        write_to_github_env_file("PROJECTS_PROJECT", bldit_contracts_dict["CONTRACT_PROJECTS"]["PROJECTS"])
