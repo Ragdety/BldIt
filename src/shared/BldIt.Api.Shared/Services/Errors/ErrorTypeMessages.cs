@@ -6,4 +6,8 @@ public static class ErrorTypeMessages
     public const string InvalidInstance  = "Invalid instance";
     public const string InstanceNotFound = "Instance was not found";
     public const string InstanceNotOwned = "Instance does not belong to current user";
+    
+    //Auth
+    public const string InvalidCredentials = "Invalid credentials";
+    public const string InvalidToken       = "Invalid token";
 }
