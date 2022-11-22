@@ -24,6 +24,11 @@ namespace BldIt.Api.Shared.Services.Uri
                 .Replace("{jobId}", jobId.ToString()));
         }
         
+        public System.Uri GetJobsUri()
+        {
+            return new System.Uri(_baseUri + Routes.Jobs.GetAll);
+        }
+        
         public System.Uri GetProjectUri(string projectId)
         {
             return new System.Uri(_baseUri + Routes.Projects.Get

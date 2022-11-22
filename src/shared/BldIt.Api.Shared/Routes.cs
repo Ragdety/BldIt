@@ -42,7 +42,9 @@
             /// Intended to get a job within the entire database, admin only (most probably)
             /// </summary>
             public const string GetId = Base + "/jobs/{jobId}";
-            public const string Post = JobsBase;
+            
+            public const string GetAll = JobsBase;
+            public const string Post = GetAll;
         }
         
         public struct Builds
