@@ -1,20 +1,19 @@
 using BldIt.Api.Shared;
 using BldIt.Api.Shared.Config;
-using BldIt.Api.Shared.Interfaces;
+using BldIt.Api.Shared.MassTransit;
 using BldIt.Api.Shared.Middlewares;
 using BldIt.Api.Shared.MongoDb;
-using BldIt.Api.Shared.Services;
 using BldIt.Api.Shared.Services.Auth;
+using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
-using BldIt.Projects.Core.Models;
 using BldIt.Projects.Core.Repos;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddUriService();
 
 //Configure bldit workspace paths
 builder.Services.AddBldItWorkspacePathConfig(builder.Configuration);
@@ -46,18 +45,10 @@ builder.Services.AddScoped<IProjectRepo, ProjectRepo>(serviceProvider =>
     return new ProjectRepo(database, projectsCollection);
 });
 
+builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
+
 //Helper services:
 
-//UriService: Used to generate links to resources
-builder.Services.AddSingleton(provider =>
-{
-    //Gets the absolute uri. Ex: https://localhost or https://bldit.com
-    var accessor = provider.GetRequiredService<IHttpContextAccessor>();
-    var request = accessor.HttpContext?.Request;
-    var absoluteUri = string.Concat(request?.Scheme, "://", request?.Host.ToUriComponent(), "/");
-    //Pass absoluteUri to constructor of UriService"
-    return new UriService(absoluteUri);
-});
 
 var app = builder.Build();
 
