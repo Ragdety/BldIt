@@ -1,5 +1,7 @@
 using BldIt.Api.Shared;
+using BldIt.Api.Shared.Middlewares;
 using BldIt.Api.Shared.Services.Auth;
+using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
 using BldIt.Identity.Core.Models;
@@ -10,8 +12,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddUriService();
+
+var serviceSettings = 
+    builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerWithBldItService("Identity", Routes.Identity.Version);
+builder.Services.AddSwaggerWithBldItService(serviceSettings.ServiceName, serviceSettings.ServiceVersion);
+
+//Middlewares
+builder.Services.AddTransient<ProblemDetailsExceptionHandlingMiddleware>();
 
 builder.Services.AddIdentityRepositories();
 
@@ -38,7 +48,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
 app.UseHttpsRedirection();
+app.UseMiddleware<ProblemDetailsExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 

@@ -15,7 +15,7 @@ namespace BldIt.Identity.Core.Repos
 {
     /// <summary>
     /// Manages authentication for a specific user.
-    /// This is NOT a repo since it only handles registration and authentication.
+    /// This is NOT a generic repo since it only handles registration and authentication.
     /// </summary>
     public class IdentityManager : IIdentityManager
     {
