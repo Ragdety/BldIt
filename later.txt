@@ -2,6 +2,11 @@ https://dev.to/gbengelebs/how-to-containerize-an-asp-netcore-api-and-mysql-with-
 https://andrewlock.net/creating-a-custom-error-handler-middleware-function/
 
 
+//CLI interactions:
+https://www.youtube.com/watch?v=Pt-0KM5SxmI&ab_channel=NickChapsas
+https://github.com/Tyrrrz/CliWrap
+
+
 Axios interceptors:
 https://lightrains.com/blogs/axios-intercepetors-react
 https://daily.dev/blog/a-guide-to-writing-clean-api-calls-using-axios

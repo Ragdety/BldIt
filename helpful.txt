@@ -2,12 +2,22 @@ Microservices:
 https://medium.com/edureka/microservices-tutorial-with-example-a230413dfa13
 https://www.youtube.com/c/jcasalt/videos
 https://www.youtube.com/watch?v=ByYyk8eMG6c&t=12195s&ab_channel=JulioCasal
+https://github.com/asc-lab/dotnetcore-microservices-poc
+https://github.com/thangchung/clean-architecture-dotnet
 
+
+Background services/queue: https://www.youtube.com/watch?v=aAVHUkdqUwM&ab_channel=RawCoding
 
 MongoDB with AspNet Identity: https://www.youtube.com/watch?v=fKarVGX2Vl8&ab_channel=AshProgHelp-ProgrammingHelp
 
 
 Generic:
+https://stackoverflow.com/questions/65944700/how-to-run-git-diff-in-github-actions
+https://stackoverflow.com/questions/70123328/how-to-set-environment-variables-in-github-actions-using-python
+https://stackoverflow.com/questions/53227343/triggering-azure-devops-builds-based-on-changes-to-sub-folders
+https://stackoverflow.com/questions/61256824/how-to-pass-the-output-of-a-bash-command-to-github-action-parameter/61258467#61258467
+https://medium.com/intelligentmachines/github-actions-building-and-publishing-own-actions-using-python-d94e2724b08c
+
 
 https://www.codingblocks.net/programming/streaming-cmd-output-with-signalr/
 https://stackoverflow.com/questions/16256587/redirecting-output-to-the-text-file-c-sharp

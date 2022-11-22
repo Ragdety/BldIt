@@ -1,3 +1,8 @@
+11/20/2022:
+Setting up GitHub Actions pipeline to pack and deploy contracts projects used by other microservices
+	-Learned to write a python script that automatically detects which contracts project changed.
+	 Based on this script, it sets the necessary env vars to build contract projects and deploy.
+	 GitHub Actions pipeline uses the env vars set by the python script.
 
 
 11/14/2022:
