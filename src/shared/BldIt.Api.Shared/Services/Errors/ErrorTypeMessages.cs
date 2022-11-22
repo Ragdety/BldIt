@@ -9,5 +9,4 @@ public static class ErrorTypeMessages
     
     //Auth
     public const string InvalidCredentials = "Invalid credentials";
-    public const string InvalidToken       = "Invalid token";
 }
