@@ -62,4 +62,15 @@ public class MongoRepository<T, TKey> : IRepository<T, TKey> where T : IEntity<T
         var filter = FilterBuilder.Eq(entity => entity.Id, id);
         await DbCollection.DeleteOneAsync(filter);
     }
+
+    public virtual async Task<bool> ExistsAsync(TKey id)
+    {
+        var entity = await GetAsync(id);
+        if (entity == null)
+        {
+            return false;
+        }
+        
+        return !entity.Deleted;
+    }
 }

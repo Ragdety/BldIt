@@ -16,4 +16,5 @@ public interface IRepository<T, in TKey> where T : IEntity<TKey>
     Task CreateAsync(T item);
     Task UpdateAsync(T item);
     Task RemoveAsync(TKey id);
+    Task<bool> ExistsAsync(TKey id);
 }
