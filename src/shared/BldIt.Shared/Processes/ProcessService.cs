@@ -40,7 +40,7 @@ public class ProcessService : IProcessService
     /// </summary>
     /// <param name="program">
     /// Represents the executable to run.
-    /// This can be a path to a script, an executable, or an environment variable.
+    /// This can be a path to a script, an executable, or an environment variable
     /// </param>
     public ProcessService(string program)
     {
