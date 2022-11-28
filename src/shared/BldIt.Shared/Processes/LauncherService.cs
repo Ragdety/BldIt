@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Specialized;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace BldIt.Shared.Processes
 {
@@ -17,15 +15,17 @@ namespace BldIt.Shared.Processes
     /// (4) Call Run().
     /// </remarks>
 
-    public class LauncherService
+    [Obsolete("Use ProcessService instead")]
+    public class LauncherService : IProcessService
     {
         #region Constructor
 
         /// <summary>Runs the specified program file name.</summary>
-        /// <param name="programFileName">Name of the program file to run.</param>
-        public LauncherService(string programFileName)
+        /// <param name="program">Name of the program file to run.</param>
+        public LauncherService(string program)
         {
-            ProgramFileName = programFileName;
+            Program = program;
+            EnvironmentVariables = new Dictionary<string, string?>();
 
             _processStartInfo.ErrorDialog            = false;
             _processStartInfo.CreateNoWindow         = false;
@@ -46,9 +46,9 @@ namespace BldIt.Shared.Processes
         
         #region Private Fields
 
-        private StreamReader _standardError;
-        private StreamReader _standardOutput;
-        private StreamWriter _standardInput;
+        private StreamReader? _standardError;
+        private StreamReader? _standardOutput;
+        private StreamWriter? _standardInput;
 
         private string _standardInputFileName;
         private string _standardOutputFileName;
@@ -61,25 +61,27 @@ namespace BldIt.Shared.Processes
         #region Public Properties
 
         /// <summary>The filename (full pathname) of the executable.</summary>
-        public string ProgramFileName
+        public string Program
         {
             get => _processStartInfo.FileName;
             set => _processStartInfo.FileName = value;
         }
 
         /// <summary>The command-line arguments passed to the executable when run. </summary>
-        public string Arguments
+        public string[] Arguments
         {
-            get => _processStartInfo.Arguments;
-            set => _processStartInfo.Arguments = value;
+            get => _processStartInfo.Arguments.Split(' ');
+            set => _processStartInfo.Arguments = string.Join(" ", value);
         }
 
         /// <summary>The working directory set for the executable when run.</summary>
-        public string? WorkingDirectory
+        public string WorkingDirectory
         {
             get => _processStartInfo.WorkingDirectory;
             set => _processStartInfo.WorkingDirectory = value;
         }
+
+        public IReadOnlyDictionary<string, string?> EnvironmentVariables { get; set; }
 
         /// <summary>
         /// The file to be used if standard input is redirected,
@@ -126,31 +128,22 @@ namespace BldIt.Shared.Processes
         #endregion  // Public Properties
 
         #region Public Methods
-
-        /// <summary>Add a set of name-value pairs into the set of environment variables available to the executable.</summary>
-        /// <param name="variables">The name-value pairs to add.</param>
-        public void AddEnvironmentVariables(StringDictionary variables)
-        {
-            if (variables == null)
-                throw new ArgumentNullException(nameof(variables));
-
-            StringDictionary environmentVariables = _processStartInfo.EnvironmentVariables;
-
-            foreach (DictionaryEntry e in variables)
-                environmentVariables[(string)e.Key] = (string)e.Value!;
-        }
+        
+        public async Task<int> RunAsync() => await RunAsync(null);
 
         /// <summary>
         /// Run the executable with
         /// output and error streams redirection parameters
         /// and wait until the it has terminated.
         /// </summary>
+        /// <param name="outputHandler">Handle where the standard output and error are written to.
+        /// </param>
         /// <returns>The exit code returned from the executable.</returns>
-        public int Run(Action<string> outputHandler)
+        public async Task<int> RunAsync(Action<string>? outputHandler)
         {
-            Thread standardInputThread = null;
-            Thread standardOutputThread = null;
-            Thread standardErrorThread = null;
+            Thread? standardInputThread = null;
+            Thread? standardOutputThread = null;
+            Thread? standardErrorThread = null;
 
             _standardInput  = null;
             _standardError  = null;
@@ -163,7 +156,6 @@ namespace BldIt.Shared.Processes
                 using Process process = new();
                 process.StartInfo = _processStartInfo;
 
-                //Will play with Threads later 
                 // if (process.StartInfo.RedirectStandardInput)
                 // {
                 //     _standardInput = process.StandardInput;
@@ -181,21 +173,25 @@ namespace BldIt.Shared.Processes
                 //     _standardOutput = process.StandardOutput;
                 //     standardOutputThread = StartThread(WriteStandardOutput, "StandardOutput");
                 // }
+
+                if (outputHandler is not null)
+                {
+                    // These events will trigger our custom outputHandler
+                    process.OutputDataReceived += (sendingProcess, outLine) =>
+                    {
+                        if (outLine.Data is not null) outputHandler(outLine.Data);
+                    };
+                    process.ErrorDataReceived += (sendingProcess, outLine) =>
+                    {
+                        if (outLine.Data is not null) outputHandler(outLine.Data);
+                    };
+                }
                 
-                // These events will trigger our custom outputHandler
-                process.OutputDataReceived += (sendingProcess, outLine) =>
-                {
-                    if (outLine.Data != null) outputHandler(outLine.Data);
-                };
-                process.ErrorDataReceived += (sendingProcess, outLine) =>
-                {
-                    if (outLine.Data != null) outputHandler(outLine.Data);
-                };
 
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                process.WaitForExit();
+                await process.WaitForExitAsync();
                 
                 exitCode = process.ExitCode;
             }
@@ -233,8 +229,9 @@ namespace BldIt.Shared.Processes
         private void SupplyStandardInput()
         {
             // feed text from the file a line at a time into the standard input stream
-            using StreamReader reader = File.OpenText(_standardInputFileName);
-            using StreamWriter writer = _standardInput;
+            using var reader = File.OpenText(_standardInputFileName);
+            using var writer = _standardInput;
+            if (writer is null) throw new ArgumentNullException(nameof(writer));
             writer.AutoFlush = true;
 
             for (;;)
@@ -251,14 +248,14 @@ namespace BldIt.Shared.Processes
         /// <summary>Thread which outputs standard output from the running executable to the appropriate file.</summary>
         private void WriteStandardOutput()
         {
-            using (StreamWriter writer = File.CreateText(_standardOutputFileName))
-            using (StreamReader reader = _standardOutput)
+            using (var writer = File.CreateText(_standardOutputFileName))
+            using (var reader = _standardOutput)
             {
                 writer.AutoFlush = true;
 
                 for (;;)
                 {
-                    var textLine = reader.ReadLine();
+                    var textLine = reader?.ReadLine();
 
                     if (textLine == null)
                         break;
@@ -278,14 +275,14 @@ namespace BldIt.Shared.Processes
         /// <summary>Thread which outputs standard error output from the running executable to the appropriate file.</summary>
         private void WriteStandardError()
         {
-            using (StreamWriter writer = File.CreateText(_standardErrorFileName))
-            using (StreamReader reader = _standardError)
+            using (var writer = File.CreateText(_standardErrorFileName))
+            using (var reader = _standardError)
             {
                 writer.AutoFlush = true;
 
                 for (;;)
                 {
-                    var textLine = reader.ReadLine();
+                    var textLine = reader?.ReadLine();
 
                     if (textLine == null)
                         break;

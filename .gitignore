@@ -10,6 +10,10 @@
 # helpful.txt
 # later.txt
 
+# Rider
+*.sln.DotSettings
+*.sln.DotSettings.*
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

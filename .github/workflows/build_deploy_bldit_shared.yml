@@ -9,13 +9,15 @@ on:
 
 env:
   BLDIT_COMMON_CS_PROJ: 'src/shared/BldIt.Shared/BldIt.Shared.csproj'
+  BLDIT_COMMON_CS_TEST_PROJ: 'test/shared/BldIt.Shared.Tests/BldIt.Shared.Tests.csproj'
   BLDIT_PACKAGE_NAME: BldIt.Shared
   ARTIFACTORY_NAME: BldItNuGetArtifactory
   PACKAGE_VERSION: 1.0.${{ github.run_number }}
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    #Since the test cases involve Batch scripts, we run the build on windows
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET Core
@@ -25,7 +27,7 @@ jobs:
       - name: Build with dotnet
         run: dotnet build $BLDIT_COMMON_CS_PROJ --configuration Release
       - name: Test with dotnet
-        run: dotnet test $BLDIT_COMMON_CS_PROJ --configuration Release
+        run: dotnet test $BLDIT_COMMON_CS_TEST_PROJ --configuration Release
   
   deploy:
     needs: build
@@ -62,7 +64,6 @@ jobs:
           nuget push ./artifacts/$BLDIT_PACKAGE_NAME.$PACKAGE_VERSION.nupkg \
           -Source $ARTIFACTORY_NAME \
           -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} 
-          
           
 #  For more information about the http request (in case a 4xx error happens), use:
 #  for f in ./artifacts/BldIt.Common.$PACKAGE_VERSION.nupkg
