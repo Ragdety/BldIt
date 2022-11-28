@@ -8,8 +8,8 @@ on:
       - 'src/shared/BldIt.Shared/**'
 
 env:
-  BLDIT_COMMON_CS_PROJ: 'src/shared/BldIt.Shared/BldIt.Shared.csproj'
-  BLDIT_COMMON_CS_TEST_PROJ: 'test/shared/BldIt.Shared.Tests/BldIt.Shared.Tests.csproj'
+  BLDIT_COMMON_CS_PROJ: 'src\shared\BldIt.Shared\BldIt.Shared.csproj'
+  BLDIT_COMMON_CS_TEST_PROJ: 'test\shared\BldIt.Shared.Tests\BldIt.Shared.Tests.csproj'
   BLDIT_PACKAGE_NAME: BldIt.Shared
   ARTIFACTORY_NAME: BldItNuGetArtifactory
   PACKAGE_VERSION: 1.0.${{ github.run_number }}
@@ -25,9 +25,9 @@ jobs:
         with:
           dotnet-version: 6.0.x
       - name: Build with dotnet
-        run: dotnet build $BLDIT_COMMON_CS_PROJ --configuration Release
+        run: dotnet build $GITHUB_WORKSPACE\$BLDIT_COMMON_CS_PROJ --configuration Release
       - name: Test with dotnet
-        run: dotnet test $BLDIT_COMMON_CS_TEST_PROJ --configuration Release
+        run: dotnet test $GITHUB_WORKSPACE\$BLDIT_COMMON_CS_TEST_PROJ --configuration Release
   
   deploy:
     needs: build
