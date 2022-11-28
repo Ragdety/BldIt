@@ -26,12 +26,14 @@ jobs:
           dotnet-version: 6.0.x
       - name: Build with dotnet
         run: |
-          cd %GITHUB_WORKSPACE%/src/shared/BldIt.Shared
+          pushd "src/shared/BldIt.Shared"
           dotnet build --configuration Release
+          popd
       - name: Test with dotnet
         run: |
-          cd %GITHUB_WORKSPACE%/test/shared/BldIt.Shared.Tests
+          pushd "test/shared/BldIt.Shared.Tests"
           dotnet test --configuration Release
+          popd
   
   deploy:
     needs: build
