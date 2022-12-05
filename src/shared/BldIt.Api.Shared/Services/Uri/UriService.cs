@@ -26,6 +26,36 @@ namespace BldIt.Api.Shared.Services.Uri
                 .Replace("{jobName}", jobName));
         }
         
+        public System.Uri GetBuildConfigsUri(Guid projectId, string jobName)
+        {
+            return new System.Uri(_baseUri + Routes.BuildConfigs.GetAll
+                .Replace("{projectId}", projectId.ToString())
+                .Replace("{jobName}", jobName));
+        }
+        
+        public System.Uri GetBuildConfigByIdUri(Guid projectId, string jobName, Guid buildConfigId)
+        {
+            return new System.Uri(_baseUri + Routes.BuildConfigs.Get
+                .Replace("{projectId}", projectId.ToString())
+                .Replace("{jobName}", jobName)
+                .Replace("{configId}", buildConfigId.ToString()));
+        }
+
+        public System.Uri GetJobConfigsUri(Guid projectId, string jobName)
+        {
+            return new System.Uri(_baseUri + Routes.JobConfigs.GetAll
+                .Replace("{projectId}", projectId.ToString())
+                .Replace("{jobName}", jobName));
+        }
+        
+        public System.Uri GetJobConfigByIdUri(Guid projectId, string jobName, Guid jobConfigId)
+        {
+            return new System.Uri(_baseUri + Routes.JobConfigs.Get
+                .Replace("{projectId}", projectId.ToString())
+                .Replace("{jobName}", jobName)
+                .Replace("{configId}", jobConfigId.ToString()));
+        }
+
         public System.Uri GetJobByNameUri(Guid projectId, string jobName)
         {
             return new System.Uri(_baseUri + Routes.Jobs.GetName
