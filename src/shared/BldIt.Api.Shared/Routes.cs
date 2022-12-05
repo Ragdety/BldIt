@@ -47,6 +47,19 @@
             public const string Post = GetAll;
         }
         
+        public struct JobConfigs
+        {
+            public const string Version = "v1";
+            private const string Base = Root + "/" + Version;
+            private const string JobConfigsBase = Jobs.GetName + "/configs";
+            
+            public const string Get = JobConfigsBase + "/{configId}";
+            public const string GetAll = JobConfigsBase;
+            public const string Post = GetAll;
+            
+            public const string GetLatest = JobConfigsBase + "/latest";
+        }
+        
         public struct Builds
         {
             public const string Version = "v1";
@@ -58,13 +71,26 @@
             /// <summary>
             /// Intended to get a build within a project's job, for specific job in user's project
             /// </summary>
-            public const string GetBuildByNumber = GetAll + "/{buildId}";
+            public const string GetBuildByNumber = GetAll + "/{buildNumber}";
             
             /// <summary>
             /// Intended to get a build within the entire database, admin only (most probably)
             /// </summary>
             public const string GetBuildById = Base + "/builds/{buildId}";
             public const string Build = BuildsBase + "/build";
+        }
+        
+        public struct BuildConfigs
+        {
+            public const string Version = "v1";
+            private const string Base = Root + "/" + Version;
+            private const string BuildConfigsBase = Jobs.GetName + "/buildConfigs";
+            
+            public const string Get = BuildConfigsBase + "/{configId}";
+            public const string GetAll = BuildConfigsBase;
+            public const string Post = GetAll;
+            
+            public const string GetLatest = BuildConfigsBase + "/latest";
         }
 
         public struct Docs

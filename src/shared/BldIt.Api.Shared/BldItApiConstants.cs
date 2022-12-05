@@ -31,6 +31,8 @@ public static class BldItApiConstants
             public static class Collections
             {
                 public const string Builds = nameof(Builds);
+                public const string BuildSteps = nameof(BuildSteps);
+                public const string BuildConfigs = nameof(BuildConfigs);
             }
         }
         
@@ -42,6 +44,7 @@ public static class BldItApiConstants
             public static class Collections
             {
                 public const string Jobs = nameof(Jobs);
+                public const string JobConfigs = nameof(JobConfigs);
             }
         }
         
