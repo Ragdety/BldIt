@@ -40,4 +40,33 @@ public static class Extensions
 
         return services;
     }
+    
+    public static IServiceCollection AddMongoRepository<TRepo, TRepoImp, T, TKey>(
+        this IServiceCollection services, 
+        string collectionName) 
+        where T : IEntity<TKey>
+        where TRepo : IRepository<T, TKey>
+        where TRepoImp : MongoRepository<T, TKey>, TRepo
+    {
+        var implementation = new Func<IServiceProvider, object>(serviceProvider =>
+        {
+            var database = serviceProvider.GetService<IMongoDatabase>();
+            if (database == null)
+            {
+                throw new ArgumentNullException(nameof(database));
+            }
+
+            var instance = Activator.CreateInstance(typeof(TRepoImp), database, collectionName);
+            if (instance == null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
+
+            return instance;
+        });
+
+        var descriptor = new ServiceDescriptor(typeof(TRepo), implementation, ServiceLifetime.Singleton);
+        services.Add(descriptor);
+        return services;
+    }
 }
