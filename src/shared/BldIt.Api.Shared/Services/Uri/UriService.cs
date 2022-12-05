@@ -10,6 +10,14 @@ namespace BldIt.Api.Shared.Services.Uri
         {
             _baseUri = baseUri;
         }
+
+        public System.Uri GetBuildByNumberUri(Guid projectId, string jobName, int buildNumber)
+        {
+            return new System.Uri(_baseUri + Routes.Builds.GetBuildByNumber
+                .Replace("{projectId}", projectId.ToString())
+                .Replace("{jobName}", jobName)
+                .Replace("{buildNumber}", buildNumber.ToString()));
+        }
         
         public System.Uri GetJobByNameUri(Guid projectId, string jobName)
         {
