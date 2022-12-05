@@ -6,12 +6,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="BldIt.Api.Shared" Version="1.0.19" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\BldIt.Builds.Core\BldIt.Builds.Core.csproj" />
-    </ItemGroup>
-
 </Project>
