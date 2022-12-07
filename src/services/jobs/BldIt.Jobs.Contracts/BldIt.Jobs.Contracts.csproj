@@ -5,9 +5,4 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="BldIt.Api.Shared" Version="1.0.19" />
-    </ItemGroup>
-
 </Project>
