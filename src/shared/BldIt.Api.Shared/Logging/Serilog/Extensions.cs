@@ -13,10 +13,12 @@ public static class Extensions
     /// </summary>
     /// <param name="logging">Logging builder</param>
     /// <param name="configuration">Configuration from the builder</param>
+    /// <param name="clearProviders">Clear logging providers. True by default</param>
     /// <returns>Returns an ILoggingBuilder with the new Serilog configuration</returns>
     public static ILoggingBuilder ConfigureAndAddSerilog(
         this ILoggingBuilder logging, 
-        IConfiguration configuration)
+        IConfiguration configuration,
+        bool clearProviders = true)
     {
         var loggerConfig = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
@@ -24,6 +26,8 @@ public static class Extensions
             .WriteTo.Console();
 
         var logger = loggerConfig.CreateLogger();
+        
+        if (clearProviders) logging.ClearProviders();
         logging.AddSerilog(logger);
 
         return logging;
