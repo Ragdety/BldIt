@@ -13,22 +13,16 @@ public static class Extensions
     /// </summary>
     /// <param name="logging">Logging builder</param>
     /// <param name="configuration">Configuration from the builder</param>
-    /// <param name="environment">Environment from the builder</param>
     /// <returns>Returns an ILoggingBuilder with the new Serilog configuration</returns>
     public static ILoggingBuilder ConfigureAndAddSerilog(
         this ILoggingBuilder logging, 
-        IConfiguration configuration, 
-        IWebHostEnvironment environment)
+        IConfiguration configuration)
     {
         var loggerConfig = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
             .Enrich.FromLogContext()
             .WriteTo.Console();
 
-        if (!environment.IsProduction())
-        {
-            loggerConfig.MinimumLevel.Debug();
-        }
         var logger = loggerConfig.CreateLogger();
         logging.AddSerilog(logger);
 
