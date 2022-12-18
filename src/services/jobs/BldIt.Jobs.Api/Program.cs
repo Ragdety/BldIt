@@ -1,4 +1,6 @@
 using BldIt.Api.Shared;
+using BldIt.Api.Shared.Hosting;
+using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.MassTransit;
 using BldIt.Api.Shared.Middlewares;
 using BldIt.Api.Shared.MongoDb;
@@ -8,10 +10,10 @@ using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
 using BldIt.Jobs.Core.Models;
 using BldIt.Jobs.Core.Repos;
-using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ConfigureAndAddSerilog(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddUriService();
 
@@ -20,41 +22,34 @@ var serviceSettings =
 
 builder.Services.AddSwaggerWithAuth(serviceSettings.ServiceName, serviceSettings.ServiceVersion);
 
-//Middlewares
-builder.Services.AddTransient<ProblemDetailsExceptionHandlingMiddleware>();
-
 //Add BldIt Auth config
 builder.Services.AddBldItAuth(builder.Configuration);
 
+//MongoDb
 builder.Services.AddMongo();
-builder.Services.AddScoped<IJobsRepo, JobsRepo>(serviceProvider =>
-{
-    var database = serviceProvider.GetService<IMongoDatabase>();
-    
-    if (database is null)
-    {
-        throw new ArgumentNullException(nameof(database));
-    }
-    
-    const string jobsCollection = BldItApiConstants.Services.Jobs.Collections.Jobs;
-    return new JobsRepo(database, jobsCollection);
-});
+builder.Services.AddMongoRepository<IJobsRepo, JobsRepo, Job, Guid>(BldItApiConstants.Services.Jobs.Collections.Jobs);
 builder.Services.AddMongoRepository<JobsProject, Guid>(nameof(JobsProject));
+builder.Services.AddMongoRepository<JobConfig, Guid>(nameof(JobConfig));
 
+//MassTransit
 builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
+
+//Middlewares
+builder.Services.AddTransient<ProblemDetailsExceptionHandlingMiddleware>();
 
 //Helper services
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsDocker())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ProblemDetailsExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 

@@ -1,9 +1,19 @@
+Docker:
+https://github.com/dotnet/dotnet-docker/blob/main/documentation/scenarios/nuget-credentials.md
+https://stackoverflow.com/questions/48821991/dockerfile-cant-see-local-file-or-private-nuget-server
+https://github.com/asc-lab/dotnetcore-microservices-poc/tree/master/scripts
+Example: https://github.com/asc-lab/dotnetcore-microservices-poc/blob/master/scripts/app.yml
+
+
+
 Microservices:
 https://medium.com/edureka/microservices-tutorial-with-example-a230413dfa13
 https://www.youtube.com/c/jcasalt/videos
 https://www.youtube.com/watch?v=ByYyk8eMG6c&t=12195s&ab_channel=JulioCasal
 https://github.com/asc-lab/dotnetcore-microservices-poc
 https://github.com/thangchung/clean-architecture-dotnet
+https://blog.twitter.com/engineering/en_us/topics/infrastructure/2020/deleting-data-distributed-throughout-your-microservices-architecture
+https://www.bennorthrop.com/Essays/2021/microservices-architecture-and-deleting-data.php
 
 
 Background services/queue: https://www.youtube.com/watch?v=aAVHUkdqUwM&ab_channel=RawCoding
@@ -12,6 +22,10 @@ MongoDB with AspNet Identity: https://www.youtube.com/watch?v=fKarVGX2Vl8&ab_cha
 
 
 Generic:
+https://stackoverflow.com/questions/71599246/how-to-configure-and-use-serilog-in-asp-net-core-6
+https://www.claudiobernasconi.ch/2022/01/28/how-to-use-serilog-in-asp-net-core-web-api/
+
+https://github.com/Tyrrrz/CliWrap#piping
 https://stackoverflow.com/questions/65944700/how-to-run-git-diff-in-github-actions
 https://stackoverflow.com/questions/70123328/how-to-set-environment-variables-in-github-actions-using-python
 https://stackoverflow.com/questions/53227343/triggering-azure-devops-builds-based-on-changes-to-sub-folders

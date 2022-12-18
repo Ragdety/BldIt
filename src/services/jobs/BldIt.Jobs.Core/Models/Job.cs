@@ -6,13 +6,21 @@ namespace BldIt.Jobs.Core.Models
     public class Job : IEntity<Guid>
     {
         public Guid Id { get; set; }
-        public string JobName { get; set; }
-        public string JobDescription { get; set; }
-        public string? JobWorkspacePath { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public JobType JobType { get; set; }
+        public bool Deleted { get; set; }
+        public DateTime CreatedAt { get; init; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public string Name { get; set; }
+        public string Description { get; set; }
+        
+        public JobType Type { get; set; }
         //public ICollection<BuildStep> BuildSteps { get; set; } = new List<BuildStep>();
         //public ICollection<Build> JobBuilds { get; set; } = new List<Build>();
+        
+        public Guid LatestJobConfigId { get; set; } = Guid.Empty;
+        public Guid LatestBuildConfigId { get; set; } = Guid.Empty;
+
+        public int LastBuildNumber { get; set; } = 0;
+
         public Guid ProjectId { get; set; }
     }
 }

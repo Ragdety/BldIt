@@ -1,8 +1,7 @@
-﻿namespace BldIt.Jobs.Core.Enums
+﻿namespace BldIt.Jobs.Core.Enums;
+
+public enum JobType
 {
-    public enum JobType
-    {
-        FreeStyle,
-        Pipeline
-    }
+    Freestyle,
+    Pipeline
 }

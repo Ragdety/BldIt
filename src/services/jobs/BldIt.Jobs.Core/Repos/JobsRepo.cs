@@ -14,15 +14,16 @@ namespace BldIt.Jobs.Core.Repos
         public async Task<Job?> GetByNameAsync(Guid projectId, string jobName)
         {
             var filter = 
-                FilterBuilder.Eq(x => x.ProjectId, projectId) & FilterBuilder.Eq(x => x.JobName, jobName);
+                FilterBuilder.Eq(x => x.ProjectId, projectId) & FilterBuilder.Eq(x => x.Name, jobName);
 
             return await DbCollection.Find(filter).FirstOrDefaultAsync();
         }
-        
+
         public async Task<bool> ExistsAsync(Guid projectId, string jobName)
         {
             var job = await GetByNameAsync(projectId, jobName);
-            return job != null;
+            if (job == null) return false;
+            return !job.Deleted;
         }
     }
 }

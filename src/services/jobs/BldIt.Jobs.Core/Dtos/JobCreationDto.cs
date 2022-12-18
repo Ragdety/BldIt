@@ -1,6 +1,6 @@
 ﻿using BldIt.Jobs.Core.Enums;
 
-namespace BldIt.Jobs.Contracts.Dtos
+namespace BldIt.Jobs.Core.Dtos
 {
     public class JobCreationDto
     {

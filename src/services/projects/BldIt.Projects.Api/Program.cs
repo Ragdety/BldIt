@@ -1,5 +1,7 @@
 using BldIt.Api.Shared;
 using BldIt.Api.Shared.Config;
+using BldIt.Api.Shared.Hosting;
+using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.MassTransit;
 using BldIt.Api.Shared.Middlewares;
 using BldIt.Api.Shared.MongoDb;
@@ -12,6 +14,8 @@ using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ConfigureAndAddSerilog(builder.Configuration);
+
 builder.Services.AddControllers();
 builder.Services.AddUriService();
 
@@ -19,8 +23,10 @@ builder.Services.AddUriService();
 builder.Services.AddBldItWorkspacePathConfig(builder.Configuration);
 
 //Swagger Settings
-var serviceSettings = 
-    builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+var serviceSettings = builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+
+if (serviceSettings is null) throw new ArgumentNullException(nameof(serviceSettings));
+
 builder.Services.AddSwaggerWithAuth(serviceSettings.ServiceName, serviceSettings.ServiceVersion);
 //End Swagger Settings
 
@@ -53,7 +59,7 @@ builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsDocker())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

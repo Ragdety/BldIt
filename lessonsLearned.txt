@@ -1,3 +1,12 @@
+12/14/2022:
+Setting up Docker container for projects microservice:
+	-Learned how to create a Dockerfile to run the microservice
+	-Learned about docker arguments (ARG keyword in Dockerfile and --build-arg parameter in docker-compose)
+	-Learned to configure Nuget.Config to accept environment variables
+	-Added custom nuget feed into Docker container which uses the Docker arguments for environment variables
+
+
+
 11/20/2022:
 Setting up GitHub Actions pipeline to pack and deploy contracts projects used by other microservices
 	-Learned to write a python script that automatically detects which contracts project changed.

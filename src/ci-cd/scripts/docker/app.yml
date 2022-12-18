@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  identity:
+    container_name: identity-api
+    image: latest/identity-api
+    restart: always
+    build:
+      context: ../../../services
+      dockerfile: ./identity/Dockerfile
+    ports:
+      - "5000:5000"
+  projects:
+    container_name: projects-api
+    image: latest/projects-api
+    restart: always
+    build: 
+      context: ../../../services
+      dockerfile: ./projects/Dockerfile
+    ports:
+      - "5001:5001"
+  jobs:
+    container_name: jobs-api
+    image: latest/jobs-api
+    restart: always
+    build:
+      context: ../../../services
+      dockerfile: ./jobs/Dockerfile
+    ports:
+      - "5002:5002"
+  builds:
+    container_name: builds-api
+    image: latest/builds-api
+    restart: always
+    build:
+      context: ../../../services
+      dockerfile: ./builds/Dockerfile
+    ports:
+      - "5003:5003"
+  
+volumes:
+  mongodbdata: 
+  rabbitmqdata:

@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Models", "BldIt.Model
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{4C2EFCA6-89B0-4B7A-B35E-8A2E1AFB2862}"
 	ProjectSection(SolutionItems) = preProject
-		services\docker-compose.yml = services\docker-compose.yml
+		services\update-api-shared.bat = services\update-api-shared.bat
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{675AB3B4-ED96-4CD2-BC69-4A9FD6A88EC3}"
@@ -23,8 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Api.Shared", "shared\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "identity", "identity", "{314C2DCA-1342-4C9C-9BF2-A243FB33B5D3}"
 	ProjectSection(SolutionItems) = preProject
-		services\identity\BuildIdentity.bat = services\identity\BuildIdentity.bat
-		services\identity\UpdateApiSharedLib.bat = services\identity\UpdateApiSharedLib.bat
+		services\identity\Build.bat = services\identity\Build.bat
+		services\identity\Dockerfile = services\identity\Dockerfile
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Identity.Api", "services\identity\BldIt.Identity.Api\BldIt.Identity.Api.csproj", "{3451AAE9-10A7-434B-B0C1-CD1BE8874C82}"
@@ -34,8 +34,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Identity.Core", "services\identity\BldIt.Identity.Core\BldIt.Identity.Core.csproj", "{49A7B1C3-CCC6-4A55-81E4-76910B12E7B3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "projects", "projects", "{88EE4654-6488-46DD-80CE-3446781AEBAC}"
+	ProjectSection(SolutionItems) = preProject
+		services\projects\Build.bat = services\projects\Build.bat
+		services\projects\Dockerfile = services\projects\Dockerfile
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "builds", "builds", "{E60AA9F4-E0E0-4AC2-BBD5-A3359EA637A7}"
+	ProjectSection(SolutionItems) = preProject
+		services\builds\Build.bat = services\builds\Build.bat
+		services\builds\Dockerfile = services\builds\Dockerfile
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Builds.Api", "services\builds\BldIt.Builds.Api\BldIt.Builds.Api.csproj", "{896576BC-4D53-437A-9AFA-EC46B5A1D187}"
 EndProject
@@ -50,6 +58,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Projects.Core", "services\projects\BldIt.Projects.Core\BldIt.Projects.Core.csproj", "{547E6AFE-6363-4592-9708-E6B83CB08008}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "jobs", "jobs", "{10CCFE6B-E8BA-4FCA-9F41-010668F0B71A}"
+	ProjectSection(SolutionItems) = preProject
+		services\jobs\Build.bat = services\jobs\Build.bat
+		services\jobs\Dockerfile = services\jobs\Dockerfile
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Jobs.Api", "services\jobs\BldIt.Jobs.Api\BldIt.Jobs.Api.csproj", "{82E51C73-B3BA-4F05-A820-B9D8335EDFB4}"
 EndProject
@@ -60,6 +72,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{506DC885-41AC-4E4D-B20A-47B79F670E58}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Shared.Tests", "..\test\shared\BldIt.Shared.Tests\BldIt.Shared.Tests.csproj", "{3F6A9486-ADEF-406E-8BD7-2727171DDEF0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildScheduler", "buildScheduler", "{7AAE4E63-C3DE-4904-BD16-E1AB96B8D715}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.BuildScheduler.Api", "services\buildScheduler\BldIt.BuildScheduler.Api\BldIt.BuildScheduler.Api.csproj", "{D6652DEB-2064-40CA-8A97-AE4A7CFA34EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.BuildScheduler.Core", "services\buildScheduler\BldIt.BuildScheduler.Core\BldIt.BuildScheduler.Core.csproj", "{10F998B9-F759-45E5-AE25-7706AD9FC6EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.BuildScheduler.Contracts", "services\buildScheduler\BldIt.BuildScheduler.Contracts\BldIt.BuildScheduler.Contracts.csproj", "{4A678718-272F-4B4E-9E65-A346881CF5AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -92,6 +112,10 @@ Global
 		{426E5D51-9432-4537-992C-85770ADDE668} = {10CCFE6B-E8BA-4FCA-9F41-010668F0B71A}
 		{506DC885-41AC-4E4D-B20A-47B79F670E58} = {1CB36AFD-74EC-4852-B641-8DA868FCCDA2}
 		{3F6A9486-ADEF-406E-8BD7-2727171DDEF0} = {506DC885-41AC-4E4D-B20A-47B79F670E58}
+		{7AAE4E63-C3DE-4904-BD16-E1AB96B8D715} = {4C2EFCA6-89B0-4B7A-B35E-8A2E1AFB2862}
+		{D6652DEB-2064-40CA-8A97-AE4A7CFA34EC} = {7AAE4E63-C3DE-4904-BD16-E1AB96B8D715}
+		{10F998B9-F759-45E5-AE25-7706AD9FC6EB} = {7AAE4E63-C3DE-4904-BD16-E1AB96B8D715}
+		{4A678718-272F-4B4E-9E65-A346881CF5AF} = {7AAE4E63-C3DE-4904-BD16-E1AB96B8D715}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6C1AC2F0-2AC6-4991-9536-EAD2C0C9F201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -166,5 +190,17 @@ Global
 		{3F6A9486-ADEF-406E-8BD7-2727171DDEF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F6A9486-ADEF-406E-8BD7-2727171DDEF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F6A9486-ADEF-406E-8BD7-2727171DDEF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6652DEB-2064-40CA-8A97-AE4A7CFA34EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6652DEB-2064-40CA-8A97-AE4A7CFA34EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6652DEB-2064-40CA-8A97-AE4A7CFA34EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6652DEB-2064-40CA-8A97-AE4A7CFA34EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10F998B9-F759-45E5-AE25-7706AD9FC6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10F998B9-F759-45E5-AE25-7706AD9FC6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10F998B9-F759-45E5-AE25-7706AD9FC6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10F998B9-F759-45E5-AE25-7706AD9FC6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A678718-272F-4B4E-9E65-A346881CF5AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A678718-272F-4B4E-9E65-A346881CF5AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A678718-272F-4B4E-9E65-A346881CF5AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A678718-272F-4B4E-9E65-A346881CF5AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

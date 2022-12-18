@@ -4,7 +4,6 @@ using BldIt.Api.Shared.Config;
 using BldIt.Api.Shared.Exceptions;
 using BldIt.Api.Shared.Responses;
 using BldIt.Api.Shared.Responses.Problems;
-using BldIt.Api.Shared.Services.Errors;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Projects.Contracts.Contracts;
 using BldIt.Projects.Core.Dtos;
@@ -158,10 +157,11 @@ namespace BldIt.Projects.Service.Controllers
             if (!await _projectsRepository.IsUserOwnerOfProject(Guid.Parse(UserId), project.Id))
                 throw Log403Throw404(projectId.ToString());
 
-            if(Directory.Exists(project.ProjectWorkspacePath))
-                Directory.Delete(project.ProjectWorkspacePath, true);
-
-            await _projectsRepository.RemoveAsync(projectId);
+            //EnsureProjectWorkspaceDeleted(project.ProjectWorkspacePath);
+            
+            project.Deleted = true;
+            await _projectsRepository.UpdateAsync(project);
+            await _publishEndpoint.Publish(new ProjectDeleted(project.Id));
 
             return NoContent();
         }
@@ -170,6 +170,12 @@ namespace BldIt.Projects.Service.Controllers
         {
             if(!Directory.Exists(projectWorkspacePath))
                 Directory.CreateDirectory(projectWorkspacePath);
+        }
+        
+        private static void EnsureProjectWorkspaceDeleted(string projectWorkspacePath)
+        {
+            if(Directory.Exists(projectWorkspacePath))
+                Directory.Delete(projectWorkspacePath, true);
         }
 
         /// <summary>

@@ -22,5 +22,5 @@ services:
     hostname: rabbitmq
 
 volumes:
-  mongodbdata: 
+  mongodbdata:
   rabbitmqdata:

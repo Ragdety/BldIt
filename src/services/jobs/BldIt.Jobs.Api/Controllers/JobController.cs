@@ -3,11 +3,12 @@ using BldIt.Api.Shared.Abstractions;
 using BldIt.Api.Shared.Exceptions;
 using BldIt.Api.Shared.Interfaces;
 using BldIt.Api.Shared.Responses.Problems;
-using BldIt.Api.Shared.Services.Errors;
 using BldIt.Api.Shared.Services.Uri;
-using BldIt.Jobs.Contracts.Dtos;
+using BldIt.Jobs.Contracts.Contracts;
+using BldIt.Jobs.Core.Dtos;
 using BldIt.Jobs.Core.Models;
 using BldIt.Jobs.Core.Repos;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,17 +22,20 @@ public class JobController : ApiController
     private readonly ILogger<JobController> _logger;
     private readonly IJobsRepo _jobsRepo;
     private readonly IRepository<JobsProject, Guid> _projectsRepo;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public JobController(
         UriService uriService, 
         IJobsRepo jobsRepo,
         ILogger<JobController> logger, 
-        IRepository<JobsProject, Guid> projectsRepo)
+        IRepository<JobsProject, Guid> projectsRepo, 
+        IPublishEndpoint publishEndpoint)
     {
         _uriService = uriService;
         _jobsRepo = jobsRepo;
         _logger = logger;
         _projectsRepo = projectsRepo;
+        _publishEndpoint = publishEndpoint;
     }
 
     [HttpGet(Routes.Jobs.GetName)]
@@ -39,24 +43,22 @@ public class JobController : ApiController
         [FromRoute] Guid projectId, 
         [FromRoute] string jobName)
     {
+        var jobInstance = _uriService.GetJobByNameUri(projectId, jobName).AbsolutePath;
+        
         //This should query jobs database for Project's table
         //(which will be updated by RabbitMQ messaging)
         var project = await _projectsRepo.GetAsync(projectId);
-        if (project == null)
+        if (project == null || project.Deleted)
         {
             throw new ProblemDetailsException(new InstanceNotFound(
-                $"Project with id '{projectId}' was not found",
-                _uriService.GetJobByNameUri(projectId, jobName).AbsolutePath,
-                _uriService));
+                $"Project with id '{projectId}' was not found", jobInstance, _uriService));
         }
         
         var job = await _jobsRepo.GetByNameAsync(projectId, jobName);
-        if (job == null)
+        if (job == null || job.Deleted)
         {
             throw new ProblemDetailsException(new InstanceNotFound(
-                $"Job with name '{jobName}' was not found within project id: '{projectId}'",
-                _uriService.GetJobByNameUri(projectId, jobName).AbsolutePath,
-                _uriService));
+                $"Job with name '{jobName}' was not found within project: '{projectId}'", jobInstance, _uriService));
         }
 
         return Ok(job);
@@ -67,45 +69,43 @@ public class JobController : ApiController
         [FromBody] JobCreationDto jobToCreate,
         [FromRoute] Guid projectId)
     {
+        var jobCreationInstance = _uriService.GetJobsUri(projectId).AbsolutePath;
+        
         var project = await _projectsRepo.GetAsync(projectId);
-        if (project == null)
+        if (project == null || project.Deleted)
         {
             throw new ProblemDetailsException(new InstanceNotFound(
                 $"Project with id '{projectId}' was not found",
-                _uriService.GetJobsUri(projectId).AbsolutePath,
+                jobCreationInstance,
                 _uriService));
         }
-            
-        var existingJob = await _jobsRepo.GetByNameAsync(projectId, jobToCreate.JobName);
-        if (existingJob != null)
+
+        var exists = await _jobsRepo.ExistsAsync(projectId, jobToCreate.JobName);
+        if (exists)
         {
             throw new ProblemDetailsException(new ExistingInstance(
-                $"Job with name {jobToCreate.JobName} in project with id '{projectId}' already exists.",
-                _uriService.GetJobsUri(projectId).AbsolutePath,
+                $"Job with name {jobToCreate.JobName} in project with '{projectId}' already exists.",
+                jobCreationInstance,
                 _uriService));
         }
 
         var job = new Job
         {
-            JobName = jobToCreate.JobName,
-            JobDescription = jobToCreate.JobDescription,
-            JobType = jobToCreate.JobType,
-            UpdatedAt = DateTime.Now,
-            JobWorkspacePath = Path.Combine(project.ProjectWorkspacePath, jobToCreate.JobName),
+            Name = jobToCreate.JobName,
+            Description = jobToCreate.JobDescription,
+            Type = jobToCreate.JobType,
             ProjectId = projectId
         };
 
-        EnsureJobWorkspaceExists(job.JobWorkspacePath);
-
         await _jobsRepo.CreateAsync(job);
+        await _publishEndpoint.Publish(new JobCreated
+        (
+            job.Id,
+            job.Name,
+            job.ProjectId
+        ));
 
-        var locationUri = _uriService.GetJobByNameUri(projectId, job.JobName);
+        var locationUri = _uriService.GetJobByNameUri(projectId, job.Name);
         return Created(locationUri, job);
-    }
-
-    private static void EnsureJobWorkspaceExists(string jobWorkspacePath)
-    {
-        if (!Directory.Exists(jobWorkspacePath))
-            Directory.CreateDirectory(jobWorkspacePath);
     }
 }
