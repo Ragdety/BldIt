@@ -1,4 +1,4 @@
-﻿namespace BldIt.Builds.Core.Enums
+﻿namespace BldIt.Builds.Contracts.Enums
 {
     public enum BuildStatus
     {
