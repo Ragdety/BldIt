@@ -1,12 +1,9 @@
-﻿namespace BldIt.Builds.Contracts.Enums
+﻿namespace BldIt.Builds.Contracts.Enums;
+
+public enum BuildStatus
 {
-    public enum BuildStatus
-    {
-        Starting,
-        Waiting,
-        Running,
-        Aborted,
-        Failed,
-        Success
-    }
+    Waiting,
+    Starting,
+    Running,
+    Aborting
 }
