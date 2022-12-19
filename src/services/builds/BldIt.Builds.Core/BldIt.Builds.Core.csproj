@@ -10,4 +10,8 @@
       <PackageReference Include="BldIt.Api.Shared" Version="1.0.33" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\BldIt.Builds.Contracts\BldIt.Builds.Contracts.csproj" />
+    </ItemGroup>
+
 </Project>
