@@ -9,6 +9,15 @@ public static class Extensions
 {
     public static IServiceCollection AddFileServices(this IServiceCollection services, IConfiguration config)
     {
+        var isBldItWorkspacePathConfigPresent = 
+            services.SingleOrDefault(x => x.ServiceType == typeof(BldItWorkspacePathConfig) &&
+                                          x.Lifetime == ServiceLifetime.Singleton) is not null;
+        
+        if(!isBldItWorkspacePathConfigPresent)
+        {
+            services.AddBldItWorkspacePathConfig(config);
+        }
+        
         var settingsSection = config.GetSection(nameof(FileSettings));
         var settings = settingsSection.Get<FileSettings>();
         
