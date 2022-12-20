@@ -1,3 +1,20 @@
+12/20/2022:
+Setting Up Azure Pipelines to deploy contracts nuget package:
+	-Since GitHub Actions errored with "NuGet.targets(132,5): error : Object reference not set to an instance of an object,"
+	 I decided to try adding the nuget feed credentials before restoring dependencies.
+	 However, this did not seem to work still in GitHub actions.
+	 I found this error thanks to having the exact same error in my docker container (since I was trying to run the build without nuget credentials).
+	 Therefore, I found it had to do with credentials (which not Google nor ChatGPT could solve my issue).
+	-So, I decided to try Azure pipelines.
+	-I learned to setup a pipeline to deploy a nuget package to my custom JFrog Artifactory.
+	-Leared to trigger pipeline only when contracts folder changes (with trigger paths)
+	-Got the same error as with GitHub actions but thankfully re-adding the credentials task in both jobs (build and deploy), 
+	 did work in Azure Pipelines which could not work in GitHub actions.
+	-Maybe I was missing something in Actions, but at the end I learned something new! 
+	 (And secretly got some ideas from Azure Pipelines for my own ci-cd system so called BldIt shhh...)
+
+
+
 12/14/2022:
 Setting up Docker container for projects microservice:
 	-Learned how to create a Dockerfile to run the microservice

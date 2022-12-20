@@ -1,3 +1,9 @@
+Azure Pipelines:
+https://jfrog.com/blog/accelerate-azure-devops-or-tfs-with-jfrog-artifactory-and-nuget/
+https://stackoverflow.com/questions/56077511/trigger-build-only-if-no-changes-on-specified-folder-in-azure-pipelines
+
+
+
 Docker:
 https://github.com/dotnet/dotnet-docker/blob/main/documentation/scenarios/nuget-credentials.md
 https://stackoverflow.com/questions/48821991/dockerfile-cant-see-local-file-or-private-nuget-server
