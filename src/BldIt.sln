@@ -74,6 +74,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Shared.Tests", "..\test\shared\BldIt.Shared.Tests\BldIt.Shared.Tests.csproj", "{3F6A9486-ADEF-406E-8BD7-2727171DDEF0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildScheduler", "buildScheduler", "{7AAE4E63-C3DE-4904-BD16-E1AB96B8D715}"
+	ProjectSection(SolutionItems) = preProject
+		services\buildScheduler\Build.bat = services\buildScheduler\Build.bat
+		services\buildScheduler\Dockerfile = services\buildScheduler\Dockerfile
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.BuildScheduler.Api", "services\buildScheduler\BldIt.BuildScheduler.Api\BldIt.BuildScheduler.Api.csproj", "{D6652DEB-2064-40CA-8A97-AE4A7CFA34EC}"
 EndProject

@@ -16,6 +16,7 @@ env:
   PACKAGE_VERSION: 1.0.${{ github.run_number }}-alpha
   PYTHON_SCRIPTS: 'src/ci-cd/scripts/actions'
   BLDIT_CONTRACT_ARTIFACTS: './bldit_contract_artifacts'
+  NUGET_CONFIG_FILE: 'src/Nuget.Config'
 
 jobs:
   build:
@@ -66,7 +67,7 @@ jobs:
       - name: Build BuildScheduler.Contracts
         if: ${{ env.BUILDSCHEDULER == 'true' }}
         run: | 
-          dotnet restore $BUILDSCHEDULER_PROJECT
+          dotnet restore $BUILDSCHEDULER_PROJECT --configfile $NUGET_CONFIG_FILE
           dotnet build $BUILDSCHEDULER_PROJECT --configuration Release
         
       - name: Build Identity.Contracts
