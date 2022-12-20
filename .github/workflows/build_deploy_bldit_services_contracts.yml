@@ -37,6 +37,28 @@ jobs:
         with:
           dotnet-version: 6.0.x
           
+      # In order to restore packages from our custom Artifactory,
+      # we ALWAYS, must add it using these commands. Otherwise, we will get the
+      # "NuGet.targets(132,5): error : Object reference not set to an instance of an object" error!!!
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: 5.x
+
+      - name: Add Artifactory NuGet Source
+        run: |
+          echo "Adding artifactory"
+          nuget sources Add \
+          -Name $ARTIFACTORY_NAME \
+          -Source ${{ secrets.ARTIFACTORY_NUGET_URL }} \
+          -username ${{ secrets.ARTIFACTORY_NUGET_USERNAME }} \
+          -password "${{ secrets.ARTIFACTORY_NUGET_PASSWORD }}"
+
+      - name: Authenticate NuGet Artifactory
+        run: |
+          echo "Authenticating with artifactory"
+          nuget setapikey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} -Source $ARTIFACTORY_NAME
+          
       - name: Build Builds.Contracts
         if: ${{ env.BUILDS == 'true' }}
         run: dotnet build $BUILDS_PROJECT --configuration Release

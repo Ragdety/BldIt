@@ -5,4 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.30-alpha" />
+    </ItemGroup>
 </Project>
