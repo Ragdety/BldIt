@@ -25,14 +25,6 @@ public static class Extensions
         if (string.IsNullOrEmpty(settings.WorkingDirectory))
         {
             var bldItPathConfig = services.BuildServiceProvider().GetRequiredService<BldItWorkspacePathConfig>();
-            var logger = services.BuildServiceProvider().GetRequiredService<ILogger>();
-
-            if (bldItPathConfig == null)
-            {
-                logger.LogError("BldItWorkspacePathConfig is null. Must call AddBldItWorkspacePathConfig() before AddFileServices()");
-                throw new ArgumentNullException(nameof(bldItPathConfig));
-            }
-            
             var bldItTempDir = bldItPathConfig.TempPath;
 
             if (!Directory.Exists(bldItTempDir))
