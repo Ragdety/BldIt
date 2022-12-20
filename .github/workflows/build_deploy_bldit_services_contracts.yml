@@ -96,7 +96,7 @@ jobs:
         run: dotnet pack $BUILDS_PROJECT --configuration Release --output $BLDIT_CONTRACT_ARTIFACTS -p:PackageVersion=$PACKAGE_VERSION
         
       - name: Pack BuildScheduler.Contracts
-        if: ${{ env.$BUILDSCHEDULER == 'true' }}
+        if: ${{ env.BUILDSCHEDULER == 'true' }}
         run: dotnet pack $BUILDSCHEDULER_PROJECT --configuration Release --output $BLDIT_CONTRACT_ARTIFACTS -p:PackageVersion=$PACKAGE_VERSION
       
       - name: Pack Identity.Contracts
