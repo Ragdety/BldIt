@@ -36,6 +36,15 @@ jobs:
   dependsOn: RestoreAndBuild
   condition: succeeded()
   steps:
+  - task: ArtifactoryDotnetCore@1
+    inputs:
+      command: 'restore'
+      artifactoryService: 'Artifactory'
+      targetResolveRepo: 'BldIt-Nuget-Gallery'
+      rootPath: '**/BldIt.BuildScheduler.Contracts.csproj'
+      collectBuildInfo: true
+      buildName: '$(Build.DefinitionName)'
+      buildNumber: '$(Build.BuildNumber)'
   - task: DotNetCoreCLI@2
     displayName: dotnet pack
     inputs:
