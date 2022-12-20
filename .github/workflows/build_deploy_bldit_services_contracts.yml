@@ -43,7 +43,9 @@ jobs:
         
       - name: Build BuildScheduler.Contracts
         if: ${{ env.BUILDSCHEDULER == 'true' }}
-        run: dotnet build $BUILDSCHEDULER_PROJECT --configuration Release
+        run: |
+          dotnet restore $BUILDSCHEDULER_PROJECT
+          dotnet build $BUILDSCHEDULER_PROJECT --configuration Release
         
       - name: Build Identity.Contracts
         if: ${{ env.IDENTITY == 'true' }}
