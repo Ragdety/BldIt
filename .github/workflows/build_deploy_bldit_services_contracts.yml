@@ -16,7 +16,7 @@ env:
   PACKAGE_VERSION: 1.0.${{ github.run_number }}-alpha
   PYTHON_SCRIPTS: 'src/ci-cd/scripts/actions'
   BLDIT_CONTRACT_ARTIFACTS: './bldit_contract_artifacts'
-  NUGET_CONFIG_FILE: 'src/Nuget.Config'
+  NUGET_CONFIG_FILE: 'src/NuGet.Config'
 
 jobs:
   build:
