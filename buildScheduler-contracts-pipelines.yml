@@ -1,0 +1,61 @@
+# Build and Create Nuget Package for BldIt common/shared code
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+      include:
+      - src/services/buildScheduler/BldIt.BuildScheduler.Contracts/*
+
+pool:
+  vmImage: ubuntu-latest
+
+# $(Rev:r) is the run number
+name: 1.0.$(Rev:r)
+jobs:
+- job: RestoreAndBuild
+  displayName: Build BldIt.BuildScheduler.Contracts
+  steps:
+  - task: ArtifactoryDotnetCore@1
+    inputs:
+      command: 'restore'
+      artifactoryService: 'Artifactory'
+      targetResolveRepo: 'BldIt-Nuget-Gallery'
+      rootPath: '**/BldIt.BuildScheduler.Contracts.csproj'
+      collectBuildInfo: true
+      buildName: '$(Build.DefinitionName)'
+      buildNumber: '$(Build.BuildNumber)'
+  - task: DotNetCoreCLI@2
+    displayName: dotnet build
+    inputs:
+      command: 'build'
+      projects: '**/BldIt.BuildScheduler.Contracts.csproj'
+- job: Pack
+  displayName: Create Nuget
+  dependsOn: RestoreAndBuild
+  condition: succeeded()
+  steps:
+  - task: DotNetCoreCLI@2
+    displayName: dotnet pack
+    inputs:
+      command: 'pack'
+      packagesToPack: '**/BldIt.BuildScheduler.Contracts.csproj'
+      versioningScheme: 'byBuildNumber'
+  - task: ArtifactoryDotnetCore@1
+    inputs:
+      command: 'push'
+      artifactoryService: 'Artifactory'
+      targetDeployRepo: 'BldIt-Nuget-Gallery'
+      pathToNupkg: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+  - task: PublishBuildArtifacts@1
+    displayName: publish artifacts
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      TargetPath: '\\BldIt.BuildScheduler.Contracts\$(Build.DefinitionName)\$(Build.BuildNumber)'
+      publishLocation: 'Container'
+  - task: ArtifactoryPublishBuildInfo@1
+    inputs:
+      artifactoryService: 'Artifactory'
+      buildName: '$(Build.DefinitionName)'
+      buildNumber: '$(Build.BuildNumber)'
