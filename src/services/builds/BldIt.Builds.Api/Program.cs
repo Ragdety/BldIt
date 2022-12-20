@@ -10,7 +10,7 @@ using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
-using BldIt.Builds.Core.Keys;
+using BldIt.Builds.Contracts.Keys;
 using BldIt.Builds.Core.Models;
 using BldIt.Builds.Core.Repos;
 using BldIt.Shared.Processes;
@@ -53,7 +53,6 @@ builder.Services.AddBldItWorkspacePathConfig(builder.Configuration);
 builder.Services.AddTransient<ProblemDetailsExceptionHandlingMiddleware>();
 
 //Other Services
-builder.Services.AddTransient<ProcessService>();
 
 var app = builder.Build();
 

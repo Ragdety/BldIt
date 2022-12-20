@@ -1,7 +1,7 @@
 ﻿using BldIt.Builds.Core.Repos;
 using MassTransit;
 
-namespace BldIt.Builds.Service.Consumers;
+namespace BldIt.Builds.Service.Consumers.Builds;
 
 public class UpdateLatestBuild : IConsumer<Contracts.Contracts.UpdateLatestBuild>
 {

@@ -7,4 +7,5 @@ public interface IBuildsRepo : IRepository<Build, Guid>
 {
     Task<Build> GetLatestAsync();
     Task SetLatestAsync(Guid id);
+    Task<Build> GetByNumberAsync(Guid jobId, int number);
 }

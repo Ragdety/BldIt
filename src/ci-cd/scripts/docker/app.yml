@@ -37,6 +37,15 @@ services:
       dockerfile: ./builds/Dockerfile
     ports:
       - "5003:5003"
+  buildScheduler:
+    container_name: build-scheduler-api
+    image: latest/build-scheduler-api
+    restart: always
+    build:
+      context: ../../../services
+      dockerfile: ./buildScheduler/Dockerfile
+    ports:
+      - "5004:5004"
   
 volumes:
   mongodbdata: 

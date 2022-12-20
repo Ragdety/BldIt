@@ -21,4 +21,6 @@ public class BuildsRepo : MongoRepository<Build, Guid>, IBuildsRepo
         build.IsLatest = true;
         await UpdateAsync(build);
     }
+
+    public Task<Build> GetByNumberAsync(Guid jobId, int number) => GetAsync(b => b.JobId == jobId && b.Number == number);
 }

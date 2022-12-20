@@ -7,6 +7,7 @@ using BldIt.Api.Shared.Responses;
 using BldIt.Api.Shared.Responses.Problems;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Builds.Contracts.Contracts;
+using BldIt.Builds.Contracts.Enums;
 using BldIt.Builds.Core.Models;
 using BldIt.Builds.Core.Repos;
 using BldIt.Shared.Processes;
@@ -77,7 +78,7 @@ public class BuildController : ApiController
         var build = new Build
         {
             JobId = job.Id,
-            Status = Core.Enums.BuildStatus.Waiting,
+            Status = BuildStatus.Waiting,
             Number = job.LastBuildNumber + 1,
             IsLatest = false //IsLatest will be updated below
         };
@@ -89,11 +90,11 @@ public class BuildController : ApiController
         await _publishEndpoint.Publish(new UpdateLatestBuild(build.Id), cancellationToken);
         
         //This will be read by the Jobs service to update the latest build in the respective job
-        //And also our scheduler to keep track of the build status
-        await _publishEndpoint.Publish(new BuildCreated(build.Id, build.Status.ToString(), build.Number, build.JobId), cancellationToken);
+        await _publishEndpoint.Publish(
+            new BuildCreated(build.Id, build.Status.ToString(), build.Number, build.JobId), cancellationToken);
 
-        //We will only send the message to the scheduler here
-        await _publishEndpoint.Publish(new BuildRequest(buildConfig.Id), cancellationToken);
+        //We will only send the message to the scheduler here requesting a build
+        await _publishEndpoint.Publish(new BuildRequest(buildConfig.Id, build.Number), cancellationToken);
 
         var buildStatusUri = _uriService.GetBuildByNumberUri(projectId, jobName, build.Number);
         return Accepted(buildStatusUri);

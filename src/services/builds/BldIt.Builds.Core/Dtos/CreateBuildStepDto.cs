@@ -1,4 +1,4 @@
-﻿using BldIt.Builds.Core.Enums;
+﻿using BldIt.Builds.Contracts.Enums;
 
 namespace BldIt.Builds.Core.Dtos;
 

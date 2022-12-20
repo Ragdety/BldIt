@@ -62,14 +62,7 @@ namespace BldIt.Projects.Service.Controllers
         [HttpGet(Routes.Projects.Get)]
         public async Task<IActionResult> Get([FromRoute] Guid projectId)
         {
-            var project = await _projectsRepository.GetAsync(projectId);
-            if (project == null)
-            {
-                throw new ProblemDetailsException(new InstanceNotFound(
-                    $"Project with id '{projectId}' was not found",
-                    _uriService.GetProjectUri(projectId.ToString()).AbsolutePath,
-                    _uriService));
-            }
+            var project = await EnsureProjectExists(projectId);
 
             //If user does not own the project, log a 403, BUT return a 404 (for security purposes...like GitHub does)
             if (!await _projectsRepository.IsUserOwnerOfProject(Guid.Parse(UserId), projectId))
@@ -80,25 +73,18 @@ namespace BldIt.Projects.Service.Controllers
             //Otherwise, return it
             return Ok(project);
         }
-        
+
         [HttpGet(Routes.Projects.GetQuery)]
         public async Task<IActionResult> GetWithQuery([FromQuery] string projectName)
         {
-            var project = await _projectsRepository.GetByNameAsync(projectName);
-            if (project == null)
-            {
-                throw new ProblemDetailsException(new InstanceNotFound(
-                    $"Project with id '{projectName}' was not found",
-                    HttpContext.Request.Path.ToString(),
-                    _uriService));
-            }
-            
+            var project = await EnsureProjectExists(projectName);
+
             if (!await _projectsRepository.IsUserOwnerOfProject(Guid.Parse(UserId), project.Id))
                 throw Log403Throw404(projectName);
             
             return Ok(project);
         }
-        
+
         [HttpPost(Routes.Projects.Post)]
         public async Task<IActionResult> Create([FromBody] ProjectCreationDto projectToCreate)
         {
@@ -145,14 +131,7 @@ namespace BldIt.Projects.Service.Controllers
         [HttpDelete(Routes.Projects.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid projectId)
         {
-            var project = await _projectsRepository.GetAsync(projectId);
-            if (project == null)
-            {
-                throw new ProblemDetailsException(new InstanceNotFound(
-                    $"Project with id '{projectId}' was not found",
-                    _uriService.GetProjectUri(projectId.ToString()).AbsolutePath,
-                    _uriService));
-            }
+            var project = await EnsureProjectExists(projectId);
             
             if (!await _projectsRepository.IsUserOwnerOfProject(Guid.Parse(UserId), project.Id))
                 throw Log403Throw404(projectId.ToString());
@@ -164,6 +143,34 @@ namespace BldIt.Projects.Service.Controllers
             await _publishEndpoint.Publish(new ProjectDeleted(project.Id));
 
             return NoContent();
+        }
+        
+        private async Task<Project?> EnsureProjectExists(Guid projectId)
+        {
+            var project = await _projectsRepository.GetAsync(projectId);
+            if (project is null || project.Deleted)
+            {
+                throw new ProblemDetailsException(new InstanceNotFound(
+                    $"Project with id '{projectId}' was not found",
+                    _uriService.GetProjectUri(projectId.ToString()).AbsolutePath,
+                    _uriService));
+            }
+
+            return project;
+        }
+        
+        private async Task<Project?> EnsureProjectExists(string projectName)
+        {
+            var project = await _projectsRepository.GetByNameAsync(projectName);
+            if (project is null || project.Deleted)
+            {
+                throw new ProblemDetailsException(new InstanceNotFound(
+                    $"Project with id '{projectName}' was not found",
+                    HttpContext.Request.Path.ToString(),
+                    _uriService));
+            }
+
+            return project;
         }
         
         private static void EnsureProjectWorkspaceExists(string projectWorkspacePath)

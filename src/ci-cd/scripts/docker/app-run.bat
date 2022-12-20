@@ -1,2 +1,2 @@
 @echo off
-docker-compose -f app.yml up -d
+docker-compose -f app.yml up --detach

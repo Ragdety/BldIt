@@ -13,6 +13,9 @@ namespace BldIt.Projects.Core.Repos
         public async Task<Project?> GetByNameAsync(string projectName) =>
             await GetAsync(p => p.ProjectName == projectName);
 
+        public override async Task<IReadOnlyCollection<Project>> GetAllAsync() =>
+            await GetAllAsync(p => !p.Deleted);
+
         public async Task<bool> Exists(string projectName) => await GetByNameAsync(projectName) != null;
         
         public async Task<bool> DoesUserHaveProjectsAsync(Guid userId)

@@ -5,8 +5,8 @@ using BldIt.Api.Shared.Interfaces;
 using BldIt.Api.Shared.Responses.Problems;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Builds.Contracts.Contracts;
+using BldIt.Builds.Contracts.Keys;
 using BldIt.Builds.Core.Dtos;
-using BldIt.Builds.Core.Keys;
 using BldIt.Builds.Core.Models;
 using BldIt.Builds.Core.Repos;
 using MassTransit;
@@ -96,6 +96,7 @@ public class BuildConfigController : ApiController
                 Type = step.Type
             };
             await _buildStepsRepo.CreateAsync(createdStep);
+            await _publishEndpoint.Publish(new BuildStepCreated(createdStep.Id, createdStep.Command, createdStep.Type));
         }
         
         var createdUri = _uriService.GetBuildConfigsUri(projectId, jobName).AbsoluteUri;
