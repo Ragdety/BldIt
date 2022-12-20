@@ -13,23 +13,26 @@ def write_to_github_env_file(env_var, value):
         env.close()
 
 
-bldIt_builds_contracts   = "src/services/builds/BldIt.Builds.Contracts"
-bldIt_identity_contracts = "src/services/identity/BldIt.Identity.Contracts"
-bldIt_jobs_contracts     = "src/services/jobs/BldIt.Jobs.Contracts"
-bldIt_projects_contracts = "src/services/projects/BldIt.Projects.Contracts"
+bldIt_builds_contracts         = "src/services/builds/BldIt.Builds.Contracts"
+bldIt_buildScheduler_contracts = "src/services/buildScheduler/BldIt.BuildScheduler.Contracts"
+bldIt_identity_contracts       = "src/services/identity/BldIt.Identity.Contracts"
+bldIt_jobs_contracts           = "src/services/jobs/BldIt.Jobs.Contracts"
+bldIt_projects_contracts       = "src/services/projects/BldIt.Projects.Contracts"
 
 bldit_contracts_dict = {
     "CONTRACT_FOLDERS": {
-        "BUILDS"  : bldIt_builds_contracts,
-        "IDENTITY": bldIt_identity_contracts,
-        "JOBS"    : bldIt_jobs_contracts,
-        "PROJECTS": bldIt_projects_contracts
+        "BUILDS"          : bldIt_builds_contracts,
+        "BUILDSCHEDULER"  : bldIt_buildScheduler_contracts,
+        "IDENTITY"        : bldIt_identity_contracts,
+        "JOBS"            : bldIt_jobs_contracts,
+        "PROJECTS"        : bldIt_projects_contracts
     },
     "CONTRACT_PROJECTS": {
-        "BUILDS"  : bldIt_builds_contracts + "/BldIt.Builds.Contracts.csproj",
-        "IDENTITY": bldIt_identity_contracts + "/BldIt.Identity.Contracts.csproj",
-        "JOBS"    : bldIt_jobs_contracts + "/BldIt.Jobs.Contracts.csproj",
-        "PROJECTS": bldIt_projects_contracts + "/BldIt.Projects.Contracts.csproj"
+        "BUILDS"          : bldIt_builds_contracts + "/BldIt.Builds.Contracts.csproj",
+        "BUILDSCHEDULER"  : bldIt_buildScheduler_contracts + "/BldIt.BuildScheduler.Contracts.csproj",
+        "IDENTITY"        : bldIt_identity_contracts + "/BldIt.Identity.Contracts.csproj",
+        "JOBS"            : bldIt_jobs_contracts + "/BldIt.Jobs.Contracts.csproj",
+        "PROJECTS"        : bldIt_projects_contracts + "/BldIt.Projects.Contracts.csproj"
     }
 }
 
@@ -61,6 +64,11 @@ for file in changed_file_paths:
         print("Builds contracts changed")
         write_to_github_env_file("BUILDS", "true")
         write_to_github_env_file("BUILDS_PROJECT", bldit_contracts_dict["CONTRACT_PROJECTS"]["BUILDS"])
+
+    elif bldit_contracts_dict["CONTRACT_FOLDERS"]["BUILDSCHEDULER"] in file:
+        print("BuildScheduler contracts changed")
+        write_to_github_env_file("BUILDSCHEDULER", "true")
+        write_to_github_env_file("BUILDSCHEDULER_PROJECT", bldit_contracts_dict["CONTRACT_PROJECTS"]["BUILDSCHEDULER"])
 
     elif bldit_contracts_dict["CONTRACT_FOLDERS"]["IDENTITY"] in file:
         print("Identity contracts changed")

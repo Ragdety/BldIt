@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'src/services/builds/BldIt.Builds.Contracts/**'
+      - 'src/services/buildScheduler/BldIt.BuildScheduler.Contracts/**'
       - 'src/services/identity/BldIt.Identity.Contracts/**'
       - 'src/services/jobs/BldIt.Jobs.Contracts/**'
       - 'src/services/projects/BldIt.Projects.Contracts/**'
@@ -39,6 +40,10 @@ jobs:
       - name: Build Builds.Contracts
         if: ${{ env.BUILDS == 'true' }}
         run: dotnet build $BUILDS_PROJECT --configuration Release
+        
+      - name: Build BuildScheduler.Contracts
+        if: ${{ env.BUILDSCHEDULER == 'true' }}
+        run: dotnet build $BUILDSCHEDULER_PROJECT --configuration Release
         
       - name: Build Identity.Contracts
         if: ${{ env.IDENTITY == 'true' }}
@@ -89,6 +94,10 @@ jobs:
       - name: Pack Builds.Contracts
         if: ${{ env.BUILDS == 'true' }}
         run: dotnet pack $BUILDS_PROJECT --configuration Release --output $BLDIT_CONTRACT_ARTIFACTS -p:PackageVersion=$PACKAGE_VERSION
+        
+      - name: Pack BuildScheduler.Contracts
+        if: ${{ env.$BUILDSCHEDULER == 'true' }}
+        run: dotnet pack $BUILDSCHEDULER_PROJECT --configuration Release --output $BLDIT_CONTRACT_ARTIFACTS -p:PackageVersion=$PACKAGE_VERSION
       
       - name: Pack Identity.Contracts
         if: ${{ env.IDENTITY == 'true' }}
@@ -107,6 +116,14 @@ jobs:
         run: |
           echo "Deploying to artifactory"
           nuget push $BLDIT_CONTRACT_ARTIFACTS/BldIt.Builds.Contracts.$PACKAGE_VERSION.nupkg \
+          -Source $ARTIFACTORY_NAME \
+          -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} 
+
+      - name: Deploy BuildScheduler.Contracts to NuGet Artifactory
+        if: ${{ env.BUILDSCHEDULER == 'true' }}
+        run: |
+          echo "Deploying to artifactory"
+          nuget push $BLDIT_CONTRACT_ARTIFACTS/BldIt.BuildScheduler.Contracts.$PACKAGE_VERSION.nupkg \
           -Source $ARTIFACTORY_NAME \
           -ApiKey ${{ secrets.ARTIFACTORY_NUGET_API_KEY }} 
       

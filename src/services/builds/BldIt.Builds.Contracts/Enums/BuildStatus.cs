@@ -5,5 +5,6 @@ public enum BuildStatus
     Waiting,
     Starting,
     Running,
-    Aborting
+    Aborting,
+    Finished,
 }
