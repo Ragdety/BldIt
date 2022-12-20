@@ -1,4 +1,4 @@
-﻿using BldIt.Builds.Contracts.Enums;
+﻿using BldIt.BuildScheduler.Contracts.Enums;
 
 namespace BldIt.BuildScheduler.Contracts.Contracts;
 

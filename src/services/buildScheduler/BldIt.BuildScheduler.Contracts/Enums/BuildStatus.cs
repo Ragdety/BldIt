@@ -1,4 +1,4 @@
-﻿namespace BldIt.Builds.Contracts.Enums;
+﻿namespace BldIt.BuildScheduler.Contracts.Enums;
 
 public enum BuildStatus
 {
@@ -6,5 +6,4 @@ public enum BuildStatus
     Starting,
     Running,
     Aborting,
-    Finished
 }
