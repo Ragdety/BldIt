@@ -17,6 +17,7 @@ public class BldItWorkspaceConfig
     {
         _settings = optionsMonitor.CurrentValue;
         BldItHome = _settings.BldItHome;
+        EnsureLocalDirectoryIsCreated(BldItHome);
     }
 
     public string BldItHome { get; }
