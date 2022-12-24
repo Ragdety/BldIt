@@ -129,7 +129,7 @@ namespace BldIt.Shared.Processes
 
         #region Public Methods
         
-        public async Task<int> RunAsync() => await RunAsync(null);
+        public async Task<int> RunAsync(CancellationToken cancellationToken) => await RunAsync(null, cancellationToken);
 
         /// <summary>
         /// Run the executable with
@@ -139,7 +139,7 @@ namespace BldIt.Shared.Processes
         /// <param name="outputHandler">Handle where the standard output and error are written to.
         /// </param>
         /// <returns>The exit code returned from the executable.</returns>
-        public async Task<int> RunAsync(Action<string>? outputHandler)
+        public async Task<int> RunAsync(Action<string>? outputHandler, CancellationToken cancellationToken)
         {
             Thread? standardInputThread = null;
             Thread? standardOutputThread = null;
@@ -191,7 +191,7 @@ namespace BldIt.Shared.Processes
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                await process.WaitForExitAsync();
+                await process.WaitForExitAsync(cancellationToken);
                 
                 exitCode = process.ExitCode;
             }

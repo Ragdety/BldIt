@@ -54,12 +54,13 @@ public class ProcessService : IProcessService
     public ProcessService() : this(string.Empty) { }
 
     /// <inheritdoc cref="IProcessService" />
-    public virtual async Task<int> RunAsync() => await RunAsync(null);
+    public virtual async Task<int> RunAsync(CancellationToken cancellationToken) => await RunAsync(null, cancellationToken);
 
     /// <summary>
     /// Run the program with the specified properties and print output/error to screen.
     /// </summary>
     /// <param name="outputCallback">Callback to redirect the output asynchronously</param>
+    /// <param name="cancellationToken">Token to cancel execution </param>
     /// <returns>The exit code returned from the process</returns>
     /// <remarks>
     /// If outputCallback is null,
@@ -67,11 +68,11 @@ public class ProcessService : IProcessService
     /// Note: RunAsync() function without any parameters is a copy of this function with null callbacks.
     /// Therefore, calling RunAsync() is equivalent to calling RunAsync(null).
     /// </remarks>
-    public virtual async Task<int> RunAsync(Func<string, Task>? outputCallback)
+    public virtual async Task<int> RunAsync(Func<string, Task>? outputCallback, CancellationToken cancellationToken)
     {
         var cmd = BuildCommonCommand();
         cmd = AddPipedCommand(cmd, outputCallback);
-        var result = await cmd.ExecuteAsync();
+        var result = await cmd.ExecuteAsync(cancellationToken);
         return result.ExitCode;
     }
 
@@ -82,12 +83,13 @@ public class ProcessService : IProcessService
     /// Handler to synchronously manage
     /// the output/error streams of the program run
     /// </param>
+    /// <param name="cancellationToken">Token to cancel execution </param>
     /// <returns>The exit code returned from the process</returns>
-    public virtual async Task<int> RunAsync(Action<string> outputHandler)
+    public virtual async Task<int> RunAsync(Action<string> outputHandler, CancellationToken cancellationToken)
     {
         var cmd = BuildCommonCommand();
         cmd = AddPipedCommand(cmd, outputHandler);
-        var result = await cmd.ExecuteAsync();
+        var result = await cmd.ExecuteAsync(cancellationToken);
         return result.ExitCode;
     }
 
