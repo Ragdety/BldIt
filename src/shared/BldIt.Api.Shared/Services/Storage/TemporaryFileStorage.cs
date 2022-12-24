@@ -17,9 +17,9 @@ public class TemporaryFileStorage
     /// </summary>
     /// <param name="file">The file coming from the form</param>
     /// <returns>The save path of the created file</returns>
-    public async Task<string> SaveTemporaryFormFile(IFormFile file)
+    public async Task<string> SaveTemporaryFormFileAsync(IFormFile file)
     {
-        var fileName = GetBldItTempFileName(file.FileName);
+        var fileName = GetBldItTempFileName(Path.GetExtension(file.FileName));
         var savePath = GetSavePath(fileName);
 
         if (_config.IsLocalProvider)
@@ -42,22 +42,18 @@ public class TemporaryFileStorage
     /// <param name="fileStream">Content stream will be copied to the temp file</param>
     /// <param name="extension">Script extension based on type of script</param>
     /// <returns>The save path of the created file</returns>
-    public async Task<string> CreateTemporaryScriptFile(Stream fileStream, BldItApiConstants.Files.ScriptTypeExtensions extension)
+    public async Task<string> CreateTemporaryScriptFileAsync(Stream fileStream, string extension)
     {
-        var fName = GetBldItTempFileName(extension.ToString());
+        var fName = GetBldItTempFileName(extension);
         var savePath = GetSavePath(fName);
+        return await CreateTemporaryFileAsync(fileStream, savePath);
+    }
 
-        if (_config.IsLocalProvider)
-        {
-            await using var stream = File.Create(savePath);
-            await fileStream.CopyToAsync(stream);
-        }
-        else if (_config.IsS3Provider)
-        {
-            throw new NotImplementedException("S3 not implemented yet");
-        }
-
-        return savePath;
+    public async Task<string> CreateTemporaryLogFileAsync(Stream fileStream)
+    {
+        var fName = GetBldItTempFileName(BldItApiConstants.Files.BldItLogExtension);
+        var savePath = GetSavePath(fName);
+        return await CreateTemporaryFileAsync(fileStream, savePath);
     }
 
     /// <summary>
@@ -125,5 +121,20 @@ public class TemporaryFileStorage
             base64Guid,
             extension ?? BldItApiConstants.Files.BldItTempExtension
         );
+    }
+    
+    private async Task<string> CreateTemporaryFileAsync(Stream fileStream, string savePath)
+    {
+        if (_config.IsLocalProvider)
+        {
+            await using var stream = File.Create(savePath);
+            await fileStream.CopyToAsync(stream);
+        }
+        else if (_config.IsS3Provider)
+        {
+            throw new NotImplementedException("S3 not implemented yet");
+        }
+
+        return savePath;
     }
 }
