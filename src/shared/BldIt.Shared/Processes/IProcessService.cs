@@ -30,7 +30,7 @@ public interface IProcessService
     /// <summary>
     /// Run the program with the specified properties
     /// </summary>
-    /// <param name="cancellationToken">Token to cancel execution </param>
+    /// <param name="cancellationToken">Token to cancel execution</param>
     /// <returns>The exit code returned from the process</returns>
     Task<int> RunAsync(CancellationToken cancellationToken);
 }
