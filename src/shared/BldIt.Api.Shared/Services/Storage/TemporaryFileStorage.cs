@@ -1,119 +1,129 @@
-﻿using System.Text;
+﻿using BldIt.Api.Shared.Config;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 
-namespace BldIt.Api.Shared.Services.Storage
+namespace BldIt.Api.Shared.Services.Storage;
+
+public class TemporaryFileStorage
 {
-    public class TemporaryFileStorage
+    private readonly BldItWorkspaceConfig _config;
+
+    public TemporaryFileStorage(BldItWorkspaceConfig config)
     {
-        private readonly FileSettings _settings;
+        _config = config;
+    }
+    
+    /// <summary>
+    /// Saves a temporary file in the temp directory from BldItWorkspaceConfig based on the FormFile
+    /// </summary>
+    /// <param name="file">The file coming from the form</param>
+    /// <returns>The save path of the created file</returns>
+    public async Task<string> SaveTemporaryFormFile(IFormFile file)
+    {
+        var fileName = GetBldItTempFileName(file.FileName);
+        var savePath = GetSavePath(fileName);
 
-        public TemporaryFileStorage(IOptionsMonitor<FileSettings> optionsMonitor)
+        if (_config.IsLocalProvider)
         {
-            _settings = optionsMonitor.CurrentValue;
-        }
-        
-        /// <summary>
-        /// Saves a temporary file in the working directory from FileSettings based on the FormFile
-        /// </summary>
-        /// <param name="file">The file coming from the form</param>
-        /// <returns>The file name created inside </returns>
-        public async Task<string> SaveTemporaryFormFile(IFormFile file)
-        {
-            var fileName = GetBldItTempFileName(file.FileName);
-            var savePath = GetSavePath(fileName);
-
             await using var fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write);
             await file.CopyToAsync(fileStream);
-
-            EnsureCreated(fileName);
-            
-            return fileName;
+        }
+        else if (_config.IsS3Provider)
+        {
+            throw new NotImplementedException("S3 not implemented yet");
         }
 
-        /// <summary>
-        /// Creates a temporary file in the working directory from FileSettings
-        /// with the specified content
-        /// </summary>
-        /// <param name="content">Content that will be included in the file</param>
-        /// <param name="fileName">Optional file name if don't want name with Guid</param>
-        /// <returns>The file name of the created file</returns>
-        public async Task<string> CreateTemporaryFile(string content, string? fileName = default)
+        return savePath;
+    }
+
+    /// <summary>
+    /// Creates a temporary file in the temp directory from BldItWorkspaceConfig
+    /// with the specified content
+    /// </summary>
+    /// <param name="fileStream">Content stream will be copied to the temp file</param>
+    /// <param name="extension">Script extension based on type of script</param>
+    /// <returns>The save path of the created file</returns>
+    public async Task<string> CreateTemporaryScriptFile(Stream fileStream, BldItApiConstants.Files.ScriptTypeExtensions extension)
+    {
+        var fName = GetBldItTempFileName(extension.ToString());
+        var savePath = GetSavePath(fName);
+
+        if (_config.IsLocalProvider)
         {
-            var fName = fileName ?? GetBldItTempFileName(Guid.NewGuid().ToString());
-            var savePath = GetSavePath(fName);
-            
-            await using (var fs = File.Create(savePath))
-            {
-                var info = new UTF8Encoding(true).GetBytes(content);
-                fs.Write(info, 0, info.Length);
-            }
-
-            EnsureCreated(fName);
-
-            return fName;
+            await using var stream = File.Create(savePath);
+            await fileStream.CopyToAsync(stream);
+        }
+        else if (_config.IsS3Provider)
+        {
+            throw new NotImplementedException("S3 not implemented yet");
         }
 
-        /// <summary>
-        /// Checks if the temp file exists inside the working directory from FileSettings
-        /// </summary>
-        /// <param name="fileName">Name of the file inside the working directory</param>
-        /// <returns>True if the file exists, otherwise false</returns>
-        public bool TemporaryFileExists(string fileName)
+        return savePath;
+    }
+
+    /// <summary>
+    /// Checks if the temp file exists inside the working directory from FileSettings
+    /// </summary>
+    /// <param name="fileName">Name of the file inside the working directory</param>
+    /// <returns>True if the file exists, otherwise false</returns>
+    public bool TemporaryFileExists(string fileName)
+    {
+        var path = GetSavePath(fileName);
+
+        if (_config.IsLocalProvider)
         {
-            var path = GetSavePath(fileName);
             return File.Exists(path);
         }
-
-        /// <summary>
-        /// Deletes the temporary file in the working directory from FileSettings
-        /// </summary>
-        /// <param name="fileName">File name to delete</param>
-        public void DeleteTemporaryFile(string fileName)
+        
+        if (_config.IsS3Provider)
         {
-            var path = GetSavePath(fileName);
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            throw new NotImplementedException("S3 provider not implemented yet");
         }
+        
+        throw new ArgumentException("Invalid provider, please check your FileSettings configuration");
+    }
 
-        /// <summary>
-        /// Gets the full path of the file inside the working directory from FileSettings
-        /// </summary>
-        /// <param name="fileName">File name that needs the full path</param>
-        /// <returns>Full path of the fileName</returns>
-        public string GetSavePath(string fileName)
-        {
-            return Path.Combine(_settings.WorkingDirectory, fileName);
-        }
+    /// <summary>
+    /// Deletes the temporary file in the working directory from FileSettings
+    /// </summary>
+    /// <param name="fileName">File name to delete</param>
+    public void DeleteTemporaryFile(string fileName)
+    {
+        var path = GetSavePath(fileName);
 
-        /// <summary>
-        /// Gets the bldit temp file name format
-        /// </summary>
-        /// <param name="fileName">Original file name to be renamed into bldit temp file format</param>
-        /// <returns>New name of file in bldit temp file format</returns>
-        public string GetBldItTempFileName(string fileName)
+        if (_config.IsLocalProvider)
         {
-            return string.Concat(
-                BldItApiConstraints.Files.BldItTempPrefix,
-                DateTime.Now.Ticks,
-                Path.GetExtension(fileName)
-            );
+            if (File.Exists(path)) File.Delete(path);
         }
+        else if (_config.IsS3Provider)
+        {
+            throw new NotImplementedException("S3 provider not implemented yet");
+        }
+    }
 
-        /// <summary>
-        /// Ensures provided file exists inside working dir from FileSettings
-        /// </summary>
-        /// <param name="fileName">File to check existence</param>
-        /// <exception cref="FileNotFoundException">
-        /// Thrown if file doesn't exist in the working dir of FileSettings
-        /// </exception>
-        private void EnsureCreated(string fileName)
-        {
-            var savePath = GetSavePath(fileName);
-            if (!File.Exists(savePath))
-                throw new FileNotFoundException();
-        }
+    /// <summary>
+    /// Gets the full path of the file inside the working directory from FileSettings
+    /// </summary>
+    /// <param name="fileName">File name that needs the full path</param>
+    /// <returns>Full path of the fileName</returns>
+    public string GetSavePath(string fileName)
+    {
+        return Path.Combine(_config.TempPath(), fileName);
+    }
+
+    /// <summary>
+    /// Gets the bldit temp file name format
+    /// </summary>
+    /// <param name="extension">Optional file extension. If not provided .temp will be used</param>
+    /// <returns>New name of file in bldit temp file format</returns>
+    private static string GetBldItTempFileName(string? extension)
+    {
+        var base64Guid = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        
+        return string.Concat(
+            BldItApiConstants.Files.BldItTempPrefix,
+            DateTime.Now.Ticks,
+            base64Guid,
+            extension ?? BldItApiConstants.Files.BldItTempExtension
+        );
     }
 }

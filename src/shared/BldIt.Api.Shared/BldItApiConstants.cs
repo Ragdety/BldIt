@@ -1,17 +1,18 @@
-﻿namespace BldIt.Api.Shared;
+﻿using System.Security.Claims;
+// ReSharper disable UnusedType.Global
+
+namespace BldIt.Api.Shared;
 
 public static class BldItApiConstants
 {
-    // ReSharper disable once UnusedType.Global
-    public static class BldItEnvironmentNames
+    public struct BldItEnvironmentNames
     {
         // ReSharper disable once InconsistentNaming
         public const string BLDIT_HOME = nameof(BLDIT_HOME);
     }
     
-    public static class Services
+    public struct Services
     {
-        // ReSharper disable once UnusedType.Global
         public struct Identity
         {
             public const string Name = $"BldIt{nameof(Identity)}Service";
@@ -57,6 +58,64 @@ public static class BldItApiConstants
             {
                 public const string Projects = nameof(Projects);
             }
+        }
+    }
+    
+    public struct Policies
+    {
+        // public const string User = IdentityServerConstants.LocalApi.PolicyName;
+        public const string Admin = nameof(Admin);
+    }
+
+    public struct IdentityResources
+    {
+        public const string RoleScope = "role";
+    }
+
+    public struct Claims
+    {
+        public const string Role = "role";
+        public static readonly Claim AdminClaim = new(Role, Roles.Admin);
+    }
+
+    public struct Roles
+    {
+        public const string Mod = nameof(Mod);
+        public const string Admin = nameof(Admin);
+    }
+
+    public struct Files
+    {
+        public struct Providers
+        {
+            public const string Local = nameof(Local);
+            public const string S3 = nameof(S3);
+        }
+
+        public const string BldItTempPrefix = "bldit_temp_";
+        public const string BldItScriptPrefix = "bldit_script_";
+        public const string BldItScriptLogPrefix = "bldit_script_log_";
+        
+        public const string BldItLogExtension = ".log";
+        public const string BldItTempExtension = ".temp";
+
+        public struct ScriptTypeExtensions
+        {
+            public const string Bash = ".sh";
+            public const string Batch = ".bat";
+            public const string PowerShell = ".ps1";
+            public const string Python = ".py";
+            public const string BldIt = ".bldit";
+        }
+        
+        public static string GenerateScriptFileName(ScriptTypeExtensions scriptType)
+        {
+            return $"{BldItScriptPrefix}{DateTime.Now.Ticks}{scriptType}";
+        }
+        
+        public static string GenerateScriptLogFileName()
+        {
+            return $"{BldItScriptLogPrefix}{DateTime.Now.Ticks}{BldItLogExtension}";
         }
     }
 }

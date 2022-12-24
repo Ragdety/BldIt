@@ -28,6 +28,7 @@ MongoDB with AspNet Identity: https://www.youtube.com/watch?v=fKarVGX2Vl8&ab_cha
 
 
 Generic:
+https://stackoverflow.com/questions/9278909/net-short-unique-identifier
 https://stackoverflow.com/questions/71599246/how-to-configure-and-use-serilog-in-asp-net-core-6
 https://www.claudiobernasconi.ch/2022/01/28/how-to-use-serilog-in-asp-net-core-web-api/
 

@@ -9,7 +9,7 @@ namespace BldIt.Api.Shared.Abstractions
     {
         protected string UserId => GetClaim("id");
         protected string Username => GetClaim(ClaimTypes.Name);
-        protected string? Role => GetClaim(BldItApiConstraints.Claims.Role);
+        protected string Role => GetClaim(BldItApiConstants.Claims.Role);
 
         private string GetClaim(string claimType) => User.Claims
             .FirstOrDefault(x => x.Type.Equals(claimType))?.Value ?? throw new DomainUnauthorizedException();

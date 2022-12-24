@@ -74,6 +74,16 @@
             public const string GetBuildByNumber = GetAll + "/{buildNumber}";
             
             /// <summary>
+            /// Intended to get the script used to build a specific build
+            /// </summary>
+            public const string GetBuildScriptFile = GetBuildByNumber + "/script";
+            
+            /// <summary>
+            /// Intended to get the log outputted by the build
+            /// </summary>
+            public const string GetBuildLog = GetBuildByNumber + "/log";
+            
+            /// <summary>
             /// Intended to get a build within the entire database, admin only (most probably)
             /// </summary>
             public const string GetBuildById = Base + "/builds/{buildId}";

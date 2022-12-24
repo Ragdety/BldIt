@@ -1,7 +1,9 @@
 ﻿using BldIt.Api.Shared.Config;
+using BldIt.Api.Shared.Services.Storage.Clients;
+using BldIt.Api.Shared.Services.Storage.Providers;
+using BldIt.Api.Shared.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace BldIt.Api.Shared.Services.Storage;
 
@@ -9,42 +11,35 @@ public static class Extensions
 {
     public static IServiceCollection AddFileServices(this IServiceCollection services, IConfiguration config)
     {
-        var isBldItWorkspacePathConfigPresent = 
-            services.SingleOrDefault(x => x.ServiceType == typeof(BldItWorkspacePathConfig) &&
-                                          x.Lifetime == ServiceLifetime.Singleton) is not null;
-        
-        if(!isBldItWorkspacePathConfigPresent)
-        {
-            services.AddBldItWorkspacePathConfig(config);
-        }
-        
         var settingsSection = config.GetSection(nameof(FileSettings));
         var settings = settingsSection.Get<FileSettings>();
-        
-        //If no workingDir is provided, use BldIt Temp folder
-        if (string.IsNullOrEmpty(settings.WorkingDirectory))
+
+        if (settings is null)
         {
-            var bldItPathConfig = services.BuildServiceProvider().GetRequiredService<BldItWorkspacePathConfig>();
-            var bldItTempDir = bldItPathConfig.TempPath;
-
-            if (!Directory.Exists(bldItTempDir))
-            {
-                Directory.CreateDirectory(bldItTempDir);
-            }
-
-            settings.WorkingDirectory = bldItTempDir;
+            throw new ArgumentNullException(nameof(settings));
         }
-        
+
+        //This will bind FileSettings to IOptionsMonitor
         services.Configure<FileSettings>(settingsSection);
 
+        //This is to manage the workspace folders for BldIt
+        //(this depends on the FileSettings to determine if it is a local storage or S3 bucket)
+        services.AddSingleton<BldItWorkspaceConfig>();
+
+        //Add Temporary File Storage
         services.AddSingleton<TemporaryFileStorage>();
+
         switch (settings.Provider)
         {
-            case BldItApiConstraints.Files.Providers.Local:
+            case BldItApiConstants.Files.Providers.Local:
+                services.AddSingleton<IStorageClient, LocalStorageClient>();
                 services.AddSingleton<IFileProvider, LocalFileProvider>();
                 break;
-            case BldItApiConstraints.Files.Providers.S3:
-                throw new NotImplementedException();
+            case BldItApiConstants.Files.Providers.S3:
+                //TODO: Configure S3 settings here with services.Configure<S3Settings>(s3SettingsSection);
+                services.AddSingleton<IStorageClient, S3StorageClient>();
+                services.AddSingleton<IFileProvider, S3FileProvider>();
+                break;
             default:
                 throw new Exception($"Invalid File Provider: {settings.Provider}");
         }
