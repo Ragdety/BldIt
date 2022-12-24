@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using BldIt.Shared.Processes;
 using FluentAssertions;
@@ -30,7 +31,7 @@ public sealed class ProcessServiceTests
         _processService.Program = scriptFile;
         
         //When
-        var exitCode = await _processService.RunAsync();
+        var exitCode = await _processService.RunAsync(CancellationToken.None);
         
         //Then
         exitCode.Should().Be(0);
@@ -44,7 +45,7 @@ public sealed class ProcessServiceTests
         _processService.Program = scriptFile;
         
         //When
-        var exitCode = await _processService.RunAsync();
+        var exitCode = await _processService.RunAsync(CancellationToken.None);
         
         //Then
         exitCode.Should().Be(1);
@@ -58,7 +59,7 @@ public sealed class ProcessServiceTests
         _processService.Program = script;
 
         //When
-        var result = await Record.ExceptionAsync(async () => await _processService.RunAsync());
+        var result = await Record.ExceptionAsync(async () => await _processService.RunAsync(CancellationToken.None));
     
         //Then
         result.Should().NotBeNull();
@@ -71,7 +72,7 @@ public sealed class ProcessServiceTests
         _processService.Program = string.Empty;
 
         //When
-        var result = await Record.ExceptionAsync(async () => await _processService.RunAsync());
+        var result = await Record.ExceptionAsync(async () => await _processService.RunAsync(CancellationToken.None));
     
         //Then
         result.Should().NotBeNull();
@@ -98,7 +99,7 @@ public sealed class ProcessServiceTests
         _processService.OutputLogPath = outputLogFile;
         
         //When
-        var exitCode = await _processService.RunAsync();
+        var exitCode = await _processService.RunAsync(CancellationToken.None);
         var output = await File.ReadAllTextAsync(outputLogFile);
 
         //Then
@@ -124,7 +125,7 @@ public sealed class ProcessServiceTests
         });
 
         //When
-        await _processService.RunAsync(outputCallback);
+        await _processService.RunAsync(outputCallback, CancellationToken.None);
         
         //Then
         stringBuilder.ToString().Should().Be("Hello World");
@@ -152,7 +153,7 @@ public sealed class ProcessServiceTests
         });
 
         //When
-        await _processService.RunAsync(outputCallback);
+        await _processService.RunAsync(outputCallback, CancellationToken.None);
         
         //Then
         _testOutputHelper.WriteLine(stringBuilder.ToString());
@@ -180,7 +181,7 @@ public sealed class ProcessServiceTests
         });
 
         //When
-        await _processService.RunAsync(outputCallback);
+        await _processService.RunAsync(outputCallback, CancellationToken.None);
         
         //Then
         _testOutputHelper.WriteLine(stringBuilder.ToString());
@@ -214,13 +215,15 @@ public sealed class ProcessServiceTests
         });
 
         //When
-        var exitCode = await _processService.RunAsync(outputHandler);
+        var exitCode = await _processService.RunAsync(outputHandler, CancellationToken.None);
         
         //Then
         stringBuilder.ToString().Should().NotBeEmpty();
         stringBuilder.ToString().Should().ContainAll("value1", "value2", "value3");
         exitCode.Should().Be(0);
     }
+    
+    //TODO: Add cancellation token tests
 
     private static string CreateDummyFile(FileType type, string? content = null)
     {
