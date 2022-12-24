@@ -48,12 +48,46 @@ public class TemporaryFileStorage
         var savePath = GetSavePath(fName);
         return await CreateTemporaryFileAsync(fileStream, savePath);
     }
+    
+    /// <summary>
+    /// Creates a temporary file in the temp directory from BldItWorkspaceConfig
+    /// with the specified content
+    /// </summary>
+    /// <param name="fileContent">Content string will be copied to the temp file</param>
+    /// <param name="extension">Script extension based on type of script</param>
+    /// <returns>The save path of the created file</returns>
+    public async Task<string> CreateTemporaryScriptFileAsync(string fileContent, string extension)
+    {
+        var fName = GetBldItTempFileName(extension);
+        var savePath = GetSavePath(fName);
+        return await CreateTemporaryFileAsync(fileContent, savePath);
+    }
 
+    /// <summary>
+    /// Creates a temporary log file in the temp directory from BldItWorkspaceConfig
+    /// with the specified log stream
+    /// </summary>
+    /// <param name="fileStream">Log stream that will be copied to the temp file</param>
+    /// <returns>The save path of the created log</returns>
     public async Task<string> CreateTemporaryLogFileAsync(Stream fileStream)
     {
         var fName = GetBldItTempFileName(BldItApiConstants.Files.BldItLogExtension);
         var savePath = GetSavePath(fName);
         return await CreateTemporaryFileAsync(fileStream, savePath);
+    }
+    
+    
+    /// <summary>
+    /// Creates a temporary log file in the temp directory from BldItWorkspaceConfig
+    /// with the specified log stream
+    /// </summary>
+    /// <param name="fileContent">Log content string that will be copied to the temp file</param>
+    /// <returns>The save path of the created log</returns>
+    public async Task<string> CreateTemporaryLogFileAsync(string fileContent)
+    {
+        var fName = GetBldItTempFileName(BldItApiConstants.Files.BldItLogExtension);
+        var savePath = GetSavePath(fName);
+        return await CreateTemporaryFileAsync(fileContent, savePath);
     }
 
     /// <summary>
@@ -129,6 +163,20 @@ public class TemporaryFileStorage
         {
             await using var stream = File.Create(savePath);
             await fileStream.CopyToAsync(stream);
+        }
+        else if (_config.IsS3Provider)
+        {
+            throw new NotImplementedException("S3 not implemented yet");
+        }
+
+        return savePath;
+    }
+
+    private async Task<string> CreateTemporaryFileAsync(string fileContent, string savePath)
+    {
+        if (_config.IsLocalProvider)
+        {
+            await File.WriteAllTextAsync(savePath, fileContent);
         }
         else if (_config.IsS3Provider)
         {
