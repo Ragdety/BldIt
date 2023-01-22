@@ -1,3 +1,3 @@
 ﻿namespace BldIt.BuildScheduler.Contracts.Contracts;
 
-public record StartBuildRequest(Guid BuildConfigId);
+public record StartBuildRequest(Guid BuildConfigId, int BuildNumber);
