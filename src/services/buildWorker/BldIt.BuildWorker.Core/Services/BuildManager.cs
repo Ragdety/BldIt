@@ -1,4 +1,8 @@
-﻿using BldIt.Api.Shared.Interfaces;
+﻿using System.Text;
+using BldIt.Api.Shared;
+using BldIt.Api.Shared.Interfaces;
+using BldIt.Api.Shared.Services.Storage;
+using BldIt.Api.Shared.Services.Storage.Providers;
 using BldIt.Builds.Contracts.Contracts;
 using BldIt.Builds.Contracts.Enums;
 using BldIt.Builds.Contracts.Keys;
@@ -20,19 +24,22 @@ public class BuildManager : IBuildManager
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<BuildManager> _logger;
     private readonly IHubContext<BuildStreamHub> _buildHub;
+    private readonly TemporaryFileStorage _temporaryFileStorage;
 
     public BuildManager(
         ProcessService processService, 
         IRepository<SchedulerBuildStep, BuildStepKey> buildStepsRepository, 
         IPublishEndpoint publishEndpoint, 
         ILogger<BuildManager> logger, 
-        IHubContext<BuildStreamHub> buildHub)
+        IHubContext<BuildStreamHub> buildHub, 
+        TemporaryFileStorage temporaryFileStorage)
     {
         _processService = processService;
         _buildStepsRepository = buildStepsRepository;
         _publishEndpoint = publishEndpoint;
         _logger = logger;
         _buildHub = buildHub;
+        _temporaryFileStorage = temporaryFileStorage;
     }
     
     public async Task StartBuildAsync(BuildRequest buildRequest, CancellationToken cancellationToken)
@@ -52,10 +59,18 @@ public class BuildManager : IBuildManager
         
         foreach (var buildStep in orderedBuildSteps)
         {
+            _logger.LogInformation("Executing build step {BuildStep}", buildStep.Command);
             //Execute the command/script provided by the build step and check its exit code
-            var exitCode = await RunBuildStepAsync(buildStep, cancellationToken);
-            if (exitCode == 0) continue;
-            
+            try
+            {
+                var exitCode = await RunBuildStepAsync(buildStep, cancellationToken);
+                if (exitCode == 0) continue;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error running build step command \'{BuildStepCommand}\'", buildStep.Command);
+            }
+
             //Otherwise send the failed signal and break out of the function.
             await UpdateBuildResultAsync(buildRequest, BuildResult.Failed);
             
@@ -73,6 +88,7 @@ public class BuildManager : IBuildManager
 
     public async Task CancelBuildAsync(BuildRequest buildRequest, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Cancelling build request {BuildRequest}", buildRequest);
         await UpdateBuildStatusAsync(buildRequest, BuildStatus.Aborting);
         
         //TODO: Some Code to cancel the build
@@ -82,37 +98,54 @@ public class BuildManager : IBuildManager
         throw new NotImplementedException();
     }
 
-    public Task RestartBuildAsync(BuildRequest buildRequest, CancellationToken cancellationToken)
+    public async Task RestartBuildAsync(BuildRequest buildRequest, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Restarting build request {BuildRequest}", buildRequest);
+        await CancelBuildAsync(buildRequest, cancellationToken);
+        await StartBuildAsync(buildRequest, cancellationToken);
     }
     
     private async Task<int> RunBuildStepAsync(SchedulerBuildStep buildStep, CancellationToken cancellationToken)
     {
-        //TODO: Create a file for the buildStep.Command
-        _processService.Program = buildStep.Command;
-        
-        //Sends process output to all clients listening (frontend in this case)
-        async Task OutputHandler(string output)
+        var extension = buildStep.Type switch 
         {
-            await _buildHub.Clients.All.SendAsync("ReceiveMessage", output, cancellationToken: cancellationToken);
+            BuildStepType.Batch => BldItApiConstants.Files.ScriptTypeExtensions.Batch,
+            BuildStepType.Shell => BldItApiConstants.Files.ScriptTypeExtensions.Bash,
+            _ => throw new ArgumentOutOfRangeException(nameof(buildStep.Type))
+        };
+
+        var scriptFilePath = await _temporaryFileStorage.CreateTemporaryScriptFileAsync(buildStep.Command, extension);
+        
+        
+        //var logFile = await _temporaryFileStorage.CreateTemporaryLogFileAsync(string.Empty);
+        //await using var fs = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        
+        _processService.Program = scriptFilePath;
+        //_processService.OutputLogPath = logFile;
+
+        //Sends process output to all clients listening (frontend in this case)
+        // async Task OutputHandler(string output)
+        // {
+        //     //await fs.WriteAsync(Encoding.UTF8.GetBytes(output), cancellationToken);
+        //     await _buildHub.Clients.All.SendAsync("ReceiveMessage", output, cancellationToken: cancellationToken);
+        // }
+
+        void OutputHandler(string? output)
+        {
+            _logger.LogInformation(output);
         }
+
+        _logger.LogInformation("Executing temporary script file \'{ScriptFilePath}\'", scriptFilePath);
+        //return await _processService.RunAsync();
+        var exitCode = await _processService.RunAsync(OutputHandler, cancellationToken);
         
-        return await _processService.RunAsync();
+        //TODO: Move the scriptFile into its actual save location for this build
         
-        // var savePath = await _temporaryFileStorage.CreateTemporaryFile(
-        //     job.BuildSteps.First().Command, 
-        //     buildConfig.BuildStepType);
-        //     
-        // _processService.Program = savePath;
-        // _processService.WorkingDirectory = job.JobWorkspacePath;
-        //
-        
-        //
-        // //Run process created by build-step command giving it the output to send to frontend
-        // //This should be a background process/task
-        // var exitCode = await _processService.RunAsync((Func<string, Task>) OutputHandler);
-        //
+        _logger.LogInformation("Deleting temporary script file \'{ScriptFilePath}\'", scriptFilePath);
+        var script = Path.GetFileName(scriptFilePath);
+        _temporaryFileStorage.DeleteTemporaryFile(script);
+
+        return exitCode;
     }
     
     private async Task UpdateBuildStatusAsync(BuildRequest buildRequest, BuildStatus buildStatus)

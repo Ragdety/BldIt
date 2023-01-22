@@ -6,38 +6,45 @@ public class BuildScheduler : BackgroundService
 {
     private readonly IBuildQueue _buildQueue;
     private readonly ILogger<BuildScheduler> _logger;
-    private int _buildCount;
+    private int _scheduledBuilds;
 
     public BuildScheduler(IBuildQueue buildQueue, ILogger<BuildScheduler> logger)
     {
         _buildQueue = buildQueue;
         _logger = logger;
-        _buildCount = 0;
+        _scheduledBuilds = 0;
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("BuildScheduler is listening and ready to take builds");
-        while (!stoppingToken.IsCancellationRequested)
+        while (true)
         {
-            if (stoppingToken.IsCancellationRequested)
+            try
             {
-                _logger.LogWarning("BuildScheduler is shutting down");
-                _logger.LogInformation("BuildScheduler executed {BuildCount} builds total", _buildCount);
-                return;
-            }
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    //Build cancellation logic here (somehow? idk yet)
+                    _logger.LogWarning("BuildScheduler is shutting down");
+                    _logger.LogInformation("BuildScheduler scheduled {ScheduledBuilds} builds total", _scheduledBuilds);
+                    return;
+                }
             
-            //Redirect Build Request to a Worker Queue
-            var build = await _buildQueue.DequeueBuildAsync(stoppingToken);
-            
-            _logger.LogInformation("A build is being executed by the {BuildScheduler}", nameof(BuildScheduler));
+                //Redirect Build Request to Build Queue
+                var startBuild = await _buildQueue.DequeueBuildAsync(stoppingToken);
 
-            //Build the specific commands
-            await build(stoppingToken);
+                _logger.LogInformation("A build has been released by the {BuildScheduler} queue", nameof(BuildScheduler));
+
+                //Send build to worker service
+                await startBuild(stoppingToken);
             
-            _logger.LogInformation("A build has finished execution by the {BuildScheduler}", nameof(BuildScheduler));
-            _buildCount++;
-            _logger.LogInformation("BuildScheduler executed {BuildCount} builds so far", _buildCount);
+                _scheduledBuilds++;
+                _logger.LogInformation("BuildScheduler has scheduler {ScheduledBuilds} builds so far", _scheduledBuilds);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to schedule build for build count {ScheduledBuilds}", _scheduledBuilds);
+            }
         }
     }
 }
