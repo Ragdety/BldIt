@@ -28,19 +28,14 @@ var serviceSettings =
 
 builder.Services.AddSwaggerWithAuth(serviceSettings.ServiceName, serviceSettings.ServiceVersion);
 
-//MongoDB
-builder.Services.AddMongo();
-builder.Services.AddMongoRepository<SchedulerBuildStep, BuildStepKey>(nameof(SchedulerBuildStep));
-
 //Mass Transit
 builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
 
-//File Services
-builder.Services.AddFileServices(builder.Configuration);
+// //File Services
+// builder.Services.AddFileServices(builder.Configuration);
 
 //Other services
 builder.Services.AddSingleton<IBuildQueue, BuildQueue>();
-builder.Services.AddTransient<ProcessService>();
 builder.Services.AddUriService();
 
 var app = builder.Build();
