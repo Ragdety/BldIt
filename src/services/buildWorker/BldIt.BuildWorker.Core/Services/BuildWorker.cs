@@ -16,20 +16,20 @@ using Microsoft.Extensions.Logging;
 
 namespace BldIt.BuildWorker.Core.Services;
 
-public class BuildManager : IBuildManager
+public class BuildWorker : IBuildWorker
 {
     private readonly ProcessService _processService;
     private readonly IRepository<WorkerBuildStep, BuildStepKey> _buildStepsRepository;
     private readonly IPublishEndpoint _publishEndpoint;
-    private readonly ILogger<BuildManager> _logger;
+    private readonly ILogger<BuildWorker> _logger;
     private readonly IHubContext<BuildStreamHub> _buildHub;
     private readonly TemporaryFileStorage _temporaryFileStorage;
 
-    public BuildManager(
+    public BuildWorker(
         ProcessService processService, 
         IRepository<WorkerBuildStep, BuildStepKey> buildStepsRepository, 
         IPublishEndpoint publishEndpoint, 
-        ILogger<BuildManager> logger, 
+        ILogger<BuildWorker> logger, 
         IHubContext<BuildStreamHub> buildHub, 
         TemporaryFileStorage temporaryFileStorage)
     {
@@ -40,7 +40,9 @@ public class BuildManager : IBuildManager
         _buildHub = buildHub;
         _temporaryFileStorage = temporaryFileStorage;
     }
-    
+
+    // public int ProcessId { get; set; }
+
     public async Task StartBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting build request {BuildRequest}", buildRequest);
@@ -114,8 +116,7 @@ public class BuildManager : IBuildManager
         };
 
         var scriptFilePath = await _temporaryFileStorage.CreateTemporaryScriptFileAsync(buildStep.Command, extension);
-        
-        
+
         //var logFile = await _temporaryFileStorage.CreateTemporaryLogFileAsync(string.Empty);
         //await using var fs = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         
@@ -150,6 +151,7 @@ public class BuildManager : IBuildManager
     private async Task UpdateBuildStatusAsync(StartBuildRequest buildRequest, BuildStatus buildStatus)
     {
         await _publishEndpoint.Publish(new BuildStatusUpdated(
+            buildRequest.BuildId,
             buildRequest.BuildConfigId, 
             buildRequest.BuildNumber, 
             buildStatus));
@@ -158,6 +160,7 @@ public class BuildManager : IBuildManager
     private async Task UpdateBuildResultAsync(StartBuildRequest buildRequest, BuildResult buildResult)
     {
         await _publishEndpoint.Publish(new BuildResultUpdated(
+            buildRequest.BuildId,
             buildRequest.BuildConfigId, 
             buildRequest.BuildNumber, 
             buildResult));

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace BldIt.BuildScheduler.Api.Hubs;
+namespace BldIt.BuildWorker.Core.Hubs;
 
 public class BuildStreamHub : Hub
 {

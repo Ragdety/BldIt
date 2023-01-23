@@ -1,16 +1,16 @@
 ﻿using BldIt.Api.Shared.Interfaces;
 using BldIt.Builds.Contracts.Contracts;
 using BldIt.Builds.Contracts.Keys;
-using BldIt.BuildScheduler.Core.Models;
+using BldIt.BuildWorker.Core.Models;
 using MassTransit;
 
-namespace BldIt.BuildScheduler.Api.Consumers;
+namespace BldIt.BuildWorker.Api.Consumers;
 
 public class BuildStepCreatedConsumer : IConsumer<BuildStepCreated>
 {
-    private readonly IRepository<SchedulerBuildStep, BuildStepKey> _buildStepsRepository;
+    private readonly IRepository<WorkerBuildStep, BuildStepKey> _buildStepsRepository;
 
-    public BuildStepCreatedConsumer(IRepository<SchedulerBuildStep, BuildStepKey> buildStepsRepository)
+    public BuildStepCreatedConsumer(IRepository<WorkerBuildStep, BuildStepKey> buildStepsRepository)
     {
         _buildStepsRepository = buildStepsRepository;
     }
@@ -22,7 +22,7 @@ public class BuildStepCreatedConsumer : IConsumer<BuildStepCreated>
         var exists = await _buildStepsRepository.ExistsAsync(message.BuildStepKey);
         if (exists) return;
 
-        var buildStepCreated = new SchedulerBuildStep
+        var buildStepCreated = new WorkerBuildStep
         {
             Id = message.BuildStepKey,
             Command = message.Command,

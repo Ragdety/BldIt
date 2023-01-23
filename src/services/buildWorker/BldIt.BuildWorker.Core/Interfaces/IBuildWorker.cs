@@ -2,7 +2,7 @@
 
 namespace BldIt.BuildWorker.Core.Interfaces;
 
-public interface IBuildManager
+public interface IBuildWorker
 {
     Task StartBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken);
     Task CancelBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken);

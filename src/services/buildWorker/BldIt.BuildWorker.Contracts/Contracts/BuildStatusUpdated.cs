@@ -1,5 +1,5 @@
 ﻿using BldIt.Builds.Contracts.Enums;
 
-namespace BldIt.BuildScheduler.Contracts.Contracts;
+namespace BldIt.BuildWorker.Contracts.Contracts;
 
-public record BuildStatusUpdated(Guid BuildConfigId, int BuildNumber, BuildStatus BuildStatus); 
+public record BuildStatusUpdated(Guid BuildId, Guid BuildConfigId, int BuildNumber, BuildStatus BuildStatus); 
