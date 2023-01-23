@@ -9,6 +9,7 @@ using BldIt.BuildWorker.Contracts.Contracts;
 using BldIt.BuildWorker.Core.Hubs;
 using BldIt.BuildWorker.Core.Interfaces;
 using BldIt.BuildWorker.Core.Models;
+using BldIt.Shared.OSInformation;
 using BldIt.Shared.Processes;
 using MassTransit;
 using Microsoft.AspNetCore.SignalR;
@@ -115,12 +116,23 @@ public class BuildWorker : IBuildWorker
             _ => throw new ArgumentOutOfRangeException(nameof(buildStep.Type))
         };
 
-        var scriptFilePath = await _temporaryFileStorage.CreateTemporaryScriptFileAsync(buildStep.Command, extension);
+        var scriptContent = buildStep.Command;
+        
+        //If it is a shell command, append the shell to the beginning of the script
+        if (extension == BldItApiConstants.Files.ScriptTypeExtensions.Bash)
+        {
+            scriptContent = OsInfo.Paths.Linux.Shell + "\n" + buildStep.Command;
+        }
+        
+        //TODO: Check if command already has the shell at the beginning
+        
+        var scriptFilePath = await _temporaryFileStorage.CreateTemporaryScriptFileAsync(scriptContent, extension);
 
         //var logFile = await _temporaryFileStorage.CreateTemporaryLogFileAsync(string.Empty);
         //await using var fs = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         
-        _processService.Program = scriptFilePath;
+        _processService.Program = OsInfo.Paths.Linux.Shell;
+        _processService.Arguments = new[] {scriptFilePath};
         //_processService.OutputLogPath = logFile;
 
         //Sends process output to all clients listening (frontend in this case)
@@ -134,7 +146,7 @@ public class BuildWorker : IBuildWorker
         {
             _logger.LogInformation(output);
         }
-
+        
         _logger.LogInformation("Executing temporary script file \'{ScriptFilePath}\'", scriptFilePath);
         //return await _processService.RunAsync();
         var exitCode = await _processService.RunAsync(OutputHandler, cancellationToken);
