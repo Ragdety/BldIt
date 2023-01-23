@@ -1,6 +1,7 @@
 ﻿using BldIt.Builds.Contracts.Enums;
 using BldIt.Builds.Core.Repos;
 using BldIt.BuildScheduler.Contracts.Contracts;
+using BldIt.BuildWorker.Contracts.Contracts;
 using MassTransit;
 
 namespace BldIt.Builds.Service.Consumers.Builds;
