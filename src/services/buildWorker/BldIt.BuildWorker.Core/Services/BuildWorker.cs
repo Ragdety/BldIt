@@ -117,15 +117,6 @@ public class BuildWorker : IBuildWorker
         };
 
         var scriptContent = buildStep.Command;
-        
-        //If it is a shell command, append the shell to the beginning of the script
-        if (extension == BldItApiConstants.Files.ScriptTypeExtensions.Bash)
-        {
-            scriptContent = OsInfo.Paths.Linux.Shell + "\n" + buildStep.Command;
-        }
-        
-        //TODO: Check if command already has the shell at the beginning
-        
         var scriptFilePath = await _temporaryFileStorage.CreateTemporaryScriptFileAsync(scriptContent, extension);
 
         //var logFile = await _temporaryFileStorage.CreateTemporaryLogFileAsync(string.Empty);

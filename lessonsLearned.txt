@@ -1,3 +1,12 @@
+1/23/2023 (Edgar):
+Running shell commands/scripts in Linux:
+	-When running a script through BldIt in a Linux environment, I was getting a permission denied error
+	-I learned to allow the script to run by running "chmod +x {scriptPath}"
+	-However, instead of running that for every script, I learned a better way:
+	-The user should run the script using '/usr/bin/sh {scriptPath}"
+
+
+Edgar:
 12/20/2022:
 Setting Up Azure Pipelines to deploy contracts nuget package:
 	-Since GitHub Actions errored with "NuGet.targets(132,5): error : Object reference not set to an instance of an object,"
