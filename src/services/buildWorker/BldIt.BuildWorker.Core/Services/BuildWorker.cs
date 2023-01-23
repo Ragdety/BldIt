@@ -1,26 +1,25 @@
-﻿using System.Text;
-using BldIt.Api.Shared;
+﻿using BldIt.Api.Shared;
 using BldIt.Api.Shared.Interfaces;
 using BldIt.Api.Shared.Services.Storage;
-using BldIt.Api.Shared.Services.Storage.Providers;
 using BldIt.Builds.Contracts.Contracts;
 using BldIt.Builds.Contracts.Enums;
 using BldIt.Builds.Contracts.Keys;
-using BldIt.BuildScheduler.Api.Hubs;
 using BldIt.BuildScheduler.Contracts.Contracts;
-using BldIt.BuildScheduler.Core.Interfaces;
-using BldIt.BuildScheduler.Core.Models;
+using BldIt.BuildWorker.Contracts.Contracts;
+using BldIt.BuildWorker.Core.Hubs;
+using BldIt.BuildWorker.Core.Interfaces;
+using BldIt.BuildWorker.Core.Models;
 using BldIt.Shared.Processes;
 using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-namespace BldIt.BuildScheduler.Core.Services;
+namespace BldIt.BuildWorker.Core.Services;
 
 public class BuildManager : IBuildManager
 {
     private readonly ProcessService _processService;
-    private readonly IRepository<SchedulerBuildStep, BuildStepKey> _buildStepsRepository;
+    private readonly IRepository<WorkerBuildStep, BuildStepKey> _buildStepsRepository;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<BuildManager> _logger;
     private readonly IHubContext<BuildStreamHub> _buildHub;
@@ -28,7 +27,7 @@ public class BuildManager : IBuildManager
 
     public BuildManager(
         ProcessService processService, 
-        IRepository<SchedulerBuildStep, BuildStepKey> buildStepsRepository, 
+        IRepository<WorkerBuildStep, BuildStepKey> buildStepsRepository, 
         IPublishEndpoint publishEndpoint, 
         ILogger<BuildManager> logger, 
         IHubContext<BuildStreamHub> buildHub, 
@@ -42,7 +41,7 @@ public class BuildManager : IBuildManager
         _temporaryFileStorage = temporaryFileStorage;
     }
     
-    public async Task StartBuildAsync(BuildRequest buildRequest, CancellationToken cancellationToken)
+    public async Task StartBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting build request {BuildRequest}", buildRequest);
         
@@ -86,7 +85,7 @@ public class BuildManager : IBuildManager
         _logger.LogInformation("Build request {BuildRequest} has succeeded", buildRequest);
     }
 
-    public async Task CancelBuildAsync(BuildRequest buildRequest, CancellationToken cancellationToken)
+    public async Task CancelBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Cancelling build request {BuildRequest}", buildRequest);
         await UpdateBuildStatusAsync(buildRequest, BuildStatus.Aborting);
@@ -98,14 +97,14 @@ public class BuildManager : IBuildManager
         throw new NotImplementedException();
     }
 
-    public async Task RestartBuildAsync(BuildRequest buildRequest, CancellationToken cancellationToken)
+    public async Task RestartBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Restarting build request {BuildRequest}", buildRequest);
         await CancelBuildAsync(buildRequest, cancellationToken);
         await StartBuildAsync(buildRequest, cancellationToken);
     }
     
-    private async Task<int> RunBuildStepAsync(SchedulerBuildStep buildStep, CancellationToken cancellationToken)
+    private async Task<int> RunBuildStepAsync(WorkerBuildStep buildStep, CancellationToken cancellationToken)
     {
         var extension = buildStep.Type switch 
         {
@@ -148,7 +147,7 @@ public class BuildManager : IBuildManager
         return exitCode;
     }
     
-    private async Task UpdateBuildStatusAsync(BuildRequest buildRequest, BuildStatus buildStatus)
+    private async Task UpdateBuildStatusAsync(StartBuildRequest buildRequest, BuildStatus buildStatus)
     {
         await _publishEndpoint.Publish(new BuildStatusUpdated(
             buildRequest.BuildConfigId, 
@@ -156,7 +155,7 @@ public class BuildManager : IBuildManager
             buildStatus));
     }
     
-    private async Task UpdateBuildResultAsync(BuildRequest buildRequest, BuildResult buildResult)
+    private async Task UpdateBuildResultAsync(StartBuildRequest buildRequest, BuildResult buildResult)
     {
         await _publishEndpoint.Publish(new BuildResultUpdated(
             buildRequest.BuildConfigId, 
