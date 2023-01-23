@@ -116,6 +116,9 @@ public class ProcessService : IProcessService
         if(EnvironmentVariables.Any())
             cmd = cmd.WithEnvironmentVariables(EnvironmentVariables);
         
+        if (!string.IsNullOrEmpty(OutputLogPath))
+            cmd |= PipeTarget.ToFile(OutputLogPath);
+        
         return cmd;
     }
 
@@ -128,9 +131,6 @@ public class ProcessService : IProcessService
         else
             cmd |= (Console.OpenStandardOutput(), Console.OpenStandardError());
         
-        if (!string.IsNullOrEmpty(OutputLogPath))
-            cmd |= PipeTarget.ToFile(OutputLogPath);
-        
         return cmd;
     }
     
@@ -138,10 +138,6 @@ public class ProcessService : IProcessService
     {
         //Pipe command into outputHandler
         cmd |= outputHandler;
-        
-        if (!string.IsNullOrEmpty(OutputLogPath))
-            cmd |= PipeTarget.ToFile(OutputLogPath);
-        
         return cmd;
     }
 }
