@@ -9,4 +9,9 @@ public class BuildConfigRepo : MongoRepository<BuildConfig, Guid>, IBuildConfigR
     public BuildConfigRepo(IMongoDatabase database, string collectionName) : base(database, collectionName)
     {
     }
+
+    public async Task<BuildConfig> GetBuildConfigForJobAsync(Guid jobId)
+    {
+        return await GetAsync(b => b.JobId == jobId);
+    }
 }

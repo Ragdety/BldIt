@@ -2,9 +2,9 @@
 using BldIt.Builds.Core.Models;
 using MassTransit;
 
-namespace BldIt.Builds.Service.Consumers;
+namespace BldIt.Builds.Service.Consumers.Jobs;
 
-public class JobCreated : IConsumer<Jobs.Contracts.Contracts.JobCreated>
+public class JobCreated : IConsumer<BldIt.Jobs.Contracts.Contracts.JobCreated>
 {
     private readonly IRepository<BuildsJob, Guid> _jobRepository;
 
@@ -13,7 +13,7 @@ public class JobCreated : IConsumer<Jobs.Contracts.Contracts.JobCreated>
         _jobRepository = jobRepository;
     }
 
-    public async Task Consume(ConsumeContext<Jobs.Contracts.Contracts.JobCreated> context)
+    public async Task Consume(ConsumeContext<BldIt.Jobs.Contracts.Contracts.JobCreated> context)
     {
         var message = context.Message;
         
