@@ -98,11 +98,6 @@ public class ProcessService : IProcessService
     {
         if (string.IsNullOrEmpty(Program)) throw new ArgumentNullException(nameof(Program));
 
-        if (OsInfo.IsLinux() && Path.HasExtension(Program))
-        {
-            Program = $"{OsInfo.Paths.Linux.Shell} {Program}";
-        }
-        
         var cmd = Cli.Wrap(Program)
             .WithWorkingDirectory(WorkingDirectory)
             .WithValidation(CommandResultValidation.None);
