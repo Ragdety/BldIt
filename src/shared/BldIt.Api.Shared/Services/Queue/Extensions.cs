@@ -16,4 +16,10 @@ public static class Extensions
         services.AddSingleton<IBldItQueue<T>, BldItQueue<T>>();
         return services;
     }
+    
+    public static IServiceCollection AddBldItQueue<T>(this IServiceCollection services, int maxConcurrentCapacity)
+    {
+        services.AddSingleton<IBldItQueue<T>, BldItQueue<T>>(_ => new BldItQueue<T>(maxConcurrentCapacity));
+        return services;
+    }
 }

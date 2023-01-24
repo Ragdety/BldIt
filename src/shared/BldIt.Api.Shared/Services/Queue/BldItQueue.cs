@@ -9,8 +9,8 @@ namespace BldIt.Api.Shared.Services.Queue;
 /// <typeparam name="T">Type of items to be queued</typeparam>
 public class BldItQueue<T> : IBldItQueue<T>
 {
-    private readonly ConcurrentQueue<T> _items;
-    private readonly SemaphoreSlim _signal;
+    protected readonly ConcurrentQueue<T> _items;
+    protected readonly SemaphoreSlim _signal;
 
     /// <summary>
     /// Instantiate a BldItQueue with a maximum number of concurrent items
@@ -31,7 +31,7 @@ public class BldItQueue<T> : IBldItQueue<T>
     /// Add item to the queue. Releases semaphore to allow dequeue
     /// </summary>
     /// <param name="item">Item to be queued</param>
-    public void Queue(T item)
+    public virtual void Queue(T item)
     {
         _items.Enqueue(item);
         _signal.Release();
@@ -43,7 +43,7 @@ public class BldItQueue<T> : IBldItQueue<T>
     /// <param name="cancellationToken">Cancellation token to cancel dequeue</param>
     /// <returns>The item dequeued</returns>
     /// <exception cref="ArgumentNullException">If dequeued item is null</exception>
-    public async Task<T> DequeueAsync(CancellationToken cancellationToken)
+    public virtual async Task<T> DequeueAsync(CancellationToken cancellationToken)
     {
         await _signal.WaitAsync(cancellationToken);
         
