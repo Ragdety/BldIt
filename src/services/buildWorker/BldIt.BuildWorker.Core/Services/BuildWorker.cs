@@ -1,7 +1,6 @@
 ﻿using BldIt.Api.Shared;
 using BldIt.Api.Shared.Interfaces;
 using BldIt.Api.Shared.Services.Storage;
-using BldIt.Builds.Contracts.Contracts;
 using BldIt.Builds.Contracts.Enums;
 using BldIt.Builds.Contracts.Keys;
 using BldIt.BuildScheduler.Contracts.Contracts;
@@ -59,26 +58,31 @@ public class BuildWorker : IBuildWorker
         
         await UpdateBuildStatusAsync(buildRequest, BuildStatus.Running);
         
+        //Create it outside the loop since we only want 1 log file per build
+        var logFilePath = await _temporaryFileStorage.CreateTemporaryLogFileAsync(string.Empty);
+        
         foreach (var buildStep in orderedBuildSteps)
         {
             _logger.LogInformation("Executing build step {BuildStep}", buildStep.Command);
             //Execute the command/script provided by the build step and check its exit code
             try
             {
-                var exitCode = await RunBuildStepAsync(buildStep, cancellationToken);
+                var exitCode = await RunBuildStepAsync(buildStep, logFilePath, cancellationToken);
                 if (exitCode == 0) continue;
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Error running build step command \'{BuildStepCommand}\'", buildStep.Command);
             }
+            
+            //TODO: Move the log file into its actual save location for this build
 
             //Otherwise send the failed signal and break out of the function.
             await UpdateBuildResultAsync(buildRequest, BuildResult.Failed);
             
             _logger.LogInformation("Build request {BuildRequest} has failed", buildRequest);
             
-            //At this stage, the build manager is done doing its work.
+            //At this stage, the build worker is done doing its work.
             //We'll let the other services handle the build update by listening to the BuildResultUpdated event.
             return;
         }
@@ -107,7 +111,7 @@ public class BuildWorker : IBuildWorker
         await StartBuildAsync(buildRequest, cancellationToken);
     }
     
-    private async Task<int> RunBuildStepAsync(WorkerBuildStep buildStep, CancellationToken cancellationToken)
+    private async Task<int> RunBuildStepAsync(WorkerBuildStep buildStep, string logFilePath, CancellationToken cancellationToken)
     {
         var extension = buildStep.Type switch 
         {
@@ -119,12 +123,19 @@ public class BuildWorker : IBuildWorker
         var scriptContent = buildStep.Command;
         var scriptFilePath = await _temporaryFileStorage.CreateTemporaryScriptFileAsync(scriptContent, extension);
 
-        //var logFile = await _temporaryFileStorage.CreateTemporaryLogFileAsync(string.Empty);
         //await using var fs = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        
-        _processService.Program = OsInfo.Paths.Linux.Shell;
-        _processService.Arguments = new[] {scriptFilePath};
-        //_processService.OutputLogPath = logFile;
+
+        if (OsInfo.IsLinux())
+        {
+            _processService.Program = OsInfo.Paths.Linux.Shell;
+            _processService.Arguments = new[] {scriptFilePath};
+        }
+        else
+        {
+            _processService.Program = scriptFilePath;
+        }
+
+        _processService.OutputLogPath = logFilePath;
 
         //Sends process output to all clients listening (frontend in this case)
         // async Task OutputHandler(string output)
@@ -133,17 +144,9 @@ public class BuildWorker : IBuildWorker
         //     await _buildHub.Clients.All.SendAsync("ReceiveMessage", output, cancellationToken: cancellationToken);
         // }
 
-        void OutputHandler(string? output)
-        {
-            _logger.LogInformation(output);
-        }
-        
         _logger.LogInformation("Executing temporary script file \'{ScriptFilePath}\'", scriptFilePath);
-        //return await _processService.RunAsync();
-        var exitCode = await _processService.RunAsync(OutputHandler, cancellationToken);
-        
-        //TODO: Move the scriptFile into its actual save location for this build
-        
+        var exitCode = await _processService.RunAsync(cancellationToken);
+
         _logger.LogInformation("Deleting temporary script file \'{ScriptFilePath}\'", scriptFilePath);
         var script = Path.GetFileName(scriptFilePath);
         _temporaryFileStorage.DeleteTemporaryFile(script);
