@@ -147,12 +147,10 @@ public class TemporaryFileStorage
     /// <returns>New name of file in bldit temp file format</returns>
     private static string GetBldItTempFileName(string? extension)
     {
-        var base64Guid = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-        
         return string.Concat(
             BldItApiConstants.Files.BldItTempPrefix,
             DateTime.Now.Ticks,
-            base64Guid,
+            Guid.NewGuid(),
             extension ?? BldItApiConstants.Files.BldItTempExtension
         );
     }
