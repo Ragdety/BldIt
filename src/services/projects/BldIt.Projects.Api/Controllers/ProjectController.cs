@@ -145,21 +145,13 @@ namespace BldIt.Projects.Service.Controllers
             return NoContent();
         }
 
-        [HttpPost(Routes.Projects.Put)]
-        public async Task<IActionResult> Update([FromBody] ProjectUpdateDto projectToUpdate)
+        [HttpPut(Routes.Projects.Put)]
+        public async Task<IActionResult> Update([FromBody] ProjectUpdateDto projectToUpdate, [FromRoute] Guid projectId)
         {
-            var existingProject = await _projectsRepository.GetByNameAsync(projectToUpdate.ProjectName);
-
-            if (existingProject == null)
-            {
-                throw new ProblemDetailsException(new InstanceNotFound(
-                    $"Project with name '{projectToUpdate.ProjectName}' does not exist",
-                    Routes.Projects.Post,
-                    _uriService));
-            }
+            var existingProject = await EnsureProjectExists(projectId);
             
             //Update Project Information
-            existingProject.ProjectName = projectToUpdate.ProjectName;
+            existingProject!.ProjectName = projectToUpdate.ProjectName;
             existingProject.Description = projectToUpdate.Description;
             
             await _projectsRepository.UpdateAsync(existingProject);
