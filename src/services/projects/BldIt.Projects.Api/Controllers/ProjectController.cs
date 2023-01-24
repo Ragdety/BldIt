@@ -153,11 +153,12 @@ namespace BldIt.Projects.Service.Controllers
             //Update Project Information
             existingProject!.ProjectName = projectToUpdate.ProjectName;
             existingProject.Description = projectToUpdate.Description;
+            existingProject.ProjectWorkspacePath = projectToUpdate.ProjectWorkspacePath;
             
             await _projectsRepository.UpdateAsync(existingProject);
             
             //Publish project created event
-            await _publishEndpoint.Publish(new ProjectCreated(existingProject.Id, existingProject.ProjectWorkspacePath));
+            await _publishEndpoint.Publish(new ProjectUpdated(existingProject.Id, existingProject.ProjectWorkspacePath));
             
             return Ok(existingProject);
             
