@@ -1,6 +1,6 @@
-﻿namespace BldIt.Projects.Core.Dtos;
+namespace BldIt.Projects.Core.Dtos;
 
-public class ProjectCreationDto
+public class ProjectUpdateDto
 {
     public string ProjectName { get; set; }
 
