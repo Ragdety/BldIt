@@ -21,5 +21,7 @@ namespace BldIt.Builds.Core.Models
         public bool IsLatest { get; set; }
         
         public Guid JobId { get; set; }
+
+        public string? LogFilePath { get; set; } = null;
     }
 }
