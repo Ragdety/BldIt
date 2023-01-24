@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="BldIt.Api.Shared" Version="1.0.50" />
+      <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.37-alpha" />
+      <PackageReference Include="BldIt.BuildScheduler.Contracts" Version="1.0.7" />
+      <PackageReference Include="BldIt.Shared" Version="1.0.15" />
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BldIt.BuildWorker.Contracts\BldIt.BuildWorker.Contracts.csproj" />
+    </ItemGroup>
+
+</Project>

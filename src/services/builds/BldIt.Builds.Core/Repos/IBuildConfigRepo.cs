@@ -5,5 +5,5 @@ namespace BldIt.Builds.Core.Repos;
 
 public interface IBuildConfigRepo : IRepository<BuildConfig, Guid>
 {
-    
+    Task<BuildConfig> GetBuildConfigForJobAsync(Guid jobId);
 }

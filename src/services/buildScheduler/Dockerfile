@@ -22,4 +22,5 @@ ENV ASPNETCORE_URLS http://+:5004
 COPY --from=build /app ./
 
 EXPOSE 5004
+USER root
 ENTRYPOINT ["dotnet", "BldIt.BuildScheduler.Api.dll"]

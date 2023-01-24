@@ -28,6 +28,9 @@ MongoDB with AspNet Identity: https://www.youtube.com/watch?v=fKarVGX2Vl8&ab_cha
 
 
 Generic:
+https://samwalpole.com/using-scoped-services-inside-singletons
+https://stackoverflow.com/questions/8897962/how-do-i-load-a-string-into-a-filestream-without-going-to-disk
+https://stackoverflow.com/questions/53347289/docker-error-cannot-start-service-network-7808732465bd529e6f20e4071115218b (SECOND ANSWER)
 https://stackoverflow.com/questions/9278909/net-short-unique-identifier
 https://stackoverflow.com/questions/71599246/how-to-configure-and-use-serilog-in-asp-net-core-6
 https://www.claudiobernasconi.ch/2022/01/28/how-to-use-serilog-in-asp-net-core-web-api/

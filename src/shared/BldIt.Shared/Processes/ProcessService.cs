@@ -1,4 +1,5 @@
-﻿using CliWrap;
+﻿using BldIt.Shared.OSInformation;
+using CliWrap;
 
 namespace BldIt.Shared.Processes;
 
@@ -8,8 +9,8 @@ namespace BldIt.Shared.Processes;
 /// <remarks>
 /// To use this service:
 /// (1) Create an instance (or inject it into your dependency injection container)
-/// (2) Set the Program property if a it wasn't specified in the constructor.
-/// (3) Set other properties if required.
+/// (2) Set the Program property if it wasn't specified in the constructor.
+/// (3) Set other properties as needed.
 /// (4) Call RunAsync().
 /// 
 /// Note: You can specify custom output and error streams in the RunAsync(outputCallback, errorCallback) method.
@@ -96,17 +97,25 @@ public class ProcessService : IProcessService
     private Command BuildCommonCommand()
     {
         if (string.IsNullOrEmpty(Program)) throw new ArgumentNullException(nameof(Program));
-        
+
         var cmd = Cli.Wrap(Program)
             .WithWorkingDirectory(WorkingDirectory)
             .WithValidation(CommandResultValidation.None);
+
+        if (OsInfo.IsLinux())
+        {
+            cmd = cmd.WithCredentials(c =>
+            {
+                c.SetUserName(OsUser.Linux.Root);
+            });
+        }
 
         if (Arguments.Any())
             cmd = cmd.WithArguments(Arguments);
         
         if(EnvironmentVariables.Any())
             cmd = cmd.WithEnvironmentVariables(EnvironmentVariables);
-        
+
         return cmd;
     }
 

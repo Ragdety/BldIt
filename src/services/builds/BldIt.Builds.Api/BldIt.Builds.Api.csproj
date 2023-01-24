@@ -8,8 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BldIt.Api.Shared" Version="1.0.44" />
-        <PackageReference Include="BldIt.BuildScheduler.Contracts" Version="1.0.2" />
+        <PackageReference Include="BldIt.Api.Shared" Version="1.0.45" />
+        <PackageReference Include="BldIt.BuildScheduler.Contracts" Version="1.0.7" />
+        <PackageReference Include="BldIt.BuildWorker.Contracts" Version="1.0.1" />
         <PackageReference Include="BldIt.Jobs.Contracts" Version="1.0.18-alpha" />
         <PackageReference Include="BldIt.Shared" Version="1.0.8" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />

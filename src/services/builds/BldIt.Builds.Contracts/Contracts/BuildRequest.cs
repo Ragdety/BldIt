@@ -1,3 +1,3 @@
 ﻿namespace BldIt.Builds.Contracts.Contracts;
 
-public record BuildRequest(Guid BuildConfigId, int BuildNumber);
+public record BuildRequest(Guid BuildId, Guid BuildConfigId, int BuildNumber);

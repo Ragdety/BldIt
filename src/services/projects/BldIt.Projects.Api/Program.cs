@@ -6,6 +6,7 @@ using BldIt.Api.Shared.MassTransit;
 using BldIt.Api.Shared.Middlewares;
 using BldIt.Api.Shared.MongoDb;
 using BldIt.Api.Shared.Services.Auth;
+using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
@@ -19,8 +20,8 @@ builder.Logging.ConfigureAndAddSerilog(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddUriService();
 
-//Configure bldit workspace paths
-builder.Services.AddBldItWorkspacePathConfig(builder.Configuration);
+//Configure bldit workspace paths and file services
+builder.Services.AddFileServices(builder.Configuration);
 
 //Swagger Settings
 var serviceSettings = builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();

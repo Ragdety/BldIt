@@ -13,9 +13,6 @@ namespace BldIt.Projects.Core.Repos
         public async Task<Project?> GetByNameAsync(string projectName) =>
             await GetAsync(p => p.ProjectName == projectName);
 
-        public override async Task<IReadOnlyCollection<Project>> GetAllAsync() =>
-            await GetAllAsync(p => !p.Deleted);
-
         public async Task<bool> Exists(string projectName) => await GetByNameAsync(projectName) != null;
         
         public async Task<bool> DoesUserHaveProjectsAsync(Guid userId)
@@ -28,7 +25,7 @@ namespace BldIt.Projects.Core.Repos
         public async Task<IEnumerable<Project>?> GetProjectsCreatedByUserAsync(Guid userId)
         {
             if (!await DoesUserHaveProjectsAsync(userId)) return null;
-            return await DbCollection.Find(p => p.CreatorId == userId).ToListAsync();
+            return await DbCollection.Find(p => p.CreatorId == userId && !p.Deleted).ToListAsync();
         }
         
         public async Task<bool> IsUserOwnerOfProject(Guid userId, Guid projectId)

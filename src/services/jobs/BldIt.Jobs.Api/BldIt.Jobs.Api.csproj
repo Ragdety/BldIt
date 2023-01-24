@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BldIt.Api.Shared" Version="1.0.42" />
-        <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.19-alpha" />
+        <PackageReference Include="BldIt.Api.Shared" Version="1.0.45" />
+        <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.37-alpha" />
         <PackageReference Include="BldIt.Projects.Contracts" Version="1.0.11-alpha" />
         <PackageReference Include="MassTransit" Version="8.0.8" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.6" />

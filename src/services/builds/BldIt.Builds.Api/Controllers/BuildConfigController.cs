@@ -112,6 +112,14 @@ public class BuildConfigController : ApiController
         var buildConfigInstance = _uriService.GetBuildConfigsUri(projectId, jobName).AbsoluteUri;
         var job = await EnsureJobExists(projectId, jobName, buildConfigInstance);
         var buildConfig = await EnsureBuildConfigExists(job.Name, configId, buildConfigInstance);
+
+        if (job.Id != buildConfig.JobId)
+        {
+            throw new ProblemDetailsException(new InstanceNotFound(
+                "Build Config does not exist within this job",
+                buildConfigInstance,
+                _uriService));
+        }
         
         var buildSteps = 
             await _buildStepsRepo.GetAllAsync(s => s.Id.BuildConfigId == buildConfig.Id);

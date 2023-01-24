@@ -1,5 +1,4 @@
 using BldIt.Api.Shared;
-using BldIt.Api.Shared.Config;
 using BldIt.Api.Shared.Hosting;
 using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.MassTransit;
@@ -13,7 +12,6 @@ using BldIt.Api.Shared.Swagger;
 using BldIt.Builds.Contracts.Keys;
 using BldIt.Builds.Core.Models;
 using BldIt.Builds.Core.Repos;
-using BldIt.Shared.Processes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,10 +42,6 @@ builder.Services.AddMongoRepository<BuildStep, BuildStepKey>(BldItApiConstants.S
 
 //MassTransit
 builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
-
-//File Services
-builder.Services.AddBldItWorkspacePathConfig(builder.Configuration);
-//builder.Services.AddFileServices(builder.Configuration);
 
 //Middlewares
 builder.Services.AddTransient<ProblemDetailsExceptionHandlingMiddleware>();

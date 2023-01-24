@@ -47,6 +47,8 @@ public class BuildController : ApiController
         [FromRoute] string jobName,
         CancellationToken cancellationToken)
     {
+        //Cancellation Token here is used to cancel a build that has not been started yet but is in the queue
+        
         var buildInstance = _uriService.GetBuildUri(projectId, jobName).AbsolutePath;
         
         /*
@@ -67,7 +69,7 @@ public class BuildController : ApiController
         }
 
         //This will get the latest build config by default
-        var buildConfig = await _buildConfigsRepository.GetAsync(job.Id);
+        var buildConfig = await _buildConfigsRepository.GetBuildConfigForJobAsync(job.Id);
         
         if (buildConfig is null)
         {
@@ -89,16 +91,24 @@ public class BuildController : ApiController
         //In the UpdateLatestBuild consumer
         await _publishEndpoint.Publish(new UpdateLatestBuild(build.Id), cancellationToken);
         
-        //This will be read by the Jobs service to update the latest build in the respective job
+        //This will be read by the Jobs and this service to update the latest build in the respective job
+        //Also the worker service so it keeps track of builds created to identify them when running a build
         await _publishEndpoint.Publish(
             new BuildCreated(build.Id, build.Status.ToString(), build.Number, build.JobId), cancellationToken);
 
         //We will only send the message to the scheduler here requesting a build
-        await _publishEndpoint.Publish(new BuildRequest(buildConfig.Id, build.Number), cancellationToken);
+        await _publishEndpoint.Publish(new BuildRequest(build.Id, buildConfig.Id, build.Number), cancellationToken);
 
         var buildStatusUri = _uriService.GetBuildByNumberUri(projectId, jobName, build.Number);
         return Accepted(buildStatusUri);
     }
+
+    // public Task<IActionResult> CancelBuild()
+    // {
+    //     //We will use this endpoint to cancel a build that is already running. Somehow? IDK yet
+    //     //TODO: Implement this
+    //     throw new NotImplementedException();
+    // }
 
     [HttpGet(Routes.Builds.GetBuildByNumber)]
     public async Task<IActionResult> GetBuildByNumber(
@@ -124,5 +134,54 @@ public class BuildController : ApiController
         }
         
         return Ok(build);
+    }
+    
+    [HttpGet(Routes.Builds.GetAll)]
+    public async Task<IActionResult> GetAllBuildsForJob([FromRoute] Guid projectId, [FromRoute] string jobName)
+    {
+        var job = await _jobsRepository.GetAsync(j => j.Name == jobName && j.ProjectId == projectId);
+        if (job is null)
+        {
+            throw new ProblemDetailsException(
+                new InstanceNotFound($"Job with name '{jobName}' was not found", 
+                    Routes.Builds.GetAll
+                        .Replace("{projectId}", projectId.ToString())
+                        .Replace("{jobName}", jobName), 
+                    _uriService));
+        }
+        
+        var builds = await _buildsRepo.GetAllAsync(b => b.JobId == job.Id);
+        return Ok(builds);
+    }
+    
+    //TODO: Let BldIt admin only see this (retrieves all builds for all jobs)
+    [HttpGet("api/v1/builds")]
+    public async Task<IActionResult> GetAllBuilds() => Ok(await _buildsRepo.GetAllAsync());
+    
+    //TODO: Let Project Admin Role only do this
+    [HttpDelete(Routes.Builds.GetAll)]
+    public async Task<IActionResult> DeleteAllBuildsForJob([FromRoute] Guid projectId, [FromRoute] string jobName)
+    {
+        var job = await _jobsRepository.GetAsync(j => j.Name == jobName && j.ProjectId == projectId);
+        if (job is null)
+        {
+            throw new ProblemDetailsException(
+                new InstanceNotFound($"Job with name '{jobName}' was not found", 
+                    Routes.Builds.GetAll
+                        .Replace("{projectId}", projectId.ToString())
+                        .Replace("{jobName}", jobName), 
+                    _uriService));
+        }
+        
+        var builds = await _buildsRepo.GetAllAsync(b => b.JobId == job.Id);
+        foreach (var build in builds)
+        {
+            await _buildsRepo.RemoveAsync(build.Id);
+        }
+        
+        //This will be read by jobs service so it can update the last build number back to 0
+        await _publishEndpoint.Publish(new JobBuildsDeleted(job.Id));
+        
+        return NoContent();
     }
 }

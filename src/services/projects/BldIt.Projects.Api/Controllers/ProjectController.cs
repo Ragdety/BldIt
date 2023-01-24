@@ -21,26 +21,26 @@ namespace BldIt.Projects.Service.Controllers
     {
         private readonly IProjectRepo _projectsRepository;
         private readonly UriService _uriService;
-        private readonly BldItWorkspacePathConfig _bldItWorkspacePathConfig;
+        private readonly BldItWorkspaceConfig _bldItWorkspaceConfig;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly ILogger<ProjectController> _logger;
 
         public ProjectController(
             IProjectRepo projectsRepository,
             UriService uriService, 
-            BldItWorkspacePathConfig bldItWorkspacePathConfig, 
+            BldItWorkspaceConfig bldItWorkspaceConfig, 
             IPublishEndpoint publishEndpoint, 
             ILogger<ProjectController> logger)
         {
             _projectsRepository = projectsRepository;
             _uriService = uriService;
-            _bldItWorkspacePathConfig = bldItWorkspacePathConfig;
+            _bldItWorkspaceConfig = bldItWorkspaceConfig;
             _publishEndpoint = publishEndpoint;
             _logger = logger;
         }
         
         [HttpGet(Routes.Projects.GetAll)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllUserProjects()
         {
             var projects = 
                 await _projectsRepository.GetProjectsCreatedByUserAsync(Guid.Parse(UserId));
@@ -79,7 +79,7 @@ namespace BldIt.Projects.Service.Controllers
         {
             var project = await EnsureProjectExists(projectName);
 
-            if (!await _projectsRepository.IsUserOwnerOfProject(Guid.Parse(UserId), project.Id))
+            if (!await _projectsRepository.IsUserOwnerOfProject(Guid.Parse(UserId), project!.Id))
                 throw Log403Throw404(projectName);
             
             return Ok(project);
@@ -108,8 +108,7 @@ namespace BldIt.Projects.Service.Controllers
                     _uriService));
             }
 
-            var projPath = Path.Combine(_bldItWorkspacePathConfig.ProjectsPath, projectToCreate.ProjectName);
-            EnsureProjectWorkspaceExists(projPath);
+            var projPath = Path.Combine(_bldItWorkspaceConfig.ProjectsPath(), projectToCreate.ProjectName);
 
             var project = new Project
             {
@@ -134,7 +133,7 @@ namespace BldIt.Projects.Service.Controllers
         {
             var project = await EnsureProjectExists(projectId);
             
-            if (!await _projectsRepository.IsUserOwnerOfProject(Guid.Parse(UserId), project.Id))
+            if (!await _projectsRepository.IsUserOwnerOfProject(Guid.Parse(UserId), project!.Id))
                 throw Log403Throw404(projectId.ToString());
 
             //EnsureProjectWorkspaceDeleted(project.ProjectWorkspacePath);
@@ -200,18 +199,6 @@ namespace BldIt.Projects.Service.Controllers
             }
 
             return project;
-        }
-        
-        private static void EnsureProjectWorkspaceExists(string projectWorkspacePath)
-        {
-            if(!Directory.Exists(projectWorkspacePath))
-                Directory.CreateDirectory(projectWorkspacePath);
-        }
-        
-        private static void EnsureProjectWorkspaceDeleted(string projectWorkspacePath)
-        {
-            if(Directory.Exists(projectWorkspacePath))
-                Directory.Delete(projectWorkspacePath, true);
         }
 
         /// <summary>
