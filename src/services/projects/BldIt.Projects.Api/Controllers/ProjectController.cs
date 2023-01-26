@@ -115,7 +115,8 @@ namespace BldIt.Projects.Service.Controllers
                 ProjectName = projectToCreate.ProjectName,
                 UpdatedAt = DateTime.Now,
                 CreatorId = Guid.Parse(UserId),
-                ProjectWorkspacePath = projPath
+                ProjectWorkspacePath = projPath,
+                Description = projectToCreate.Description
             };
             
             await _projectsRepository.CreateAsync(project);
@@ -143,7 +144,28 @@ namespace BldIt.Projects.Service.Controllers
 
             return NoContent();
         }
-        
+
+        [HttpPut(Routes.Projects.Put)]
+        public async Task<IActionResult> Update([FromBody] ProjectUpdateDto projectToUpdate, [FromRoute] Guid projectId)
+        {
+            var existingProject = await EnsureProjectExists(projectId);
+            
+            //Update Project Information
+            existingProject!.ProjectName = projectToUpdate.ProjectName;
+            existingProject.Description = projectToUpdate.Description;
+            existingProject.ProjectWorkspacePath = projectToUpdate.ProjectWorkspacePath;
+            
+            await _projectsRepository.UpdateAsync(existingProject);
+            
+            //Publish project created event
+            await _publishEndpoint.Publish(new ProjectUpdated(existingProject.Id, existingProject.ProjectWorkspacePath));
+            
+            return Ok(existingProject);
+            
+            return Ok();//Replace Later
+        }
+
+
         private async Task<Project?> EnsureProjectExists(Guid projectId)
         {
             var project = await _projectsRepository.GetAsync(projectId);

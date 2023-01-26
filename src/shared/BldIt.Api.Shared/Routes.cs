@@ -25,6 +25,7 @@
             public const string GetQuery = ProjectsBase + "/search";
             public const string Post = ProjectsBase;
             public const string Delete = ProjectsBase + "/{projectId}";
+            public const string Put = ProjectsBase + "/{projectId}";
         }
 
         public struct Jobs

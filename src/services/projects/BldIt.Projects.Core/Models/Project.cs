@@ -12,5 +12,6 @@ namespace BldIt.Projects.Core.Models
         public string ProjectWorkspacePath { get; set; }
         //public ICollection<Job> Jobs { get; set; } = new List<Job>();
         public Guid CreatorId { get; set; }
+        public string Description { get; set; }
     }
 }
