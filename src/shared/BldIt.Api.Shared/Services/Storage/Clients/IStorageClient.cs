@@ -3,14 +3,20 @@
 public interface IStorageClient
 {
     /// <summary>
-    /// Store and save the file with the given name
+    /// Store and save the file with the given path
     /// </summary>
-    /// <param name="fileName">Name of the file to save</param>
+    /// <param name="filePath">Path of where to save the file</param>
     /// <param name="fileStream">File stream to save</param>
-    /// <param name="mime">Optional mime in case any storage client requires it</param>
     /// <returns>The path of the file to where it's saved</returns>
     /// <remarks>
     /// If the file is inside a S3 client, it will return the url to the file
     /// </remarks>
-    Task<string> SaveFileAsync(string fileName, Stream fileStream, string? mime = null);
+    Task<string> SaveFileAsync(string filePath, Stream fileStream);
+    
+    /// <summary>
+    /// Copies the specified file to the destination path
+    /// </summary>
+    /// <param name="sourcePath">Path of the file you want to copy</param>
+    /// <param name="destinationPath">Path of where you want the file to be copied at</param>
+    void CopyFile(string sourcePath, string destinationPath);
 }

@@ -94,7 +94,7 @@ public static class BldItApiConstants
 
         public const string BldItTempPrefix = "bldit_temp_";
         public const string BldItScriptPrefix = "bldit_script_";
-        public const string BldItScriptLogPrefix = "bldit_script_log_";
+        public const string BldItBuildLogPrefix = "bldit_build_log_";
         
         public const string BldItLogExtension = ".log";
         public const string BldItTempExtension = ".temp";
@@ -115,7 +115,7 @@ public static class BldItApiConstants
         
         public static string GenerateScriptLogFileName()
         {
-            return $"{BldItScriptLogPrefix}{DateTime.Now.Ticks}{BldItLogExtension}";
+            return $"{BldItBuildLogPrefix}{BldItLogExtension}";
         }
     }
 }

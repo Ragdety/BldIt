@@ -39,6 +39,12 @@ public class BldItWorkspaceConfig
         var buildsPath = Path.Combine(JobsPath(projectName), jobName, BuildsFolderName);
         return GetWorkspacePath(buildsPath);
     }
+    
+    public string BuildPath(string projectName, string jobName, int buildNumber)
+    {
+        var buildPath = Path.Combine(BuildsPath(projectName, jobName), buildNumber.ToString());
+        return GetWorkspacePath(buildPath);
+    }
 
     public string TempPath()
     {

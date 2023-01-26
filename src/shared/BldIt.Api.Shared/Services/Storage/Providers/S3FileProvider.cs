@@ -16,7 +16,7 @@ public class S3FileProvider : IFileProvider
         throw new NotImplementedException();
     }
 
-    public Task<string> SaveScriptLogAsync(Stream fileStream)
+    public void SaveBuildLogFromTemp(string buildFolderPath, string tempLogFileName)
     {
         throw new NotImplementedException();
     }

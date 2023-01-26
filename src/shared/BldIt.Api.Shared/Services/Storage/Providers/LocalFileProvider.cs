@@ -5,10 +5,12 @@ namespace BldIt.Api.Shared.Services.Storage.Providers;
 public class LocalFileProvider : IFileProvider
 {
     private readonly IStorageClient _client;
+    private readonly TemporaryFileStorage _tempFileStorage;
 
-    public LocalFileProvider(IStorageClient client)
+    public LocalFileProvider(IStorageClient client, TemporaryFileStorage tempFileStorage)
     {
         _client = client;
+        _tempFileStorage = tempFileStorage;
     }
 
     public async Task<string> SaveScriptAsync(Stream fileStream, BldItApiConstants.Files.ScriptTypeExtensions scriptType)
@@ -20,9 +22,22 @@ public class LocalFileProvider : IFileProvider
         return await _client.SaveFileAsync(scriptName, fileStream); 
     }
 
-    public async Task<string> SaveScriptLogAsync(Stream fileStream)
-    {
-        var logName = BldItApiConstants.Files.GenerateScriptLogFileName();
-        return await _client.SaveFileAsync(logName, fileStream);
+    /// <summary>
+    /// Saves the build log from the temp folder to the build folder
+    /// </summary>
+    /// <param name="buildFolderPath">The build folder path. Ex: "/projects/Proj1/jobs/TestJob/builds/3"</param>
+    /// <param name="tempLogFilePath">Location of the temporary log file</param>
+    /// <remarks>
+    /// The buildFolderPath will be given by BldItWorkspaceConfig BuildPath() function
+    /// </remarks>
+    public void SaveBuildLogFromTemp(string buildFolderPath, string tempLogFilePath)
+    { 
+        var buildLogName = BldItApiConstants.Files.GenerateScriptLogFileName();
+        var logPath = Path.Combine(buildFolderPath, buildLogName);
+        _client.CopyFile(tempLogFilePath, logPath);
+        
+        //Delete temp log file
+        var logName = Path.GetFileName(tempLogFilePath);
+        _tempFileStorage.DeleteTemporaryFile(logName);
     }
 }

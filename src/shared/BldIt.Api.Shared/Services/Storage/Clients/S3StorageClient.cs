@@ -11,7 +11,7 @@ public class S3StorageClient : IStorageClient
         _config = config;
     }
 
-    public Task<string> SaveFileAsync(string fileName, Stream fileStream, string? mime)
+    public Task<string> SaveFileAsync(string fileName, Stream fileStream)
     {
         //using var client = Client;
         // var request = new PutObjectRequest
@@ -27,7 +27,12 @@ public class S3StorageClient : IStorageClient
 
         throw new NotImplementedException();
     }
-    
+
+    public void CopyFile(string sourcePath, string destinationPath)
+    {
+        throw new NotImplementedException();
+    }
+
     // private string ObjectUrl(string fileName) =>
     //     $"{_settings.ServiceUrl}/{_settings.Bucket}/{_config.FilesPath()}/{fileName}";
 

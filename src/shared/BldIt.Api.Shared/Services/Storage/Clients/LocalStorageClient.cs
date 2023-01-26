@@ -11,13 +11,14 @@ public class LocalStorageClient : IStorageClient
         _config = config;
     }
     
-    public async Task<string> SaveFileAsync(string fileName, Stream fileStream, string? mime = null)
+    public async Task<string> SaveFileAsync(string filePath, Stream fileStream)
     {
-        //Save it to files path, to then move the returned save path file into its actual storage location,
-        //Such as the job folder, or the project folder or the builds folder
-        var savePath = Path.Combine(_config.FilesPath(), fileName);
-        await using var stream = File.Create(savePath);
+        await using var stream = File.Create(filePath);
         await fileStream.CopyToAsync(stream);
-        return savePath;
+        return filePath;
     }
+
+    public void CopyFile(string sourcePath, string destinationPath) => 
+        File.Copy(sourcePath, destinationPath);
+    
 }
