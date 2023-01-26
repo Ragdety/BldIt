@@ -1,7 +1,4 @@
-﻿using BldIt.Api.Shared.Interfaces;
-using BldIt.Builds.Contracts.Contracts;
-using BldIt.Builds.Contracts.Keys;
-using BldIt.BuildScheduler.Contracts.Contracts;
+﻿using BldIt.BuildScheduler.Contracts.Contracts;
 using BldIt.BuildWorker.Core.Interfaces;
 using BldIt.BuildWorker.Core.Services;
 using MassTransit;
@@ -30,7 +27,6 @@ public class BuildStartConsumer : IConsumer<StartBuildRequest>
         
         _logger.LogInformation("Attempting to start build {Request}", message);
 
-        //TODO: Wait here async until the build worker manager has capacity
         var addedWorker = await _buildWorkerManager.TryAddActiveWorkerAsync(message);
         
         //If it was successfully added, start the build

@@ -14,13 +14,11 @@ public class UpdateBuildResult : IConsumer<BuildResultUpdated>
     }
     
     //This consumer listens for builds that have finished execution
-    public Task Consume(ConsumeContext<BuildResultUpdated> context)
+    public async Task Consume(ConsumeContext<BuildResultUpdated> context)
     {
         var message = context.Message;
         
         //This will find the worker used for the current build and remove it from the list of active workers
-        _buildWorkerManager.RemoveActiveWorkerAsync(message.BuildId);
-        
-        return Task.CompletedTask;
+        await _buildWorkerManager.RemoveActiveWorkerAsync(message.BuildId);
     }
 }

@@ -79,6 +79,7 @@ public class BuildWorker : IBuildWorker
 
             //Otherwise send the failed signal and break out of the function.
             await UpdateBuildResultAsync(buildRequest, BuildResult.Failed);
+            await UpdateBuildLogFile(buildRequest, logFilePath);
             
             _logger.LogInformation("Build request {BuildRequest} has failed", buildRequest);
             
@@ -89,6 +90,7 @@ public class BuildWorker : IBuildWorker
         
         //If we reach this point, the build was successful.
         await UpdateBuildResultAsync(buildRequest, BuildResult.Success);
+        await UpdateBuildLogFile(buildRequest, logFilePath);
         _logger.LogInformation("Build request {BuildRequest} has succeeded", buildRequest);
     }
 
@@ -170,5 +172,10 @@ public class BuildWorker : IBuildWorker
             buildRequest.BuildConfigId, 
             buildRequest.BuildNumber, 
             buildResult));
+    }
+
+    private async Task UpdateBuildLogFile(StartBuildRequest buildRequest, string filePath)
+    {
+        await _publishEndpoint.Publish(new BuildLogFileUpdate(buildRequest.BuildId, filePath));
     }
 }
