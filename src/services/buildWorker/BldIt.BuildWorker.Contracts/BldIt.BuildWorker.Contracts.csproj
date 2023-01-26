@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.37-alpha" />
+      <PackageReference Include="BldIt.BuildScheduler.Contracts" Version="1.0.7" />
     </ItemGroup>
 
 </Project>

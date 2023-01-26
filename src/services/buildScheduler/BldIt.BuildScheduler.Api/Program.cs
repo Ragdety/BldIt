@@ -2,6 +2,7 @@ using BldIt.Api.Shared.Hosting;
 using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.MassTransit;
 using BldIt.Api.Shared.MongoDb;
+using BldIt.Api.Shared.Services.Queue;
 using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
@@ -35,7 +36,7 @@ builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
 // builder.Services.AddFileServices(builder.Configuration);
 
 //Other services
-builder.Services.AddSingleton<IBuildQueue, BuildQueue>();
+builder.Services.AddBldItQueue<Func<CancellationToken, Task>>();
 builder.Services.AddUriService();
 
 var app = builder.Build();

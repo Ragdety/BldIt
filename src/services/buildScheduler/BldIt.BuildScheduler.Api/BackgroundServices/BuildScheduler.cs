@@ -1,14 +1,14 @@
-﻿using BldIt.BuildScheduler.Core.Interfaces;
+﻿using BldIt.Api.Shared.Interfaces;
 
 namespace BldIt.BuildScheduler.Api.BackgroundServices;
 
 public class BuildScheduler : BackgroundService
 {
-    private readonly IBuildQueue _buildQueue;
+    private readonly IBldItQueue<Func<CancellationToken, Task>> _buildQueue;
     private readonly ILogger<BuildScheduler> _logger;
     private int _scheduledBuilds;
 
-    public BuildScheduler(IBuildQueue buildQueue, ILogger<BuildScheduler> logger)
+    public BuildScheduler(IBldItQueue<Func<CancellationToken, Task>> buildQueue, ILogger<BuildScheduler> logger)
     {
         _buildQueue = buildQueue;
         _logger = logger;
@@ -31,7 +31,7 @@ public class BuildScheduler : BackgroundService
                 }
             
                 //Redirect Build Request to Build Queue
-                var startBuild = await _buildQueue.DequeueBuildAsync(stoppingToken);
+                var startBuild = await _buildQueue.DequeueAsync(stoppingToken);
 
                 _logger.LogInformation("A build has been released by the {BuildScheduler} queue", nameof(BuildScheduler));
 
@@ -39,7 +39,7 @@ public class BuildScheduler : BackgroundService
                 await startBuild(stoppingToken);
             
                 _scheduledBuilds++;
-                _logger.LogInformation("BuildScheduler has scheduler {ScheduledBuilds} builds so far", _scheduledBuilds);
+                _logger.LogInformation("BuildScheduler has scheduled {ScheduledBuilds} builds so far", _scheduledBuilds);
             }
             catch (Exception e)
             {

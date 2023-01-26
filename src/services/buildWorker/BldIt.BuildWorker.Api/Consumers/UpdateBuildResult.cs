@@ -19,7 +19,7 @@ public class UpdateBuildResult : IConsumer<BuildResultUpdated>
         var message = context.Message;
         
         //This will find the worker used for the current build and remove it from the list of active workers
-        _buildWorkerManager.RemoveActiveWorker(message.BuildId);
+        _buildWorkerManager.RemoveActiveWorkerAsync(message.BuildId);
         
         return Task.CompletedTask;
     }

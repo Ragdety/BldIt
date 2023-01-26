@@ -2,6 +2,7 @@ using BldIt.Api.Shared.Hosting;
 using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.MassTransit;
 using BldIt.Api.Shared.MongoDb;
+using BldIt.Api.Shared.Services.Queue;
 using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
@@ -40,6 +41,19 @@ builder.Services.AddFileServices(builder.Configuration);
 
 //Other services
 builder.Services.AddSingleton<IBuildWorkerManager, BuildWorkerManager>();
+
+var settingsSection = builder.Configuration.GetSection(nameof(BldItWorkerSettings));
+var workerSettings = settingsSection.Get<BldItWorkerSettings>();
+
+if (workerSettings is null)
+{
+    throw new ArgumentNullException(nameof(workerSettings));
+}
+
+//This will bind BldItWorkerSettings to IOptionsMonitor
+builder.Services.Configure<BldItWorkerSettings>(settingsSection);
+
+builder.Services.AddSingleton<StartBuildRequestQueue>();
 builder.Services.AddScoped<IBuildWorker, BuildWorker>();
 builder.Services.AddTransient<ProcessService>();
 builder.Services.AddUriService();

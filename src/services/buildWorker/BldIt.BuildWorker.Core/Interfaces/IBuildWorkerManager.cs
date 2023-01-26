@@ -1,7 +1,11 @@
-﻿namespace BldIt.BuildWorker.Core.Interfaces;
+﻿using BldIt.BuildScheduler.Contracts.Contracts;
+
+namespace BldIt.BuildWorker.Core.Interfaces;
 
 public interface IBuildWorkerManager
 {
-    IBuildWorker AddActiveWorker(Guid buildId);
-    void RemoveActiveWorker(Guid buildId);
+    Task<bool> TryAddActiveWorkerAsync(StartBuildRequest buildRequest);
+    Task RemoveActiveWorkerAsync(Guid buildId);
+    IBuildWorker GetActiveWorker(Guid buildId);
+    bool MaxCapacityReached();
 }

@@ -1,7 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using BldIt.Api.Shared.Settings;
 using BldIt.BuildScheduler.Core.Interfaces;
-using Microsoft.Extensions.Options;
 
 namespace BldIt.BuildScheduler.Core.Services;
 
@@ -10,12 +8,10 @@ public sealed class BuildQueue : IBuildQueue
     private readonly ConcurrentQueue<Func<CancellationToken, Task>> _builds;
     private readonly SemaphoreSlim _signal;
 
-    public BuildQueue(IOptionsMonitor<BldItWorkerSettings> workerSettings)
+    public BuildQueue()
     {
         _builds = new ConcurrentQueue<Func<CancellationToken, Task>>();
-        
-        var workerSettingsValue = workerSettings.CurrentValue;
-        _signal = new SemaphoreSlim(workerSettingsValue.WorkerNumber);
+        _signal = new SemaphoreSlim(0);
     }
 
     public void QueueBuild(Func<CancellationToken, Task> task)
