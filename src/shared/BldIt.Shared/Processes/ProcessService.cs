@@ -1,5 +1,6 @@
 ﻿using BldIt.Shared.OSInformation;
 using CliWrap;
+using CliWrap.EventStream;
 
 namespace BldIt.Shared.Processes;
 
@@ -93,8 +94,21 @@ public class ProcessService : IProcessService
         var result = await cmd.ExecuteAsync(cancellationToken);
         return result.ExitCode;
     }
-    
-    
+
+    /// <summary>
+    /// Run the program with the specified properties returning an event collection to let the user handle the command events
+    /// </summary>
+    /// <param name="outputCallback">Callback to redirect the output asynchronously</param>
+    /// <param name="cancellationToken">Token to cancel execution </param>
+    /// <returns>An async enumerable of <see cref="CommandEvent"/>
+    /// that the user can loop through and listen for events
+    /// </returns>
+    public virtual IAsyncEnumerable<CommandEvent> ListenAsync(Func<string, Task>? outputCallback, CancellationToken cancellationToken)
+    {
+        var cmd = BuildCommonCommand();
+        cmd = AddPipedCommand(cmd, outputCallback);
+        return cmd.ListenAsync(cancellationToken: cancellationToken);
+    }
 
     private Command BuildCommonCommand()
     {
