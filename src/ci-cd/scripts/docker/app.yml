@@ -10,6 +10,8 @@ services:
       dockerfile: ./identity/Dockerfile
     ports:
       - "5000:5000"
+    volumes:
+      - bldithome:/app/bldit
   projects:
     container_name: projects-api
     image: latest/projects-api
@@ -19,6 +21,8 @@ services:
       dockerfile: ./projects/Dockerfile
     ports:
       - "5001:5001"
+    volumes:
+      - bldithome:/app/bldit
   jobs:
     container_name: jobs-api
     image: latest/jobs-api
@@ -28,6 +32,8 @@ services:
       dockerfile: ./jobs/Dockerfile
     ports:
       - "5002:5002"
+    volumes:
+      - bldithome:/app/bldit
   builds:
     container_name: builds-api
     image: latest/builds-api
@@ -37,6 +43,8 @@ services:
       dockerfile: ./builds/Dockerfile
     ports:
       - "5003:5003"
+    volumes:
+      - bldithome:/app/bldit
   buildScheduler:
     container_name: build-scheduler-api
     image: latest/build-scheduler-api
@@ -46,6 +54,8 @@ services:
       dockerfile: ./buildScheduler/Dockerfile
     ports:
       - "5004:5004"
+    volumes:
+      - bldithome:/app/bldit
   buildWorker:
     container_name: build-worker-api
     image: latest/build-worker-api
@@ -55,6 +65,8 @@ services:
       dockerfile: ./buildWorker/Dockerfile
     ports:
       - "5005:5005"
+    volumes:
+      - bldithome:/app/bldit
   files:
     container_name: files-api
     image: latest/files-api
@@ -64,7 +76,8 @@ services:
       dockerfile: ./files/Dockerfile
     ports:
       - "5006:5006"
+    volumes:
+      - bldithome:/app/bldit
   
 volumes:
-  mongodbdata: 
-  rabbitmqdata:
+  bldithome:
