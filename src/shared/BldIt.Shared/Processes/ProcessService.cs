@@ -93,6 +93,8 @@ public class ProcessService : IProcessService
         var result = await cmd.ExecuteAsync(cancellationToken);
         return result.ExitCode;
     }
+    
+    
 
     private Command BuildCommonCommand()
     {

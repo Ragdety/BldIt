@@ -6,12 +6,6 @@ using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
-using BldIt.Builds.Contracts.Keys;
-using BldIt.BuildWorker.Core.Hubs;
-using BldIt.BuildWorker.Core.Interfaces;
-using BldIt.BuildWorker.Core.Models;
-using BldIt.BuildWorker.Core.Services;
-using BldIt.Shared.Processes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,32 +23,16 @@ builder.Services.AddSwaggerWithAuth(serviceSettings.ServiceName, serviceSettings
 
 //MongoDB
 builder.Services.AddMongo();
-builder.Services.AddMongoRepository<WorkerBuildStep, BuildStepKey>(nameof(WorkerBuildStep));
-builder.Services.AddMongoRepository<WorkerBuild, Guid>(nameof(WorkerBuild));
+//builder.Services.AddMongoRepository<WorkerBuildStep, BuildStepKey>(nameof(WorkerBuildStep));
 
 //Mass Transit
 builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
 
 //File Services
+//This allows the FileService class to be monitored by IOptionsMonitor
 builder.Services.AddFileServices(builder.Configuration);
 
 //Other services
-builder.Services.AddSingleton<IBuildWorkerManager, BuildWorkerManager>();
-
-var settingsSection = builder.Configuration.GetSection(nameof(BldItWorkerSettings));
-var workerSettings = settingsSection.Get<BldItWorkerSettings>();
-
-if (workerSettings is null)
-{
-    throw new ArgumentNullException(nameof(workerSettings));
-}
-
-//This will bind BldItWorkerSettings to IOptionsMonitor
-builder.Services.Configure<BldItWorkerSettings>(settingsSection);
-
-builder.Services.AddSingleton<StartBuildRequestQueue>();
-builder.Services.AddScoped<IBuildWorker, BuildWorker>();
-builder.Services.AddTransient<ProcessService>();
 builder.Services.AddUriService();
 
 var app = builder.Build();
@@ -67,10 +45,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsDocker())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-app.MapHub<BuildStreamHub>("/buildStream");
-
 app.Run();

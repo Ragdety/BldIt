@@ -91,6 +91,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.BuildWorker.Core", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.BuildWorker.Api", "services\buildWorker\BldIt.BuildWorker.Api\BldIt.BuildWorker.Api.csproj", "{692C48A4-14F0-49E6-AB8F-33075B4CB40C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{CC91270F-6F74-4471-B731-FCA4B1659C56}"
+	ProjectSection(SolutionItems) = preProject
+		services\files\Build.bat = services\files\Build.bat
+		services\files\Dockerfile = services\files\Dockerfile
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Files.Api", "services\files\BldIt.Files.Api\BldIt.Files.Api.csproj", "{3E73DA64-E703-44B7-9E66-095945CA4850}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Files.Core", "services\files\BldIt.Files.Core\BldIt.Files.Core.csproj", "{38D93F2F-AA97-47AC-984E-DC9D47BB573B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Files.Contracts", "services\files\BldIt.Files.Contracts\BldIt.Files.Contracts.csproj", "{283C0FDA-9E8C-41F1-86DA-CAAB7D7C08E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +139,10 @@ Global
 		{2D592BBB-A6CE-48B2-801B-3D526B2BB3AB} = {B7FBA1D9-EA8A-4D76-B001-45EF5DA90CA1}
 		{688A2A07-18F6-4A5C-B26C-F4652E63FD07} = {B7FBA1D9-EA8A-4D76-B001-45EF5DA90CA1}
 		{692C48A4-14F0-49E6-AB8F-33075B4CB40C} = {B7FBA1D9-EA8A-4D76-B001-45EF5DA90CA1}
+		{CC91270F-6F74-4471-B731-FCA4B1659C56} = {4C2EFCA6-89B0-4B7A-B35E-8A2E1AFB2862}
+		{3E73DA64-E703-44B7-9E66-095945CA4850} = {CC91270F-6F74-4471-B731-FCA4B1659C56}
+		{38D93F2F-AA97-47AC-984E-DC9D47BB573B} = {CC91270F-6F74-4471-B731-FCA4B1659C56}
+		{283C0FDA-9E8C-41F1-86DA-CAAB7D7C08E7} = {CC91270F-6F74-4471-B731-FCA4B1659C56}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D04A97EE-E29D-4CB9-A2EA-D7185D9610E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -213,5 +229,17 @@ Global
 		{692C48A4-14F0-49E6-AB8F-33075B4CB40C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{692C48A4-14F0-49E6-AB8F-33075B4CB40C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{692C48A4-14F0-49E6-AB8F-33075B4CB40C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E73DA64-E703-44B7-9E66-095945CA4850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E73DA64-E703-44B7-9E66-095945CA4850}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E73DA64-E703-44B7-9E66-095945CA4850}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E73DA64-E703-44B7-9E66-095945CA4850}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38D93F2F-AA97-47AC-984E-DC9D47BB573B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38D93F2F-AA97-47AC-984E-DC9D47BB573B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38D93F2F-AA97-47AC-984E-DC9D47BB573B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38D93F2F-AA97-47AC-984E-DC9D47BB573B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{283C0FDA-9E8C-41F1-86DA-CAAB7D7C08E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{283C0FDA-9E8C-41F1-86DA-CAAB7D7C08E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{283C0FDA-9E8C-41F1-86DA-CAAB7D7C08E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{283C0FDA-9E8C-41F1-86DA-CAAB7D7C08E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -55,6 +55,15 @@ services:
       dockerfile: ./buildWorker/Dockerfile
     ports:
       - "5005:5005"
+  files:
+    container_name: files-api
+    image: latest/files-api
+    restart: always
+    build:
+      context: ../../../services
+      dockerfile: ./files/Dockerfile
+    ports:
+      - "5006:5006"
   
 volumes:
   mongodbdata: 

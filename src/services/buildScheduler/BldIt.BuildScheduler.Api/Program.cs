@@ -1,18 +1,11 @@
 using BldIt.Api.Shared.Hosting;
 using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.MassTransit;
-using BldIt.Api.Shared.MongoDb;
 using BldIt.Api.Shared.Services.Queue;
-using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
-using BldIt.Builds.Contracts.Keys;
 using BldIt.BuildScheduler.Api.BackgroundServices;
-using BldIt.BuildScheduler.Core.Interfaces;
-using BldIt.BuildScheduler.Core.Models;
-using BldIt.BuildScheduler.Core.Services;
-using BldIt.Shared.Processes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,9 +24,6 @@ builder.Services.AddSwaggerWithAuth(serviceSettings.ServiceName, serviceSettings
 
 //Mass Transit
 builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
-
-// //File Services
-// builder.Services.AddFileServices(builder.Configuration);
 
 //Other services
 builder.Services.AddBldItQueue<Func<CancellationToken, Task>>();
