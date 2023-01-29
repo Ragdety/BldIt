@@ -2,6 +2,7 @@ using BldIt.Api.Shared.Hosting;
 using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.MassTransit;
 using BldIt.Api.Shared.MongoDb;
+using BldIt.Api.Shared.Services.Queue;
 using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
@@ -53,7 +54,12 @@ if (workerSettings is null)
 builder.Services.Configure<BldItWorkerSettings>(settingsSection);
 
 builder.Services.AddSingleton<StartBuildRequestQueue>();
+// builder.Services.AddSingleton<IBuildWorkerHubConnectionManager, BuildWorkerHubConnectionManager>();
+builder.Services.AddSingleton<BuildLogRegistry>();
+
 builder.Services.AddScoped<IBuildWorker, BuildWorker>();
+
+builder.Services.AddBldItQueue<string>();
 builder.Services.AddTransient<ProcessService>();
 builder.Services.AddUriService();
 
@@ -66,11 +72,19 @@ if (app.Environment.IsDevelopment() || app.Environment.IsDocker())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseCors(b =>
+{
+    b.WithOrigins("http://localhost:3000")
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+});
+
 app.MapControllers();
+
 app.MapHub<BuildStreamHub>("/buildStream");
 
 app.Run();

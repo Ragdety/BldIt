@@ -10,6 +10,7 @@ using BldIt.BuildWorker.Core.Interfaces;
 using BldIt.BuildWorker.Core.Models;
 using BldIt.Shared.OSInformation;
 using BldIt.Shared.Processes;
+using CliWrap.EventStream;
 using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ public class BuildWorker : IBuildWorker
     private readonly ILogger<BuildWorker> _logger;
     private readonly IHubContext<BuildStreamHub> _buildHub;
     private readonly TemporaryFileStorage _temporaryFileStorage;
+    private readonly BuildLogRegistry _buildLogRegistry;
 
     public BuildWorker(
         ProcessService processService, 
@@ -31,7 +33,8 @@ public class BuildWorker : IBuildWorker
         IPublishEndpoint publishEndpoint, 
         ILogger<BuildWorker> logger, 
         IHubContext<BuildStreamHub> buildHub, 
-        TemporaryFileStorage temporaryFileStorage)
+        TemporaryFileStorage temporaryFileStorage, 
+        BuildLogRegistry buildLogRegistry)
     {
         _processService = processService;
         _buildStepsRepository = buildStepsRepository;
@@ -39,12 +42,17 @@ public class BuildWorker : IBuildWorker
         _logger = logger;
         _buildHub = buildHub;
         _temporaryFileStorage = temporaryFileStorage;
+        _buildLogRegistry = buildLogRegistry;
     }
 
-    // public int ProcessId { get; set; }
+    private int CurrentProcessId { get; set; }
+    public bool IsWorking { get; set; }
+    public Guid WorkingBuildId { get; set; }
 
     public async Task StartBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken)
     {
+        IsWorking = true;
+        WorkingBuildId = buildRequest.BuildId;
         _logger.LogInformation("Starting build request {BuildRequest}", buildRequest);
         
         await UpdateBuildStatusAsync(buildRequest, BuildStatus.Starting);
@@ -74,14 +82,8 @@ public class BuildWorker : IBuildWorker
             {
                 _logger.LogError(e, "Error running build step command \'{BuildStepCommand}\'", buildStep.Command);
             }
-            
-            //TODO: Move the log file into its actual save location for this build
 
-            //Otherwise send the failed signal and break out of the function.
-            await UpdateBuildResultAsync(buildRequest, BuildResult.Failed);
-            await UpdateBuildLogFile(buildRequest, logFilePath);
-            
-            _logger.LogInformation("Build request {BuildRequest} has failed", buildRequest);
+            await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath);
             
             //At this stage, the build worker is done doing its work.
             //We'll let the other services handle the build update by listening to the BuildResultUpdated event.
@@ -89,13 +91,14 @@ public class BuildWorker : IBuildWorker
         }
         
         //If we reach this point, the build was successful.
-        await UpdateBuildResultAsync(buildRequest, BuildResult.Success);
-        await UpdateBuildLogFile(buildRequest, logFilePath);
-        _logger.LogInformation("Build request {BuildRequest} has succeeded", buildRequest);
+        await CleanUpAsync(buildRequest, BuildResult.Success, logFilePath);
     }
 
     public async Task CancelBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken)
     {
+        //If it's done, just do nothing
+        if (!IsWorking) return;
+        
         _logger.LogInformation("Cancelling build request {BuildRequest}", buildRequest);
         await UpdateBuildStatusAsync(buildRequest, BuildStatus.Aborting);
         
@@ -113,7 +116,10 @@ public class BuildWorker : IBuildWorker
         await StartBuildAsync(buildRequest, cancellationToken);
     }
     
-    private async Task<int> RunBuildStepAsync(WorkerBuildStep buildStep, string logFilePath, CancellationToken cancellationToken)
+    private async Task<int> RunBuildStepAsync(
+        WorkerBuildStep buildStep, 
+        string logFilePath,
+        CancellationToken cancellationToken)
     {
         var extension = buildStep.Type switch 
         {
@@ -124,8 +130,6 @@ public class BuildWorker : IBuildWorker
 
         var scriptContent = buildStep.Command;
         var scriptFilePath = await _temporaryFileStorage.CreateTemporaryScriptFileAsync(scriptContent, extension);
-
-        //await using var fs = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
         if (OsInfo.IsLinux())
         {
@@ -139,15 +143,37 @@ public class BuildWorker : IBuildWorker
 
         _processService.OutputLogPath = logFilePath;
 
-        //Sends process output to all clients listening (frontend in this case)
-        // async Task OutputHandler(string output)
-        // {
-        //     //await fs.WriteAsync(Encoding.UTF8.GetBytes(output), cancellationToken);
-        //     await _buildHub.Clients.All.SendAsync("ReceiveMessage", output, cancellationToken: cancellationToken);
-        // }
-
         _logger.LogInformation("Executing temporary script file \'{ScriptFilePath}\'", scriptFilePath);
-        var exitCode = await _processService.RunAsync(cancellationToken);
+
+        var exitCode = 0;
+        var output = "";
+        
+        //Run the command and listen for events
+        await foreach (var cmdEvent in _processService.ListenAsync(null, cancellationToken))
+        {
+            switch (cmdEvent)
+            {
+                case StartedCommandEvent started:
+                    CurrentProcessId = started.ProcessId;
+                    _logger.LogDebug("Step running with process id {ProcessId}", CurrentProcessId);
+                    break;
+                case StandardOutputCommandEvent stdOut:
+                    output = stdOut.Text;
+                    break;
+                case StandardErrorCommandEvent stdErr:
+                    output = stdErr.Text;
+                    break;
+                case ExitedCommandEvent exited:
+                    exitCode = exited.ExitCode;
+                    break;
+            }
+
+            //Append the log into log registry so new users who join the log room can see previous logs
+            _buildLogRegistry.AppendBuildLog(WorkingBuildId, output);
+            
+            //Sends process output to groups listening (if any)
+            await _buildHub.Clients.Group(WorkingBuildId.ToString()).SendAsync("BuildOutputReceived", output, cancellationToken: cancellationToken);
+        }
 
         _logger.LogInformation("Deleting temporary script file \'{ScriptFilePath}\'", scriptFilePath);
         var script = Path.GetFileName(scriptFilePath);
@@ -177,5 +203,22 @@ public class BuildWorker : IBuildWorker
     private async Task UpdateBuildLogFile(StartBuildRequest buildRequest, string filePath)
     {
         await _publishEndpoint.Publish(new BuildLogFileUpdate(buildRequest.BuildId, filePath));
+    }
+    
+    private async Task CleanUpAsync(StartBuildRequest buildRequest, BuildResult buildResult, string logFilePath)
+    {
+        if (buildResult == BuildResult.Failed)
+        {
+            await UpdateBuildResultAsync(buildRequest, BuildResult.Failed);
+            _logger.LogInformation("Build request {BuildRequest} has failed", buildRequest);
+        }
+        else
+        {
+            await UpdateBuildResultAsync(buildRequest, BuildResult.Success);
+            _logger.LogInformation("Build request {BuildRequest} has succeeded", buildRequest);
+        }
+
+        await UpdateBuildLogFile(buildRequest, logFilePath);
+        IsWorking = false;
     }
 }

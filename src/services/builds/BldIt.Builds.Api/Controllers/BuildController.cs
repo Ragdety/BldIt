@@ -77,19 +77,21 @@ public class BuildController : ApiController
                 new InstanceNotFound($"Build config for job '{jobName}' was not found", buildInstance, _uriService));
         }
 
+        var oldLastBuildNumber = job.LastBuildNumber;
+
         var build = new Build
         {
             JobId = job.Id,
             Status = BuildStatus.Waiting,
-            Number = job.LastBuildNumber + 1,
-            IsLatest = false //IsLatest will be updated below
+            Number = oldLastBuildNumber + 1,
+            IsLatest = true
         };
         
         await _buildsRepo.CreateAsync(build);
         
         //This will update the old build object to set IsLatest to false and the new build object to set IsLatest to true
         //In the UpdateLatestBuild consumer
-        await _publishEndpoint.Publish(new UpdateLatestBuild(build.Id), cancellationToken);
+        await _publishEndpoint.Publish(new UpdateLatestBuild(job.Id, oldLastBuildNumber), cancellationToken);
         
         //This will be read by the Jobs and this service to update the latest build in the respective job
         //Also the worker service so it keeps track of builds created to identify them when running a build
@@ -100,7 +102,7 @@ public class BuildController : ApiController
         await _publishEndpoint.Publish(new BuildRequest(build.Id, buildConfig.Id, build.Number), cancellationToken);
 
         var buildStatusUri = _uriService.GetBuildByNumberUri(projectId, jobName, build.Number);
-        return Accepted(buildStatusUri);
+        return Accepted(buildStatusUri, build);
     }
 
     // public Task<IActionResult> CancelBuild()

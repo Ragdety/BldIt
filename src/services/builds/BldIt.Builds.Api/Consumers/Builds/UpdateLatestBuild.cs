@@ -14,17 +14,16 @@ public class UpdateLatestBuild : IConsumer<Contracts.Contracts.UpdateLatestBuild
 
     public async Task Consume(ConsumeContext<Contracts.Contracts.UpdateLatestBuild> context)
     {
-        var latestBuildId = context.Message.Id;
+        var message = context.Message;
+
+        var oldLatestBuild = await _buildsRepo.GetAsync(b => 
+            b.JobId == message.JobId && b.Number == message.OldBuildNumber);
 
         //Update the old latest build from being the latest
-        var oldLatestBuild = await _buildsRepo.GetLatestAsync();
         if (oldLatestBuild is not null)
         {
             oldLatestBuild.IsLatest = false;
             await _buildsRepo.UpdateAsync(oldLatestBuild);
         }
-
-        //Set the new latest build
-        await _buildsRepo.SetLatestAsync(latestBuildId);
     }
 }

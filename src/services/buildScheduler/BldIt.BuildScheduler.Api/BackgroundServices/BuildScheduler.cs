@@ -29,7 +29,7 @@ public class BuildScheduler : BackgroundService
                     _logger.LogInformation("BuildScheduler scheduled {ScheduledBuilds} builds total", _scheduledBuilds);
                     return;
                 }
-            
+                
                 //Redirect Build Request to Build Queue
                 var startBuild = await _buildQueue.DequeueAsync(stoppingToken);
 
