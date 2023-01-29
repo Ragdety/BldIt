@@ -71,6 +71,7 @@ public class BuildWorkerManager : IBuildWorkerManager
 
     public IBuildWorker GetActiveWorker(Guid buildId) => ActiveBuildWorkers[buildId];
     
+    public bool HasActiveWorker(Guid buildId) => ActiveBuildWorkers.ContainsKey(buildId);
 
     /// <summary>
     /// Deallocates a worker from a build
