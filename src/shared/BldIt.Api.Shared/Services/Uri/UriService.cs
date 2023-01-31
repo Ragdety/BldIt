@@ -10,6 +10,23 @@ namespace BldIt.Api.Shared.Services.Uri
         {
             _baseUri = baseUri;
         }
+        
+        public System.Uri GetGitHubConfig(Guid configId)
+        {
+            return new System.Uri(_baseUri + Routes.GitHub.Configs.Get
+                .Replace("{configId}", configId.ToString()));
+        }
+        
+        public System.Uri GetGitHubCredentialsUri()
+        {
+            return new System.Uri(_baseUri + Routes.GitHub.Credentials.GetAll);
+        }
+
+        public System.Uri GetGitHubCredential(Guid credId)
+        {
+            return new System.Uri(_baseUri + Routes.GitHub.Credentials.Get
+                .Replace("{credentialId}", credId.ToString()));
+        }
 
         public System.Uri GetBuildByNumberUri(Guid projectId, string jobName, int buildNumber)
         {
