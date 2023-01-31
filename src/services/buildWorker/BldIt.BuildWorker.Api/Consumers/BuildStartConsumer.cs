@@ -9,16 +9,16 @@ public class BuildStartConsumer : IConsumer<StartBuildRequest>
 {
     private readonly ILogger<BuildStartConsumer> _logger;
     private readonly IBuildWorkerManager _buildWorkerManager;
-    private readonly StartBuildRequestQueue _buildQueue;
+    private readonly BuildLogRegistry _buildLogRegistry;
 
     public BuildStartConsumer(
         ILogger<BuildStartConsumer> logger, 
         IBuildWorkerManager buildWorkerManager, 
-        StartBuildRequestQueue buildQueue)
+        BuildLogRegistry buildLogRegistry)
     {
         _logger = logger;
         _buildWorkerManager = buildWorkerManager;
-        _buildQueue = buildQueue;
+        _buildLogRegistry = buildLogRegistry;
     }
     
     public async Task Consume(ConsumeContext<StartBuildRequest> context)
@@ -27,15 +27,15 @@ public class BuildStartConsumer : IConsumer<StartBuildRequest>
         
         _logger.LogInformation("Attempting to start build {Request}", message);
 
+        //The build worker manager will send a message that the max capacity has been reached
         var addedWorker = await _buildWorkerManager.TryAddActiveWorkerAsync(message);
-        
+
+        if (!addedWorker) return;
+
         //If it was successfully added, start the build
-        if (addedWorker)
-        {
-            var worker = _buildWorkerManager.GetActiveWorker(message.BuildId);
-            await worker.StartBuildAsync(message, CancellationToken.None);
-        }
+        var worker = _buildWorkerManager.GetActiveWorker(message.BuildId);
         
-        //Otherwise, the build worker manager will send a message that the max capacity has been reached
+        await worker.StartBuildAsync(message, CancellationToken.None);
+        
     }
 }

@@ -5,6 +5,7 @@ https://stackoverflow.com/questions/56077511/trigger-build-only-if-no-changes-on
 
 
 Docker:
+https://stackoverflow.com/questions/43181654/locating-data-volumes-in-docker-desktop-windows
 https://github.com/dotnet/dotnet-docker/blob/main/documentation/scenarios/nuget-credentials.md
 https://stackoverflow.com/questions/48821991/dockerfile-cant-see-local-file-or-private-nuget-server
 https://github.com/asc-lab/dotnetcore-microservices-poc/tree/master/scripts
@@ -21,6 +22,9 @@ https://github.com/thangchung/clean-architecture-dotnet
 https://blog.twitter.com/engineering/en_us/topics/infrastructure/2020/deleting-data-distributed-throughout-your-microservices-architecture
 https://www.bennorthrop.com/Essays/2021/microservices-architecture-and-deleting-data.php
 
+
+GitHub:
+https://stackoverflow.com/questions/7217894/moving-changed-files-to-another-branch-for-check-in
 
 Background services/queue: https://www.youtube.com/watch?v=aAVHUkdqUwM&ab_channel=RawCoding
 

@@ -104,6 +104,75 @@
             
             public const string GetLatest = BuildConfigsBase + "/latest";
         }
+        
+        public struct GitHub
+        {
+            public const string Version = "v1";
+            private const string Base = Root + "/" + Version;
+            private const string GitHubBase = Base + "/github";
+
+            public struct Credentials
+            {
+                private const string CredentialsBase = GitHubBase + "/credentials";
+                
+                public const string GetAll = CredentialsBase;
+                public const string Get = CredentialsBase + "/{credentialId}";
+                public const string Post = CredentialsBase;
+                public const string Delete = CredentialsBase + "/{credentialId}";
+            }
+            
+            public struct Configs
+            {
+                private const string ConfigsBase = GitHubBase + "/configs";
+                
+                public const string GetAll = ConfigsBase;
+                public const string Get = ConfigsBase + "/{configId}";
+                public const string Post = ConfigsBase;
+                public const string Delete = ConfigsBase + "/{configId}";
+            }
+            
+            public struct Repositories
+            {
+                private const string RepositoriesBase = GitHubBase + "/repositories";
+                
+                public const string GetAll = RepositoriesBase;
+                public const string Get = RepositoriesBase + "/{repositoryId}";
+            }
+            
+            public struct Webhooks
+            {
+                private const string WebhooksBase = GitHubBase + "/webhooks";
+                
+                public const string GetAll = WebhooksBase;
+                public const string Get = WebhooksBase + "/{webhookId}";
+                public const string Post = WebhooksBase;
+                public const string Delete = WebhooksBase + "/{webhookId}";
+            }
+            
+            public struct Branches
+            {
+                private const string BranchesBase = GitHubBase + "/branches";
+                
+                public const string GetAll = BranchesBase;
+                public const string Get = BranchesBase + "/{branchId}";
+            }
+            
+            public struct Commits
+            {
+                private const string CommitsBase = GitHubBase + "/commits";
+                
+                public const string GetAll = CommitsBase;
+                public const string Get = CommitsBase + "/{commitId}";
+            }
+            
+            public struct PullRequests
+            {
+                private const string PullRequestsBase = GitHubBase + "/pullRequests";
+                
+                public const string GetAll = PullRequestsBase;
+                public const string Get = PullRequestsBase + "/{pullRequestId}";
+            }
+        }
 
         public struct Docs
         {

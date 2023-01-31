@@ -8,7 +8,8 @@ public class UpdateBuildResult : IConsumer<BuildResultUpdated>
 {
     private readonly IBuildWorkerManager _buildWorkerManager;
     
-    public UpdateBuildResult(IBuildWorkerManager buildWorkerManager)
+    public UpdateBuildResult(
+        IBuildWorkerManager buildWorkerManager)
     {
         _buildWorkerManager = buildWorkerManager;
     }
@@ -17,8 +18,6 @@ public class UpdateBuildResult : IConsumer<BuildResultUpdated>
     public async Task Consume(ConsumeContext<BuildResultUpdated> context)
     {
         var message = context.Message;
-        
-        //This will find the worker used for the current build and remove it from the list of active workers
         await _buildWorkerManager.RemoveActiveWorkerAsync(message.BuildId);
     }
 }

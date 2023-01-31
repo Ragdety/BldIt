@@ -62,6 +62,13 @@ app.UseMiddleware<ProblemDetailsExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 
+app.UseCors(b =>
+{
+    b.WithOrigins("http://localhost:3000")
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+});
+
 app.MapControllers();
 
 app.Run();

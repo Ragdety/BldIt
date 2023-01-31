@@ -1,5 +1,4 @@
-﻿using BldIt.Api.Shared.Interfaces;
-using BldIt.Api.Shared.Settings;
+﻿using BldIt.Api.Shared.Settings;
 using BldIt.BuildScheduler.Contracts.Contracts;
 using BldIt.BuildWorker.Contracts.Contracts;
 using BldIt.BuildWorker.Core.Interfaces;
@@ -16,16 +15,19 @@ public class BuildWorkerManager : IBuildWorkerManager
     private readonly ILogger<BuildWorkerManager> _logger;
     private readonly int _maxWorkerCapacity;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly BuildLogRegistry _buildLogRegistry;
 
     public BuildWorkerManager(
         IServiceScopeFactory serviceScopeFactory, 
         ILogger<BuildWorkerManager> logger,
         IOptionsMonitor<BldItWorkerSettings> workerSettings, 
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint, 
+        BuildLogRegistry buildLogRegistry)
     {
         _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
         _publishEndpoint = publishEndpoint;
+        _buildLogRegistry = buildLogRegistry;
 
         var workerSettingsValue = workerSettings.CurrentValue;
         _maxWorkerCapacity = workerSettingsValue.WorkerNumber;
@@ -34,7 +36,7 @@ public class BuildWorkerManager : IBuildWorkerManager
         _logger.LogInformation("Max worker capacity set to {Capacity}", _maxWorkerCapacity);
     }
     
-    public Dictionary<Guid, IBuildWorker> ActiveBuildWorkers { get; }
+    private Dictionary<Guid, IBuildWorker> ActiveBuildWorkers { get; }
 
     /// <summary>
     /// Allocates a worker to a build. Publish a message if the max capacity has been reached
@@ -56,6 +58,10 @@ public class BuildWorkerManager : IBuildWorkerManager
             return false;
         }
         
+        //Create an empty room for this build to log to
+        _buildLogRegistry.CreateBuildLogRoom(buildRequest.BuildId);
+        _logger.LogInformation("Created build log room for build {BuildId}", buildRequest.BuildId);
+        
         ActiveBuildWorkers.Add(buildRequest.BuildId, buildWorker);
         
         _logger.LogInformation("Added worker to start build request {StartBuildRequest}", buildRequest);
@@ -64,6 +70,8 @@ public class BuildWorkerManager : IBuildWorkerManager
     }
 
     public IBuildWorker GetActiveWorker(Guid buildId) => ActiveBuildWorkers[buildId];
+    
+    public bool HasActiveWorker(Guid buildId) => ActiveBuildWorkers.ContainsKey(buildId);
 
     /// <summary>
     /// Deallocates a worker from a build
@@ -76,6 +84,10 @@ public class BuildWorkerManager : IBuildWorkerManager
         
         var sendAvailabilityMessage = MaxCapacityReached();
         ActiveBuildWorkers.Remove(buildId);
+        
+        _buildLogRegistry.RemoveBuildLogRoom(buildId);
+        _logger.LogInformation("Removed build log room for build {BuildId}", buildId);
+        _logger.LogInformation("Logs will be saved to build {BuildId} log file", buildId);
 
         if (sendAvailabilityMessage)
         {

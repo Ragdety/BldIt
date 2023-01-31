@@ -16,4 +16,9 @@
       <ProjectReference Include="..\BldIt.BuildWorker.Core\BldIt.BuildWorker.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Consumers\Builds" />
+      <Folder Include="Consumers\BuildWorker" />
+    </ItemGroup>
+
 </Project>
