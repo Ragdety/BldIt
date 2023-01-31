@@ -7,11 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Consumers" />
+      <PackageReference Include="BldIt.Api.Shared" Version="1.0.56" />
+      <PackageReference Include="BldIt.BuildWorker.Contracts" Version="1.0.3" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="BldIt.Api.Shared" Version="1.0.54" />
+      <ProjectReference Include="..\BldIt.Files.Contracts\BldIt.Files.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

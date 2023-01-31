@@ -88,6 +88,7 @@
             /// Intended to get a build within the entire database, admin only (most probably)
             /// </summary>
             public const string GetBuildById = Base + "/builds/{buildId}";
+
             public const string Build = BuildsBase + "/build";
         }
         
