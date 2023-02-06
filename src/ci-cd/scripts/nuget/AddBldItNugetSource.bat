@@ -1,7 +1,7 @@
 @echo off
 
 REM This script is used to add the Artifactory NuGet source to the NuGet.Config file
-set configFile=C:\Users\%USERNAME%\AppData\Roaming\NuGet.Config
+set configFile=C:\Users\%USERNAME%\AppData\Roaming\NuGet\NuGet.Config
 
 rem Get and set the url:
 set "psCommand=powershell -Command "$pword = read-host 'Enter BldIt JFrog Nuget Url' -AsSecureString ; ^
