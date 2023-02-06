@@ -19,14 +19,25 @@ This system is made with a **microservice** architecture using the following tec
 # BldIt CI-CD Pipeline Domain Specific Language
 BldIt DSL was moved to its own GitHub repository: https://github.com/Ragdety/BldIt.Language
 
-## Steps to run the application
+## Steps to run the application (Windows)
+### .NET 6
+Make sure you have .NET 6 installed first: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+
 ### Authorization
 You will need to ask for permission to be added to the JFrog artifactory in order to build the project with BldIt custom libraries.
 (You can raise an issue for this).
 I will only need your email and I will take care of giving you the auth details for your account.
+I will give you the following information for the nuget artifactory: url, username, password.
+
+> **Warning**: While I find a way to securely automate getting the credentials, new people will have to ask and I will manually add them to the artifactory and give it to them. Remember, this is just a senior project. The code and scripts are not production ready yet.
 
 ### NuGet Config
-(WIP)
+Once I give you the credentials and url, you will need to run the following script:
+* [`AddBldItNugetSource.bat`](src/ci-cd/scripts/nuget/AddBldItNugetSource.bat) asks for the credentials and adds them to the default NuGet.Config file. If 
+your NuGet.Config is located in a different folder, modify the configFile variable in the script accordingly:
+```batch
+set configFile=your/path/here/NuGet.Config
+```
 
 ## Running with Docker
 
