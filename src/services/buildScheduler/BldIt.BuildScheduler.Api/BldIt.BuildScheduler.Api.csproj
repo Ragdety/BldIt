@@ -7,9 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BldIt.Api.Shared" Version="1.0.51" />
+      <PackageReference Include="BldIt.Api.Shared" Version="1.0.56" />
       <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.38-alpha" />
-      <PackageReference Include="BldIt.Shared" Version="1.0.10" />
+      <PackageReference Include="BldIt.Shared" Version="1.0.17" />
     </ItemGroup>
 
     <ItemGroup>

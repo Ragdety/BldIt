@@ -186,4 +186,56 @@ public class BuildController : ApiController
         
         return NoContent();
     }
+    
+    [HttpGet(Routes.Builds.GetBuildLog)]
+    public async Task<IActionResult> GetBuildLogFile([FromRoute] Guid projectId, [FromRoute] string jobName, [FromRoute] int buildNumber)
+    {
+        //var build = await 
+        var buildInstance = _uriService.GetBuildByNumberUri(projectId, jobName, buildNumber).AbsolutePath;
+
+        var job = await _jobsRepository.GetAsync(j => j.Name == jobName && j.ProjectId == projectId);
+        if (job is null)
+        {
+            throw new ProblemDetailsException(
+                new InstanceNotFound($"Job with name '{jobName}' was not found", buildInstance, _uriService));
+        }
+        
+        var build = await _buildsRepo.GetAsync(b => b.JobId == job.Id && b.Number == buildNumber);
+
+        if (build is null)
+        {
+            throw new ProblemDetailsException(
+                new InstanceNotFound($"Build '{buildNumber}' was not found", buildInstance, _uriService));
+        }
+
+        if (build.LogFilePath is null)
+        {
+            throw new ProblemDetailsException(
+                new InstanceNotFound($"Log File Path for Build '{buildNumber}' was not found", buildInstance, _uriService));
+        }
+
+        var ms = new MemoryStream();
+        await using (FileStream file = new FileStream(build.LogFilePath, FileMode.Open, FileAccess.Read))
+            await file.CopyToAsync(ms);
+        
+        return File(ms, "text/plain");
+    }
+    
+    /*[HttpGet("download")]
+    public IActionResult GetBlobDownload([FromQuery] string link)
+    {
+        var net = new System.Net.WebClient();
+        var data = net.DownloadData(link);
+        var content = new System.IO.MemoryStream(data);
+        var contentType = "APPLICATION/octet-stream";
+        var fileName = "something.bin";
+        return File(content, contentType, fileName);
+    }*/
+    
+   /* public ActionResult DownloadDocument(string filePath, string fileName)
+    {    
+        byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+    
+        return File(fileBytes, "application/force-download", fileName);   
+    }*/
 }
