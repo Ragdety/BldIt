@@ -9,16 +9,13 @@ public class BuildStartConsumer : IConsumer<StartBuildRequest>
 {
     private readonly ILogger<BuildStartConsumer> _logger;
     private readonly IBuildWorkerManager _buildWorkerManager;
-    private readonly BuildLogRegistry _buildLogRegistry;
 
     public BuildStartConsumer(
         ILogger<BuildStartConsumer> logger, 
-        IBuildWorkerManager buildWorkerManager, 
-        BuildLogRegistry buildLogRegistry)
+        IBuildWorkerManager buildWorkerManager)
     {
         _logger = logger;
         _buildWorkerManager = buildWorkerManager;
-        _buildLogRegistry = buildLogRegistry;
     }
     
     public async Task Consume(ConsumeContext<StartBuildRequest> context)
