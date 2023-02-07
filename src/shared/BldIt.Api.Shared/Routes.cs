@@ -121,6 +121,14 @@
                 public const string Delete = CredentialsBase + "/{credentialId}";
             }
             
+            public struct Auth
+            {
+                private const string AuthBase = GitHubBase;
+                
+                public const string Login = AuthBase + "/login";
+                public const string Logout = AuthBase + "/logout";
+            }
+            
             public struct Configs
             {
                 private const string ConfigsBase = GitHubBase + "/configs";
