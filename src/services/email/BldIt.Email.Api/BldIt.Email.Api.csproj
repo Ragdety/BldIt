@@ -8,6 +8,20 @@
 
     <ItemGroup>
       <PackageReference Include="BldIt.Api.Shared" Version="1.0.58" />
+      <PackageReference Include="SendGrid" Version="9.28.1" />
+      <PackageReference Include="SendGrid.Extensions.DependencyInjection" Version="1.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Controllers" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Controllers\EmailController.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BldIt.Email.Contracts\BldIt.Email.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

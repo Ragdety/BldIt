@@ -10,7 +10,7 @@
     <ItemGroup>
         <PackageReference Include="BldIt.Api.Shared" Version="1.0.56" />
         <PackageReference Include="BldIt.BuildScheduler.Contracts" Version="1.0.7" />
-        <PackageReference Include="BldIt.BuildWorker.Contracts" Version="1.0.3" />
+        <PackageReference Include="BldIt.BuildWorker.Contracts" Version="1.0.5" />
         <PackageReference Include="BldIt.Jobs.Contracts" Version="1.0.37-alpha" />
         <PackageReference Include="BldIt.Shared" Version="1.0.17" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
