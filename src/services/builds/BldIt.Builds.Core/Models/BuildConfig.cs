@@ -1,4 +1,5 @@
 ﻿using BldIt.Api.Shared.Interfaces;
+using BldIt.Builds.Contracts.Enums;
 
 namespace BldIt.Builds.Core.Models;
 
@@ -10,4 +11,5 @@ public class BuildConfig : IEntity<Guid>
 
     //To which job this build config belongs
     public Guid JobId { get; set; }
+    public BuildTrigger BuildTrigger { get; set; }
 }
