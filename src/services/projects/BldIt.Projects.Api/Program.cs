@@ -1,5 +1,5 @@
+using System.Text.Json.Serialization;
 using BldIt.Api.Shared;
-using BldIt.Api.Shared.Config;
 using BldIt.Api.Shared.Hosting;
 using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.MassTransit;
@@ -17,7 +17,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ConfigureAndAddSerilog(builder.Configuration);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opts =>
+    {
+        var enumConverter = new JsonStringEnumConverter();
+        opts.JsonSerializerOptions.Converters.Add(enumConverter);
+    });
 builder.Services.AddUriService();
 
 //Configure bldit workspace paths and file services

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using BldIt.Api.Shared.Hosting;
 using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.Middlewares;
@@ -15,7 +16,12 @@ builder.Logging.ConfigureAndAddSerilog(builder.Configuration);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opts =>
+    {
+        var enumConverter = new JsonStringEnumConverter();
+        opts.JsonSerializerOptions.Converters.Add(enumConverter);
+    });
 builder.Services.AddUriService();
 
 var serviceSettings = 
@@ -58,6 +64,13 @@ app.UseHttpsRedirection();
 app.UseMiddleware<ProblemDetailsExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
+
+app.UseCors(b =>
+{
+    b.WithOrigins("http://localhost:3000")
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+});
 
 app.MapControllers();
 
