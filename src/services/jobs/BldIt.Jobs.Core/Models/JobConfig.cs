@@ -16,4 +16,7 @@ public abstract class JobConfig : IEntity<Guid>
     
     public string? JobWorkspacePath { get; set; }
     public Guid JobId { get; set; }
+
+    //Null if no SCM is configured, this will be set if GitHub is configured
+    public Guid? ScmId { get; set; } = null;
 }
