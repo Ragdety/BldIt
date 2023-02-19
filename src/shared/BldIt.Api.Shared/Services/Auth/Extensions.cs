@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using BldIt.Identity.Core.Settings;
+using BldIt.Api.Shared.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
