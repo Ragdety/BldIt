@@ -1,14 +1,17 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BldIt.Api.Shared.Interfaces;
+using BldIt.Api.Shared.Settings;
 using BldIt.Identity.Contracts.Dtos;
 using BldIt.Identity.Contracts.Results;
 using BldIt.Identity.Core.Helpers;
 using BldIt.Identity.Core.Interfaces;
 using BldIt.Identity.Core.Models;
-using BldIt.Identity.Core.Settings;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace BldIt.Identity.Core.Repos
@@ -22,13 +25,22 @@ namespace BldIt.Identity.Core.Repos
         //We can directly use UserManager since we injected it
         private readonly UserManager<User> _userManager;
         private readonly JwtSettings _jwtSettings;
+        private readonly TokenValidationParameters _tokenValidationParameters;
+        private readonly IRepository<RefreshToken, Guid> _refreshTokenRepository;
+        private readonly ILogger<IdentityManager> _logger;
 
         public IdentityManager(
             UserManager<User> userManager, 
-            JwtSettings jwtSettings)
+            JwtSettings jwtSettings, 
+            TokenValidationParameters tokenValidationParameters, 
+            IRepository<RefreshToken, Guid> refreshTokenRepository, 
+            ILogger<IdentityManager> logger)
         {
             _userManager = userManager;
             _jwtSettings = jwtSettings;
+            _tokenValidationParameters = tokenValidationParameters;
+            _refreshTokenRepository = refreshTokenRepository;
+            _logger = logger;
         }
         
         public async Task<AuthenticationResult> RegisterAsync(RegisterUserDto userToRegister)
@@ -71,7 +83,7 @@ namespace BldIt.Identity.Core.Repos
                 };
             }
 
-            return GenerateAuthResult(newUser);
+            return await GenerateAuthResultAsync(newUser);
         }
 
         public async Task<AuthenticationResult> LoginAsync(LoginUserDto loginUserToLogin)
@@ -100,16 +112,110 @@ namespace BldIt.Identity.Core.Repos
                 };
             }
 
-            return GenerateAuthResult(user);
+            return await GenerateAuthResultAsync(user);
         }
 
-        //TODO: implement later
-        public Task<AuthenticationResult> RefreshTokenAsync(string token, string refreshToken)
+        public async Task<AuthenticationResult> RefreshTokenAsync(RefreshTokenDto refreshTokenDto)
         {
-            throw new NotImplementedException();
+            var validatedToken = GetPrincipalFromToken(refreshTokenDto.Token);
+            if (validatedToken is null)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "Invalid Token" }
+                };
+            }
+            
+            var expiryDateUnix = long.Parse(validatedToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
+            var expiryDateUtc = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                .AddSeconds(expiryDateUnix);
+            
+            if (expiryDateUtc > DateTime.UtcNow)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "This token hasn't expired yet" }
+                };
+            }
+            
+            var jti = validatedToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
+            var storedRefreshToken = await _refreshTokenRepository.GetAsync(x => x.Id == refreshTokenDto.RefreshToken);
+            
+            if (storedRefreshToken is null)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "This token does not exist" }
+                };
+            }
+
+            if (DateTime.UtcNow > storedRefreshToken.ExpiresAt)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "This token has expired" }
+                };
+            }
+            
+            if (storedRefreshToken.Invalidated)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "This token has been invalidated" }
+                };
+            }
+            
+            if (storedRefreshToken.Used)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "This token has been used" }
+                };
+            }
+            
+            if (storedRefreshToken.JwtId != jti)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "This token does not match this JWT" }
+                };
+            } 
+
+            storedRefreshToken.Used = true;
+            await _refreshTokenRepository.UpdateAsync(storedRefreshToken);
+            
+            var user = await _userManager.FindByIdAsync(validatedToken.Claims.Single(x => x.Type == "id").Value);
+            return await GenerateAuthResultAsync(user);
+        }
+
+        private ClaimsPrincipal? GetPrincipalFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, _tokenValidationParameters, out var validatedToken);
+
+                if (IsJwtWithValidSecurityAlgorithm(validatedToken)) return principal;
+                
+                _logger.LogWarning("Jwt has invalid security algorithm");
+                return null;
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Error while validating token");
+                return null;
+            }
         }
         
-        private AuthenticationResult GenerateAuthResult(User newUser)
+        private static bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+        {
+            return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
+                   jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
+                       StringComparison.InvariantCultureIgnoreCase);
+        }
+        
+        private async Task<AuthenticationResult> GenerateAuthResultAsync(User newUser)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
@@ -126,17 +232,28 @@ namespace BldIt.Identity.Core.Repos
                     new Claim("lastName", newUser.LastName),
                     new Claim("id", newUser.Id.ToString()),
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(60),
+                Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),
                 SigningCredentials =
                     new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
+            
+            var refreshToken = new RefreshToken
+            {
+                JwtId = token.Id,
+                UserId = newUser.Id,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddMonths(6)
+            };
+            
+            await _refreshTokenRepository.CreateAsync(refreshToken);
 
             return new AuthenticationResult
             {
                 Success = true,
                 Token = tokenHandler.WriteToken(token),
+                RefreshToken = refreshToken.Id,
                 ValidFrom = token.ValidFrom.ToLocalTime(),
                 ValidTo = token.ValidTo.ToLocalTime()
             };

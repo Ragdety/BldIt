@@ -8,18 +8,14 @@
 
     <ItemGroup>
       <PackageReference Include="AspNetCore.Identity.MongoDbCore" Version="3.1.2" />
-      <PackageReference Include="BldIt.Api.Shared" Version="1.0.56" />
-      <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.25.0" />
+      <PackageReference Include="BldIt.Api.Shared" Version="1.0.62" />
+      <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.27.0" />
       <PackageReference Include="MongoDbGenericRepository" Version="1.4.8" />
-      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.27.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\BldIt.Identity.Contracts\BldIt.Identity.Contracts.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Settings" />
     </ItemGroup>
 
 </Project>

@@ -7,7 +7,9 @@ using BldIt.Api.Shared.Services.Auth;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
+using BldIt.Identity.Core.Interfaces;
 using BldIt.Identity.Core.Models;
+using BldIt.Identity.Core.Repos;
 using BldIt.Identity.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +36,7 @@ builder.Services.AddSwaggerWithBldItService(serviceSettings.ServiceName, service
 builder.Services.AddTransient<ProblemDetailsExceptionHandlingMiddleware>();
 
 builder.Services.AddMongo();
-builder.Services.AddIdentityRepositories();
+builder.Services.AddScoped<IIdentityManager, IdentityManager>();
 
 var mongoDbSettings = builder.Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
 builder.Services.AddIdentity<User, Role>(options =>
@@ -47,6 +49,8 @@ builder.Services.AddIdentity<User, Role>(options =>
     })
     .AddRoles<Role>()
     .AddMongoDbStores<User, Role, Guid>(mongoDbSettings.ConnectionString, mongoDbSettings.Name);
+
+builder.Services.AddMongoRepository<RefreshToken, Guid>(nameof(RefreshToken));
 
 builder.Services.AddBldItAuth(builder.Configuration);
 

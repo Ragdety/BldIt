@@ -7,5 +7,5 @@ public interface IIdentityManager
 {
     Task<AuthenticationResult> RegisterAsync(RegisterUserDto userToRegister);
     Task<AuthenticationResult> LoginAsync(LoginUserDto userToLogin);
-    Task<AuthenticationResult> RefreshTokenAsync(string token, string refreshToken);
+    Task<AuthenticationResult> RefreshTokenAsync(RefreshTokenDto refreshTokenDto);
 }

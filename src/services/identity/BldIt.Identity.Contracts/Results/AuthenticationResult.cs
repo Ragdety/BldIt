@@ -3,6 +3,7 @@
     public class AuthenticationResult
     {
         public string Token { get; set; }
+        public Guid RefreshToken { get; set; }
         public DateTime ValidFrom { get; set; }
         public DateTime ValidTo { get; set; }
         //public string RefreshToken { get; set; }
