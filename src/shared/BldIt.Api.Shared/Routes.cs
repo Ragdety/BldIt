@@ -12,6 +12,7 @@
 
             public const string Register = IdentityBase + "/register";
             public const string Login = IdentityBase + "/login";
+            public const string Refresh = IdentityBase + "/refresh";
         }
         
         public struct Projects
