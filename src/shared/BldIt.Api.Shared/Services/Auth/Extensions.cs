@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using BldIt.Api.Shared.Services.Auth.Utilities;
 using BldIt.Api.Shared.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +41,14 @@ public static class Extensions
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddCookie(c =>
+            {
+                c.Cookie.Name = RefreshTokenUtilities.CookieName;
+            })
+            .AddCookie(c =>
+            {
+                c.Cookie.Name = JwtTokenUtilities.CookieName;
             })
             .AddJwtBearer(x =>
             {
