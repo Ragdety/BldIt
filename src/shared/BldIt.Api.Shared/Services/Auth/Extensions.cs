@@ -31,7 +31,10 @@ public static class Extensions
             ValidateIssuer = false,
             ValidateAudience = false,
             RequireExpirationTime = false,
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            
+            //Remove default of 5 minutes, expire token right away
+            ClockSkew = TimeSpan.FromSeconds(0)
         };
         
         services.AddSingleton(tokenValidationParameters);
@@ -46,19 +49,23 @@ public static class Extensions
             {
                 c.Cookie.Name = JwtTokenUtilities.CookieName;
             })
+            .AddCookie(c =>
+            {
+                c.Cookie.Name = RefreshTokenUtilities.CookieName;
+            })
             .AddJwtBearer(x =>
             {
                 x.SaveToken = true;
                 x.TokenValidationParameters = tokenValidationParameters;
-                x.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var accessToken = context.Request.Cookies[JwtTokenUtilities.CookieName];
-                        context.Token = accessToken;
-                        return Task.CompletedTask;
-                    }
-                };
+                // x.Events = new JwtBearerEvents
+                // {
+                //     OnMessageReceived = context =>
+                //     {
+                //         var accessToken = context.Request.Cookies[JwtTokenUtilities.CookieName];
+                //         context.Token = accessToken;
+                //         return Task.CompletedTask;
+                //     }
+                // };
             });
         return services;
     }
