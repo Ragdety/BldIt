@@ -11,7 +11,7 @@ public class InvalidCredentials : ProblemDetails
     {
         Detail = detail;
         Instance = instance;
-        Status = StatusCodes.Status400BadRequest;
+        Status = StatusCodes.Status401Unauthorized;
         Title = ErrorTypeMessages.InvalidCredentials;
         Type = uriService.GetDocsErrorTypeUri(ErrorTypeMessages.InvalidCredentials).ToString();
     }
