@@ -45,14 +45,10 @@ public static class Extensions
                 x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddCookie(c =>
-            {
-                c.Cookie.Name = JwtTokenUtilities.CookieName;
-            })
-            .AddCookie(c =>
-            {
-                c.Cookie.Name = RefreshTokenUtilities.CookieName;
-            })
+            // .AddCookie(c =>
+            // {
+            //     c.Cookie.Name = JwtTokenUtilities.CookieName;
+            // })
             .AddJwtBearer(x =>
             {
                 x.SaveToken = true;
