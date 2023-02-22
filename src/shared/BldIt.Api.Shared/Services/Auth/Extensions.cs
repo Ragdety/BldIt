@@ -44,16 +44,21 @@ public static class Extensions
             })
             .AddCookie(c =>
             {
-                c.Cookie.Name = RefreshTokenUtilities.CookieName;
-            })
-            .AddCookie(c =>
-            {
                 c.Cookie.Name = JwtTokenUtilities.CookieName;
             })
             .AddJwtBearer(x =>
             {
                 x.SaveToken = true;
                 x.TokenValidationParameters = tokenValidationParameters;
+                x.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Cookies[JwtTokenUtilities.CookieName];
+                        context.Token = accessToken;
+                        return Task.CompletedTask;
+                    }
+                };
             });
         return services;
     }
