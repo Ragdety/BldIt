@@ -10,7 +10,6 @@ using BldIt.Api.Shared.Swagger;
 using BldIt.Identity.Core.Interfaces;
 using BldIt.Identity.Core.Models;
 using BldIt.Identity.Core.Repos;
-using BldIt.Identity.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +51,13 @@ builder.Services.AddIdentity<User, Role>(options =>
 
 builder.Services.AddMongoRepository<RefreshToken, Guid>(nameof(RefreshToken));
 
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+    options.CheckConsentNeeded = _ => true;
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
+
 builder.Services.AddBldItAuth(builder.Configuration);
 
 var app = builder.Build();
@@ -73,7 +79,8 @@ app.UseCors(b =>
 {
     b.WithOrigins("http://localhost:3000")
         .AllowAnyMethod()
-        .AllowAnyHeader();
+        .AllowAnyHeader()
+        .AllowCredentials();
 });
 
 app.MapControllers();

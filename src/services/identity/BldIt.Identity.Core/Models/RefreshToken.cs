@@ -10,6 +10,7 @@ public class RefreshToken : IEntity<Guid>
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
     public string JwtId { get; set; }
+    public string JwtValue { get; set; }
     public DateTime ExpiresAt { get; set; }
     
     public bool Used { get; set; }
