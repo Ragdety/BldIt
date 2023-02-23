@@ -71,9 +71,17 @@ if (app.Environment.IsDevelopment() || app.Environment.IsDocker())
     app.UseSwaggerUI();
 }
 
-app.UseRouting();
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseMiddleware<ProblemDetailsExceptionHandlingMiddleware>();
+
+app.UseCors(b =>
+{
+    b.WithOrigins("http://localhost:3000", "https://localhost:3000")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

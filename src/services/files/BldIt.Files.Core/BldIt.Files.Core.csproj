@@ -11,4 +11,8 @@
       <Folder Include="Repos" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="BldIt.Api.Shared" Version="1.0.67" />
+    </ItemGroup>
+
 </Project>
