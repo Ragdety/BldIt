@@ -75,7 +75,7 @@ stages:
         command: 'push'
         artifactoryService: 'Artifactory'
         targetRepo: 'bldit-docker-registry'
-        imageName: '$(nameTag)'
+        imageName: '$(fullTag)'
         collectBuildInfo: true
         buildName: '$(Build.DefinitionName)'
         buildNumber: '$(Build.BuildNumber)'
