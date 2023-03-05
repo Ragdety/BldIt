@@ -26,17 +26,31 @@ stages:
   - job: RestoreAndBuild
     displayName: Build $(serviceName)
     steps:
-    - task: DotNetCoreCLI@2
-      displayName: dotnet restore
-      # Setting env so NuGet.Config can access env variables
+    - task: NuGetAuthenticate@1
+      inputs:
+        nuGetServiceConnections: 'JFROG_NUGET_FEED'
+    - task: NuGetToolInstaller@1
+    - task: NuGetCommand@2
       env:
         NUGET_FEED_URL: $(NUGET_FEED_URL)
         NUGET_FEED_USERNAME: $(NUGET_FEED_USERNAME)
         NUGET_FEED_PASSWORD: $(NUGET_FEED_PASSWORD)
       inputs:
-        command: 'restore'
-        projects: '**/$(serviceName).Api.csproj'
-        nugetConfigPath: $(nugetConfig)
+        restoreDirectory: '**/$(serviceName).Api.csproj'
+        feedsToUse: 'config'
+        nugetConfigPath: '$(nugetConfig)'
+        # externalFeedCredentials: 'JFROG_NUGET_FEED'
+    # - task: DotNetCoreCLI@2
+    #   displayName: dotnet restore
+    #   # Setting env so NuGet.Config can access env variables
+    #   env:
+    #     NUGET_FEED_URL: $(NUGET_FEED_URL)
+    #     NUGET_FEED_USERNAME: $(NUGET_FEED_USERNAME)
+    #     NUGET_FEED_PASSWORD: $(NUGET_FEED_PASSWORD)
+    #   inputs:
+    #     command: 'restore'
+    #     projects: '**/$(serviceName).Api.csproj'
+    #     nugetConfigPath: $(nugetConfig)
     - task: DotNetCoreCLI@2
       displayName: dotnet build
       inputs:
