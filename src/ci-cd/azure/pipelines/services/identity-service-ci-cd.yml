@@ -1,0 +1,68 @@
+# Docker
+# Build a Docker image
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+# For now main pushes to test it
+trigger:
+- main
+
+resources:
+- repo: self
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  blditEnv: dev
+  dockerTag: '$(Build.BuildId)'
+  serviceName: 'BldIt.Identity'
+  serviceLocation: '$(Build.SourcesDirectory)/src/services/identity'
+  imageName: bldit-identity-api
+
+stages:
+- stage: DotNetBuild
+  jobs:
+  - job: RestoreAndBuild
+    displayName: Build $(serviceName)
+    steps:
+    - task: ArtifactoryDotnetCore@1
+      displayName: dotnet restore
+      inputs:
+        command: 'restore'
+        artifactoryService: 'Artifactory'
+        targetResolveRepo: 'BldIt-Nuget-Gallery'
+        rootPath: '**/$(serviceName).Api.csproj'
+        collectBuildInfo: true
+        buildName: '$(Build.DefinitionName)'
+        buildNumber: '$(Build.BuildNumber)'
+    - task: DotNetCoreCLI@2
+      displayName: dotnet build
+      inputs:
+        command: 'build'
+        projects: '**/$(serviceName).Api.csproj'
+
+- stage: DockerBuild
+  displayName: Build Docker $(serviceName) image
+  variables: 
+    tag: $(blditEnvironment)$(dockerTag)
+    nameTag: $(imageName):$(tag)
+  jobs:
+  - job: Build
+    displayName: Build Docker
+    steps:
+    - task: Docker@2
+      displayName: Build Docker $(serviceName)
+      inputs:
+        command: build
+        dockerfile: '$(serviceLocation)/Dockerfile'
+        arguments: '-t $(nameTag)'
+    - task: ArtifactoryDocker@1
+      inputs:
+        command: 'push'
+        artifactoryService: 'Artifactory'
+        targetRepo: 'bldit-docker-registry'
+        imageName: 'bldit.jfrog.io/bldit-docker-registry/$(nameTag)'
+        collectBuildInfo: true
+        buildName: '$(Build.DefinitionName)'
+        buildNumber: '$(Build.BuildNumber)'
+    
