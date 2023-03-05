@@ -16,6 +16,7 @@ variables:
   serviceLocation: '$(servicesDir)/identity'
   nugetConfig: $(Build.SourcesDirectory)/src/services/NuGet.Config
   imageName: bldit-identity-api
+  dockerRegistry: 'bldit.jfrog.io/bldit-docker-registry'
 
 
 stages:
@@ -54,6 +55,7 @@ stages:
   variables: 
     tag: $(blditEnv)$(dockerTag)
     nameTag: $(imageName):$(tag)
+    fullTag: '$(dockerRegistry)/$(nameTag)'
   jobs:
   - job: Build
     displayName: Build Docker
@@ -66,7 +68,7 @@ stages:
         arguments: '--build-arg NUGET_FEED_URL=$(NUGET_FEED_URL) 
         --build-arg NUGET_FEED_USERNAME=$(NUGET_FEED_USERNAME) 
         --build-arg NUGET_FEED_PASSWORD=$(NUGET_FEED_PASSWORD) 
-        -t $(nameTag)'
+        -t $(fullTag)'
         buildContext: '$(servicesDir)'
     - task: ArtifactoryDocker@1
       inputs:
