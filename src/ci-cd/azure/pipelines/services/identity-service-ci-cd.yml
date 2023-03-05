@@ -1,7 +1,3 @@
-# Docker
-# Build a Docker image
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 # For now main pushes to test it
 trigger:
 - main
@@ -55,7 +51,7 @@ stages:
 - stage: DockerBuild
   displayName: 'Build Docker image'
   variables: 
-    tag: $(blditEnvironment)$(dockerTag)
+    tag: $(blditEnv)$(dockerTag)
     nameTag: $(imageName):$(tag)
   jobs:
   - job: Build
