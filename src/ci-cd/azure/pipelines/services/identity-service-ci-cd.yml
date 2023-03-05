@@ -12,7 +12,8 @@ variables:
   blditEnv: dev
   dockerTag: '$(Build.BuildId)'
   serviceName: 'BldIt.Identity'
-  serviceLocation: '$(Build.SourcesDirectory)/src/services/identity'
+  servicesDir: '$(Build.SourcesDirectory)/src/services'
+  serviceLocation: '$(servicesDir)/identity'
   nugetConfig: $(Build.SourcesDirectory)/src/services/NuGet.Config
   imageName: bldit-identity-api
 
@@ -66,6 +67,7 @@ stages:
         --build-arg NUGET_FEED_USERNAME=$(NUGET_FEED_USERNAME) 
         --build-arg NUGET_FEED_PASSWORD=$(NUGET_FEED_PASSWORD) 
         -t $(nameTag)'
+        buildContext: '$(servicesDir)'
     - task: ArtifactoryDocker@1
       inputs:
         command: 'push'
