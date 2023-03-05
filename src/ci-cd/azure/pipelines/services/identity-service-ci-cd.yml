@@ -10,7 +10,7 @@ pool:
 
 variables:
   blditEnv: dev
-  dockerTag: '$(Build.BuildId)'
+  dockerTag: '$(Build.BuildNumber)'
   serviceName: 'BldIt.Identity'
   servicesDir: '$(Build.SourcesDirectory)/src/services'
   serviceLocation: '$(servicesDir)/identity'
@@ -72,7 +72,7 @@ stages:
       inputs:
         command: 'push'
         artifactoryService: 'Artifactory'
-        targetRepo: 'bldit.jfrog.io/bldit-docker-registry'
+        targetRepo: 'bldit-docker-registry'
         imageName: 'bldit.jfrog.io/$(nameTag)'
         collectBuildInfo: true
         buildName: '$(Build.DefinitionName)'
