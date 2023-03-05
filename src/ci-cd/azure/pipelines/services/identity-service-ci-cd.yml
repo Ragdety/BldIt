@@ -73,8 +73,7 @@ stages:
         command: 'push'
         artifactoryService: 'Artifactory'
         targetRepo: 'bldit-docker-registry'
-        imageName: 'bldit.jfrog.io/$(nameTag)'
+        imageName: 'bldit.jfrog.io/bldit-docker-registry/$(nameTag)'
         collectBuildInfo: true
         buildName: '$(Build.DefinitionName)'
         buildNumber: '$(Build.BuildNumber)'
-    
