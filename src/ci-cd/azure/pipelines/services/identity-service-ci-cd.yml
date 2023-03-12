@@ -1,6 +1,11 @@
-# For now main pushes to test it
+# Trigger when Identity changes
 trigger:
-- main
+  branches:
+    include:
+      - main
+  paths:
+      include:
+      - src/services/identity/*
 
 resources:
 - repo: self
