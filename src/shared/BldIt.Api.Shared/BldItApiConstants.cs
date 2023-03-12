@@ -65,6 +65,7 @@ public static class BldItApiConstants
     {
         // public const string User = IdentityServerConstants.LocalApi.PolicyName;
         public const string Admin = nameof(Admin);
+        public const string BldItCors = nameof(BldItCors);
     }
 
     public struct IdentityResources
