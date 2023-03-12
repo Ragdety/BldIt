@@ -1,0 +1,81 @@
+# For now main pushes to test it
+trigger:
+- main
+
+resources:
+- repo: self
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  blditEnv: dev
+  dockerTag: '$(Build.BuildNumber)'
+  serviceName: 'BldIt.Identity'
+  servicesDir: '$(Build.SourcesDirectory)/src/services'
+  serviceLocation: '$(servicesDir)/identity'
+  nugetConfig: $(Build.SourcesDirectory)/src/services/NuGet.Config
+  imageName: bldit-identity-api
+  dockerRegistry: 'bldit.jfrog.io/bldit-docker-registry'
+
+
+stages:
+- stage: DotNetBuild
+  jobs:
+  - job: RestoreAndBuild
+    displayName: 'Restore and Build'
+    steps:
+    - task: NuGetAuthenticate@1
+      inputs:
+        nuGetServiceConnections: 'JFROG_NUGET_FEED'
+    - task: NuGetToolInstaller@1
+    - task: DotNetCoreCLI@2
+      env:
+        NUGET_FEED_URL: '$(NUGET_FEED_URL)'
+        NUGET_FEED_USERNAME: '$(NUGET_FEED_USERNAME)'
+        NUGET_FEED_PASSWORD: '$(NUGET_FEED_PASSWORD)'
+      inputs:
+        command: restore
+        projects: '**/$(serviceName).Api.csproj'
+        feedsToUse: 'config'
+        nugetConfigPath: '$(nugetConfig)'
+    - task: DotNetCoreCLI@2
+      env:
+        NUGET_FEED_URL: '$(NUGET_FEED_URL)'
+        NUGET_FEED_USERNAME: '$(NUGET_FEED_USERNAME)'
+        NUGET_FEED_PASSWORD: '$(NUGET_FEED_PASSWORD)'
+      inputs:
+        command: build
+        projects: '**/$(serviceName).Api.csproj'
+        feedsToUse: 'config'
+        nugetConfigPath: '$(nugetConfig)'
+
+- stage: DockerBuild
+  displayName: 'Build Docker image'
+  variables: 
+    tag: $(blditEnv)$(dockerTag)
+    nameTag: $(imageName):$(tag)
+    fullTag: '$(dockerRegistry)/$(nameTag)'
+  jobs:
+  - job: Build
+    displayName: Build Docker
+    steps:
+    - task: Docker@2
+      displayName: 'Build Docker'
+      inputs:
+        command: build
+        dockerfile: '$(serviceLocation)/Dockerfile'
+        arguments: '--build-arg NUGET_FEED_URL=$(NUGET_FEED_URL) 
+        --build-arg NUGET_FEED_USERNAME=$(NUGET_FEED_USERNAME) 
+        --build-arg NUGET_FEED_PASSWORD=$(NUGET_FEED_PASSWORD) 
+        -t $(fullTag)'
+        buildContext: '$(servicesDir)'
+    - task: ArtifactoryDocker@1
+      inputs:
+        command: 'push'
+        artifactoryService: 'Artifactory'
+        targetRepo: 'bldit-docker-registry'
+        imageName: '$(fullTag)'
+        collectBuildInfo: true
+        buildName: '$(Build.DefinitionName)'
+        buildNumber: '$(Build.BuildNumber)'
