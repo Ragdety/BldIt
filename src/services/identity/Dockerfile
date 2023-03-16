@@ -17,9 +17,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal AS runtime
 WORKDIR /app
 
 ENV ASPNETCORE_ENVIRONMENT Docker
-ENV ASPNETCORE_URLS http://+:5000
 
 COPY --from=build /app ./
 
-EXPOSE 5000
+EXPOSE 80
 ENTRYPOINT ["dotnet", "BldIt.Identity.Api.dll"]

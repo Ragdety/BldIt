@@ -10,6 +10,8 @@ services:
       - "27017:27017"
     volumes:
       - mongodbdata:/data/db
+    networks:
+      blditapi:
 
   rabbitmq:
     image: rabbitmq:management
@@ -20,7 +22,12 @@ services:
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     hostname: rabbitmq
+    networks:
+      blditapi:
 
 volumes:
   mongodbdata:
   rabbitmqdata:
+
+networks:
+  blditapi:

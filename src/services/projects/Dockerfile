@@ -24,10 +24,9 @@ WORKDIR /app
 
 # So it takes the appsettings.Docker.json into consideration 
 ENV ASPNETCORE_ENVIRONMENT Docker
-ENV ASPNETCORE_URLS http://+:5001
 
 COPY --from=build /app ./
 
 # Run app in port:
-EXPOSE 5001
+EXPOSE 80
 ENTRYPOINT ["dotnet", "BldIt.Projects.Api.dll"]

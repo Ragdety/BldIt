@@ -9,7 +9,9 @@ services:
       context: ../../../services
       dockerfile: ./identity/Dockerfile
     ports:
-      - "5000:5000"
+      - "5000:80"
+    networks:
+      - blditapi
     volumes:
       - bldithome:/app/bldit
   projects:
@@ -20,7 +22,9 @@ services:
       context: ../../../services
       dockerfile: ./projects/Dockerfile
     ports:
-      - "5001:5001"
+      - "5001:80"
+    networks:
+      - blditapi
     volumes:
       - bldithome:/app/bldit
   jobs:
@@ -31,7 +35,9 @@ services:
       context: ../../../services
       dockerfile: ./jobs/Dockerfile
     ports:
-      - "5002:5002"
+      - "5002:80"
+    networks:
+      - blditapi
     volumes:
       - bldithome:/app/bldit
   builds:
@@ -42,7 +48,9 @@ services:
       context: ../../../services
       dockerfile: ./builds/Dockerfile
     ports:
-      - "5003:5003"
+      - "5003:80"
+    networks:
+      - blditapi
     volumes:
       - bldithome:/app/bldit
   buildScheduler:
@@ -53,7 +61,9 @@ services:
       context: ../../../services
       dockerfile: ./buildScheduler/Dockerfile
     ports:
-      - "5004:5004"
+      - "5004:80"
+    networks:
+      - blditapi
     volumes:
       - bldithome:/app/bldit
   buildWorker:
@@ -64,20 +74,43 @@ services:
       context: ../../../services
       dockerfile: ./buildWorker/Dockerfile
     ports:
-      - "5005:5005"
+      - "5005:80"
+    networks:
+      - blditapi
     volumes:
       - bldithome:/app/bldit
-  files:
-    container_name: files-api
-    image: latest/files-api
-    restart: always
+#  files:
+#    container_name: files-api
+#    image: latest/files-api
+#    restart: always
+#    build:
+#      context: ../../../services
+#      dockerfile: ./files/Dockerfile
+#    volumes:
+#      - bldithome:/app/bldit
+#    networks:
+#      - blditapi
+  bldit-api:
+    image: latest/bldit-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
     build:
-      context: ../../../services
-      dockerfile: ./files/Dockerfile
+      context: ../../../api
+      dockerfile: ./BldIt.Api/Dockerfile
     ports:
-      - "5006:5006"
-    volumes:
-      - bldithome:/app/bldit
+      - "4000:80"
+    networks:
+      - blditapi
+    depends_on:
+      - identity
+      - projects
+      - jobs
+      - builds
+      - buildScheduler
+      - buildWorker
+      # - files
   
 volumes:
   bldithome:
+networks:
+  blditapi:

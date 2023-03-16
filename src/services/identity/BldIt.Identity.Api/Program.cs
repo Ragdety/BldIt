@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using BldIt.Api.Shared.Cors;
 using BldIt.Api.Shared.Hosting;
 using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.Middlewares;
@@ -58,6 +59,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
+builder.Services.AddCors();
 builder.Services.AddBldItAuth(builder.Configuration);
 
 var app = builder.Build();
@@ -71,17 +73,13 @@ if (app.Environment.IsDevelopment() || app.Environment.IsDocker())
 
 app.UseRouting();
 app.UseHttpsRedirection();
+
 app.UseMiddleware<ProblemDetailsExceptionHandlingMiddleware>();
+app.UseBldItCors(builder.Configuration);
 
 app.UseAuthorization();
 
-app.UseCors(b =>
-{
-    b.WithOrigins("http://localhost:3000")
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
-});
+
 
 app.MapControllers();
 

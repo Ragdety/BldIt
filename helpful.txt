@@ -1,6 +1,19 @@
+Ocelot:
+https://medium.com/@sanchit.bhardwaj31/using-swagger-with-ocelot-api-gateway-11a5fa89ff12
+https://medium.com/aspnetrun/building-ocelot-api-gateway-microservices-with-asp-net-core-and-docker-container-13f96026e86c
+https://medium.com/@sanchit.bhardwaj31/using-swagger-with-ocelot-api-gateway-11a5fa89ff12
+
+
+Professional CI-CD Systems:
+https://github.com/actions/runner
+https://github.com/microsoft/azure-pipelines-agent
+
+
+
 Azure Pipelines:
 https://jfrog.com/blog/accelerate-azure-devops-or-tfs-with-jfrog-artifactory-and-nuget/
 https://stackoverflow.com/questions/56077511/trigger-build-only-if-no-changes-on-specified-folder-in-azure-pipelines
+https://adamtheautomator.com/azure-devops-variables/
 
 
 

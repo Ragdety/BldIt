@@ -1,11 +1,7 @@
-https://dev.to/gbengelebs/how-to-containerize-an-asp-netcore-api-and-mysql-with-docker-compose-1m5c
+https://adamtheautomator.com/azure-devops-variables/
 
 //Error handling (might consider using this approach if performance is an issue on a microservice)
 https://www.youtube.com/watch?v=a1ye9eGTB98&ab_channel=NickChapsas
-
-//CLI interactions:
-https://www.youtube.com/watch?v=Pt-0KM5SxmI&ab_channel=NickChapsas
-https://github.com/Tyrrrz/CliWrap
 
 
 Axios interceptors:

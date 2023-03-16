@@ -17,10 +17,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal AS runtime
 WORKDIR /app
 
 ENV ASPNETCORE_ENVIRONMENT Docker
-ENV ASPNETCORE_URLS http://+:5004
 
 COPY --from=build /app ./
 
-EXPOSE 5004
+EXPOSE 80
 USER root
 ENTRYPOINT ["dotnet", "BldIt.BuildScheduler.Api.dll"]

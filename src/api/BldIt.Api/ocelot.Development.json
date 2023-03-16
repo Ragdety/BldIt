@@ -1,0 +1,323 @@
+{
+  "GlobalConfiguration": {},
+  "SwaggerEndPoints": [
+    {
+      "Key": "identity",
+      "Config": [
+        {
+          "Name": "Identity API",
+          "Version": "v1",
+          "Url": "http://identity-api:80/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "projects",
+      "Config": [
+        {
+          "Name": "Projects API",
+          "Version": "v1",
+          "Url": "http://projects-api:80/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "jobs",
+      "Config": [
+        {
+          "Name": "Jobs API",
+          "Version": "v1",
+          "Url": "http://jobs-api:80/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "builds",
+      "Config": [
+        {
+          "Name": "Builds API",
+          "Version": "v1",
+          "Url": "http://builds-api:80/swagger/v1/swagger.json"
+        }
+      ]
+    }
+  ],
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/v1/identity/login",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "identity-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/identity/login",
+      "UpstreamHttpMethod": ["POST"],
+      "SwaggerKey": "identity"
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/identity/register",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "identity-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/identity/register",
+      "UpstreamHttpMethod": ["POST"],
+      "SwaggerKey": "identity"
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/identity/refresh",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "identity-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/identity/refresh",
+      "UpstreamHttpMethod": ["GET"],
+      "SwaggerKey": "identity"
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/identity/logout",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "identity-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/identity/logout",
+      "UpstreamHttpMethod": ["GET"],
+      "SwaggerKey": "identity"
+    },
+    
+    
+    
+    {
+      "DownstreamPathTemplate": "/api/v1/projects",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+        "Host": "projects-api",
+        "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects",
+      "UpstreamHttpMethod": ["GET", "POST"],
+      "AuthenticationOptions": {
+          "AuthenticationProviderKey": "Bearer",
+          "AllowedScopes": []
+      },
+      "SwaggerKey": "projects"
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+        "Host": "projects-api",
+        "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}",
+      "UpstreamHttpMethod": ["GET", "PUT", "DELETE"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "projects",
+      "Priority": 0
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/search",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "projects-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/search",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "projects",
+      "Priority": 0
+    },
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "jobs-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}",
+      "UpstreamHttpMethod": ["GET", "PUT"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "jobs",
+      "Priority": 1
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "jobs-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs",
+      "UpstreamHttpMethod": ["POST"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "jobs",
+      "Priority": 1
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/configs",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "jobs-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/configs",
+      "UpstreamHttpMethod": ["POST"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "jobs",
+      "Priority": 1
+    },
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/build",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/build",
+      "UpstreamHttpMethod": ["POST"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds/{buildNumber}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds/{buildNumber}",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds/{buildNumber}/log",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds/{buildNumber}/log",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs",
+      "UpstreamHttpMethod": ["POST"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs/{buildConfig}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs/{buildConfig}",
+      "UpstreamHttpMethod": ["POST", "GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    }
+  ]
+}

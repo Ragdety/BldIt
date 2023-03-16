@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using BldIt.Api.Shared;
+using BldIt.Api.Shared.Cors;
 using BldIt.Api.Shared.Hosting;
 using BldIt.Api.Shared.Logging.Serilog;
 using BldIt.Api.Shared.MassTransit;
@@ -39,6 +40,8 @@ builder.Services.AddSwaggerWithAuth(serviceSettings.ServiceName, serviceSettings
 //Middlewares
 builder.Services.AddTransient<ProblemDetailsExceptionHandlingMiddleware>();
 
+builder.Services.AddCors();
+
 //Add BldIt Auth config
 builder.Services.AddBldItAuth(builder.Configuration);
 
@@ -73,15 +76,9 @@ if (app.Environment.IsDevelopment() || app.Environment.IsDocker())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseMiddleware<ProblemDetailsExceptionHandlingMiddleware>();
 
-app.UseCors(b =>
-{
-    b.WithOrigins("http://localhost:3000", "https://localhost:3000")
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
-});
+app.UseMiddleware<ProblemDetailsExceptionHandlingMiddleware>();
+app.UseBldItCors(builder.Configuration);
 
 app.UseAuthentication();
 app.UseAuthorization();
