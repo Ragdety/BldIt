@@ -128,6 +128,7 @@
                 private const string AuthBase = GitHubBase;
                 
                 public const string Login = AuthBase + "/login";
+                public const string Callback = AuthBase + "/callback";
                 public const string Logout = AuthBase + "/logout";
             }
             

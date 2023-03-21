@@ -9,7 +9,10 @@ namespace BldIt.Api.Shared.Services.Uri
         public UriService(string baseUri)
         {
             _baseUri = baseUri;
+            BaseUri = baseUri;
         }
+
+        public string BaseUri { get; } 
         
         public System.Uri GetGitHubConfig(Guid configId)
         {
@@ -17,10 +20,10 @@ namespace BldIt.Api.Shared.Services.Uri
                 .Replace("{configId}", configId.ToString()));
         }
         
-        public System.Uri GetGitHubCredentialsUri()
-        {
-            return new System.Uri(_baseUri + Routes.GitHub.Credentials.GetAll);
-        }
+        public System.Uri GetGitHubCallbackUri() => new(_baseUri + Routes.GitHub.Auth.Callback);
+
+        public System.Uri GetGitHubCredentialsUri() => new(_baseUri + Routes.GitHub.Credentials.GetAll);
+        
 
         public System.Uri GetGitHubCredential(Guid credId)
         {

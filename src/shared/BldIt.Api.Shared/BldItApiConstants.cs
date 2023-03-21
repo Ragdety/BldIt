@@ -61,6 +61,16 @@ public static class BldItApiConstants
         }
     }
     
+    public struct CallbackPaths
+    {
+        public const string GitHub = "/signin-github";
+    }
+    
+    public struct AuthenticationSchemes
+    {
+        public const string GitHub = "GitHub";
+    }
+    
     public struct Policies
     {
         // public const string User = IdentityServerConstants.LocalApi.PolicyName;
