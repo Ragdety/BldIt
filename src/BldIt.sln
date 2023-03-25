@@ -104,6 +104,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Files.Contracts", "services\files\BldIt.Files.Contracts\BldIt.Files.Contracts.csproj", "{283C0FDA-9E8C-41F1-86DA-CAAB7D7C08E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{BBC42C56-1F26-42A9-AC3E-F5FB06A9908F}"
+	ProjectSection(SolutionItems) = preProject
+		services\github\Dockerfile = services\github\Dockerfile
+		services\github\Build.bat = services\github\Build.bat
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.GitHub.Contracts", "services\github\BldIt.GitHub.Contracts\BldIt.GitHub.Contracts.csproj", "{62CD8025-6AD2-465B-BBE8-42AA0366576A}"
 EndProject
@@ -118,6 +122,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Email.Core", "services\email\BldIt.Email.Core\BldIt.Email.Core.csproj", "{A25DD719-66CC-4159-9617-0DFC76662141}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Email.Contracts", "services\email\BldIt.Email.Contracts\BldIt.Email.Contracts.csproj", "{4D8E944B-1CBC-4F49-BBB0-845A947614FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{68A40AE4-DCAC-46E6-A181-342C5BE992C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BldIt.Api", "api\BldIt.Api\BldIt.Api.csproj", "{9CFA88C6-3780-4C0B-97B2-8BEE0E50B4C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -167,6 +175,8 @@ Global
 		{850A993E-264A-4099-A83A-ADB6B288C62C} = {48EEFA9D-CD54-49E9-BD0B-36448C4CE02D}
 		{A25DD719-66CC-4159-9617-0DFC76662141} = {48EEFA9D-CD54-49E9-BD0B-36448C4CE02D}
 		{4D8E944B-1CBC-4F49-BBB0-845A947614FD} = {48EEFA9D-CD54-49E9-BD0B-36448C4CE02D}
+		{68A40AE4-DCAC-46E6-A181-342C5BE992C8} = {AF3A7DF8-3D59-4199-AE17-7B2C1C771CFC}
+		{9CFA88C6-3780-4C0B-97B2-8BEE0E50B4C2} = {68A40AE4-DCAC-46E6-A181-342C5BE992C8}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D04A97EE-E29D-4CB9-A2EA-D7185D9610E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -289,5 +299,9 @@ Global
 		{4D8E944B-1CBC-4F49-BBB0-845A947614FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D8E944B-1CBC-4F49-BBB0-845A947614FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D8E944B-1CBC-4F49-BBB0-845A947614FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CFA88C6-3780-4C0B-97B2-8BEE0E50B4C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CFA88C6-3780-4C0B-97B2-8BEE0E50B4C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CFA88C6-3780-4C0B-97B2-8BEE0E50B4C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CFA88C6-3780-4C0B-97B2-8BEE0E50B4C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

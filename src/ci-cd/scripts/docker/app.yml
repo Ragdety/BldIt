@@ -86,10 +86,25 @@ services:
 #    build:
 #      context: ../../../services
 #      dockerfile: ./files/Dockerfile
+#    ports:
+#      - "5006:80"
 #    volumes:
 #      - bldithome:/app/bldit
 #    networks:
 #      - blditapi
+  github:
+    container_name: github-api
+    image: latest/github-api
+    restart: always
+    build:
+      context: ../../../services
+      dockerfile: ./github/Dockerfile
+    ports:
+      - "5007:80"
+    networks:
+      - blditapi
+    volumes:
+      - bldithome:/app/bldit
   bldit-api:
     image: latest/bldit-api
     environment:
@@ -101,14 +116,6 @@ services:
       - "4000:80"
     networks:
       - blditapi
-    depends_on:
-      - identity
-      - projects
-      - jobs
-      - builds
-      - buildScheduler
-      - buildWorker
-      # - files
   
 volumes:
   bldithome:
