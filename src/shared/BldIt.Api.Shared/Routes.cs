@@ -123,6 +123,17 @@
                 public const string Delete = CredentialsBase + "/{credentialId}";
             }
             
+            public struct Me
+            {
+                private const string MeBase = GitHubBase + "/me";
+                
+                public const string Get = MeBase;
+                
+                //To retrieve BldIt GitHub credential information
+                public const string MyCredential = MeBase + "/credential";
+                
+            }
+            
             public struct Auth
             {
                 private const string AuthBase = GitHubBase;

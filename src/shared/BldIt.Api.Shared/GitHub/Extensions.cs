@@ -23,7 +23,7 @@ public static class Extensions
                 o.ClientSecret = configuration["github:clientSecret"];
                 o.Scope.Add("read:user");
                 o.SaveTokens = true;
-
+                
                 o.Events.OnCreatingTicket = ctx =>
                 {
                     if (ctx.AccessToken is { })
@@ -34,7 +34,6 @@ public static class Extensions
                     
                     return Task.CompletedTask;
                 };
-
             });
 
         return services;
