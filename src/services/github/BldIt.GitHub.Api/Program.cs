@@ -9,6 +9,7 @@ using BldIt.Api.Shared.MassTransit;
 using BldIt.Api.Shared.Middlewares;
 using BldIt.Api.Shared.MongoDb;
 using BldIt.Api.Shared.Services.Auth;
+using BldIt.Api.Shared.Services.Http;
 using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
@@ -17,6 +18,7 @@ using BldIt.GitHub.Core.Interfaces;
 using BldIt.GitHub.Core.Models;
 using BldIt.GitHub.Core.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Octokit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,10 +84,18 @@ builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
 builder.Services.AddFileServices(builder.Configuration);
 builder.Services.AddCors();
 
-builder.Services.AddHttpClient<IGitHubService, GitHubService>(client =>
+builder.Services.AddHttpService(client =>
 {
     client.BaseAddress = new Uri("https://api.github.com");
+    client.DefaultRequestHeaders.Add("User-Agent", "BldIt");
 });
+builder.Services.AddScoped<IGitHubService, GitHubService>();
+builder.Services.AddSingleton(new GitHubClient(new ProductHeaderValue("BldIt")));
+
+// builder.Services.AddHttpClient<IGitHubService, GitHubService>(client =>
+// {
+//     client.BaseAddress = new Uri("https://api.github.com");
+// });
 
 builder.Services.AddUriService();
 

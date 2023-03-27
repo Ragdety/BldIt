@@ -1,56 +1,87 @@
-﻿using BldIt.GitHub.Core.Interfaces;
+﻿using System.Net;
+using BldIt.Api.Shared.Services.Http;
+using BldIt.GitHub.Core.Dtos;
+using BldIt.GitHub.Core.Interfaces;
 using BldIt.GitHub.Core.Models;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Serilog;
+using Octokit;
 
 namespace BldIt.GitHub.Core.Services;
 
 public class GitHubService : IGitHubService
 {
-    private readonly HttpClient _httpClient;
+    private readonly IHttpService _httpService;
+    private readonly GitHubClient _gitHubClient;
     private readonly ILogger<GitHubService> _logger;
     
-    public GitHubService(HttpClient httpClient, ILogger<GitHubService> logger)
+    public GitHubService(
+        IHttpService httpService, 
+        ILogger<GitHubService> logger, 
+        GitHubClient gitHubClient)
     {
-        _httpClient = httpClient;
+        _httpService = httpService;
         _logger = logger;
+        _gitHubClient = gitHubClient;
     }
     
-    public async Task<GitHubUser?> GetGitHubUser(string gitHubToken)
+    public async Task<IHttpContentResponse<GitHubUser, GitHubError>> GetGitHubUser(string gitHubToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, "/user");
         request.Headers.Add("Authorization", $"Bearer {gitHubToken}");
-        request.Headers.Add("User-Agent", "BldItGitHubServiceClient");
-        
-        var response = await _httpClient.SendAsync(request);
-        var responseContent = await response.Content.ReadAsStringAsync();
-        
-        //Return null if not successful
-        if (!response.IsSuccessStatusCode)
-        {
-            //TODO: Parse errors and return an error result
-            _logger.LogError("GitHub API returned an error: {@GitHubError}", responseContent);
-            return null;
-        }
-        
-        var gitHubUser = JsonConvert.DeserializeObject<GitHubUser>(responseContent);
-        return gitHubUser;
+        return await _httpService.RequestWithContent<GitHubUser, GitHubError>(request);
     }
 
-    // public async Task<IEnumerable<GitHubRepo>?> GetUserRepos(string token)
-    // {
-    //     //TODO: Get this from api:
-    //     var user = "Ragdety";
-    //     
-    //     var request = new HttpRequestMessage(HttpMethod.Get, $"/users/{user}/repos");
-    //     request.Headers.Add("Authorization", $"Bearer {token}");
-    //     var response = await _httpClient.SendAsync(request);
-    //     
-    //     if (response.IsSuccessStatusCode)
-    //     {
-    //         var content = await response.Content.ReadAsStringAsync();
-    //         return JsonConvert.DeserializeObject<IEnumerable<GitHubRepo>>(content);
-    //     }
-    // }
+    public async Task<HttpContentResponse<IEnumerable<GitHubRepo>, ApiError>> GetUserRepos(string token)
+    {
+        _gitHubClient.Credentials = new Credentials(token);
+
+        try
+        {
+            var repos = await _gitHubClient.Repository.GetAllForCurrent();
+            var simplerRepos = repos.Select(r => new GitHubRepo
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Url = r.Url,
+                Description = r.Description
+            });
+            return new HttpContentResponse<IEnumerable<GitHubRepo>, ApiError>
+            {
+                Content = simplerRepos,
+                StatusCode = HttpStatusCode.OK,
+                Message = "Successfully retrieved GitHub repos",
+                Success = true
+            };
+        }
+        catch (ApiException e)
+        {
+            _logger.LogError(e, "Error getting GitHub repos");
+            return new HttpContentResponse<IEnumerable<GitHubRepo>, ApiError>
+            {
+                Content = null,
+                StatusCode = e.StatusCode,
+                Success = false,
+                Message = e.Message,
+                ErrorContent = e.ApiError
+            };
+        }
+    }
+
+    public async Task<int> GetTokenLifetime(string accessToken)
+    {
+        // var request = new HttpRequestMessage(HttpMethod.Head, "/rate_limit");
+        // request.Headers.Add("Authorization", $"Bearer {accessToken}");
+        //
+        // var response = await _httpClient.SendAsync(request);
+        //
+        //
+        //
+        // var resetTime = response.Headers.GetValues("x-ratelimit-reset").FirstOrDefault();
+        // var resetTimestamp = DateTimeOffset.FromUnixTimeSeconds(int.Parse(resetTime));
+        //
+        // var remainingLifetime = resetTimestamp.Subtract(DateTimeOffset.Now).TotalSeconds;
+        // return (int) Math.Max(remainingLifetime, 0);
+        return 1;
+    }
+
 }

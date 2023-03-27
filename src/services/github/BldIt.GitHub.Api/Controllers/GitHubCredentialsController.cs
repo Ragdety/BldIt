@@ -41,23 +41,12 @@ public class GitHubCredentialsController : ApiController
         _logger = logger;
         _gitHubUserRepository = gitHubUserRepository;
     }
-    
-    [HttpDelete("/delGitCred")]
-    public async Task<IActionResult> DeleteCredentials()
-    {
-        var creds = 
-            await _gitHubCredentialsRepository.GetAllAsync(c => c.UserId == Guid.Parse(UserId));
-        
-        foreach (var credential in creds) await _gitHubCredentialsRepository.RemoveAsync(credential.Id);
-        
-        return NoContent();
-    }
 
     [HttpGet(Routes.GitHub.Credentials.GetAll)]
     public async Task<IActionResult> GetAllCredentials()
     {
         var credentials = await _gitHubCredentialsRepository.GetAllAsync(
-            c => c.UserId == Guid.Parse(UserId) /*&& !c.Deleted*/);
+            c => c.UserId == Guid.Parse(UserId));
         
         var credentialViewModels = credentials.Select(c => new GitHubCredentialView
         {
@@ -97,36 +86,49 @@ public class GitHubCredentialsController : ApiController
                     Routes.GitHub.Credentials.Post, 
                     _uriService));
         }
-
-        var gitHubUser = await _gitHubService.GetGitHubUser(credentialToCreate.PersonalAccessToken);
         
-        _logger.LogInformation("GitHub user: {@GitHubUser}", gitHubUser);
-
-        if (gitHubUser is null)
+        var user = await _gitHubUserRepository.GetAsync(u => u.BldItUserId == userId);
+        string gitUserId;
+        
+        //If user exists, just use that Id for the credential
+        if (user is not null)
         {
-            throw new ProblemDetailsException(
-                new InvalidCredentials(
-                    "Invalid GitHub Token", 
-                    Routes.GitHub.Credentials.Post, 
+            gitUserId = user.Id;
+        }
+        else
+        {
+            var response = await _gitHubService.GetGitHubUser(credentialToCreate.PersonalAccessToken);
+
+            if (!response.Success)
+            {
+                throw new ProblemDetailsException(new InvalidInstance(
+                    "Invalid GitHub Token",
+                    Routes.GitHub.Credentials.Post,
                     _uriService));
+            }
+        
+            var gitHubUser = response.Content!;
+        
+            //Can suppress because if we reach this point, the user is not null
+            gitHubUser.BldItUserId = userId;
+        
+            await _gitHubUserRepository.CreateAsync(gitHubUser);
+            await _publishEndpoint.Publish(new GitHubUserCreated
+            (
+                gitHubUser.Id,
+                gitHubUser.Login,
+                gitHubUser.Name,
+                gitHubUser.Url,
+                gitHubUser.BldItUserId
+            ));
+            
+            gitUserId = gitHubUser.Id;
         }
         
-        gitHubUser.BldItUserId = userId;
-        
-        await _gitHubUserRepository.CreateAsync(gitHubUser);
-        await _publishEndpoint.Publish(new GitHubUserCreated
-        (
-            gitHubUser.Id,
-            gitHubUser.Login,
-            gitHubUser.Name,
-            gitHubUser.Url,
-            gitHubUser.BldItUserId
-        ));
-    
         var credential = new GitHubCredential
         {
             AccessToken = credentialToCreate.PersonalAccessToken,
-            GitHubUserId = gitHubUser.Id,
+            GitHubUserId = gitUserId,
             Description = credentialToCreate.Description,
             UserId = Guid.Parse(UserId)
         };
