@@ -65,11 +65,12 @@
             public struct ScmConfigs
             {
                 private const string ScmConfigsBase = Get + "/scm";
-                
+
+                public const string GetAllScm = ScmConfigsBase;
                 public const string GetScm = ScmConfigsBase + "/{scmConfigId}";
-                public const string PostScm = ScmConfigsBase;
-                public const string PutScm = ScmConfigsBase + "/{scmConfigId}";
-                public const string DeleteScm = ScmConfigsBase + "/{scmConfigId}";
+                public const string PostScm = GetAllScm;
+                public const string PutScm = GetScm;
+                public const string DeleteScm = GetScm;
             }
         }
         

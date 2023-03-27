@@ -60,6 +60,23 @@ namespace BldIt.Api.Shared.Services.Uri
                 .Replace("{jobName}", jobName)
                 .Replace("{configId}", buildConfigId.ToString()));
         }
+        
+        public System.Uri GetScmConfigsUri(Guid projectId, string jobName, Guid jobConfigId)
+        {
+            return new System.Uri(_baseUri + Routes.JobConfigs.ScmConfigs.GetAllScm
+                .Replace("{projectId}", projectId.ToString())
+                .Replace("{jobName}", jobName)
+                .Replace("{configId}", jobConfigId.ToString()));
+        }
+        
+        public System.Uri GetScmConfigUri(Guid projectId, string jobName, Guid jobConfigId, Guid scmConfigId)
+        {
+            return new System.Uri(_baseUri + Routes.JobConfigs.ScmConfigs.GetScm
+                .Replace("{projectId}", projectId.ToString())
+                .Replace("{jobName}", jobName)
+                .Replace("{configId}", jobConfigId.ToString())
+                .Replace("{scmConfigId}", scmConfigId.ToString()));
+        }
 
         public System.Uri GetJobConfigsUri(Guid projectId, string jobName)
         {
