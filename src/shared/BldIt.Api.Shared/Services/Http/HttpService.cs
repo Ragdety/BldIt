@@ -69,4 +69,8 @@ public class HttpService : IHttpService
             ErrorContent = null
         };
     }
+
+    /// <inheritdoc cref="IHttpService"/>
+    public virtual async Task<HttpResponseMessage> RequestWithResponse(HttpRequestMessage requestMessage) 
+        => await HttpClient.SendAsync(requestMessage);
 }

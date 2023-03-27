@@ -35,4 +35,21 @@ public static class Extensions
         services.AddHttpClient<IHttpService, T>(configureClient);
         return services;
     }
+    
+    public static IServiceCollection AddHttpService<T, TImp>(this IServiceCollection services, string baseUrl)
+        where T : class where TImp : class, T
+    {
+        services.AddHttpClient<T, TImp>(client =>
+        {
+            client.BaseAddress = new System.Uri(baseUrl);
+        });
+        return services;
+    }
+    
+    public static IServiceCollection AddHttpService<T, TImp>(this IServiceCollection services, Action<HttpClient> configureClient)
+        where T : class where TImp : class, T
+    {
+        services.AddHttpClient<T, TImp>(configureClient);
+        return services;
+    }
 }
