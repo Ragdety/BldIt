@@ -61,6 +61,16 @@
             public const string Post = GetAll;
             
             public const string GetLatest = JobConfigsBase + "/latest";
+            
+            public struct ScmConfigs
+            {
+                private const string ScmConfigsBase = Get + "/scm";
+                
+                public const string GetScm = ScmConfigsBase + "/{scmConfigId}";
+                public const string PostScm = ScmConfigsBase;
+                public const string PutScm = ScmConfigsBase + "/{scmConfigId}";
+                public const string DeleteScm = ScmConfigsBase + "/{scmConfigId}";
+            }
         }
         
         public struct Builds
