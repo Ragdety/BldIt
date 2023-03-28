@@ -134,7 +134,9 @@ public class GitHubCredentialsController : ApiController
         };
         
         await _gitHubCredentialsRepository.CreateAsync(credential);
-        await _publishEndpoint.Publish(new GitHubCredentialCreated(credential.Id, credential.UserId));
+        
+        //TODO: Encrypt access token when publishing
+        await _publishEndpoint.Publish(new GitHubCredentialCreated(credential.Id, credential.AccessToken, credential.UserId));
         
         var locationUri = _uriService.GetGitHubCredential(credential.Id);
         return Created(locationUri, new GitHubCredentialView
