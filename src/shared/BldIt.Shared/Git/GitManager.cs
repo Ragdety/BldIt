@@ -44,85 +44,85 @@ public class GitManager : IGitManager
         _repositoryPath = repositoryPath;
     }
 
-    public async Task<int> GitInit(Func<string, Task>? outputCallback = null)
+    public async Task<int> GitInit(CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("init", outputCallback: outputCallback);
+        return await RunGitCommand("init", cancellationToken, outputCallback: outputCallback);
     }
 
-    public Task<int> GitClone(string remoteUrl, Func<string, Task>? outputCallback = null)
+    public Task<int> GitClone(string remoteUrl, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<int> GitRemoteAdd(string remoteName, string remoteUrl, Func<string, Task>? outputCallback = null)
+    public async Task<int> GitRemoteAdd(string remoteName, string remoteUrl, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("remote", $"add {remoteName} {remoteUrl}", outputCallback: outputCallback);
+        return await RunGitCommand("remote", cancellationToken, $"add {remoteName} {remoteUrl}", outputCallback: outputCallback);
     }
 
     public async Task<int> GitRemoteAddWithAuth(string remoteName, string username, string repoName, string accessToken,
-        Func<string, Task>? outputCallback = null)
+        CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("remote", 
+        return await RunGitCommand("remote", cancellationToken,
             $"add {remoteName} https://{username}:{accessToken}@github.com/{username}:{repoName}",
             outputCallback: outputCallback);
     }
 
-    public async Task<int> GitRemoteRemove(string remoteName, Func<string, Task>? outputCallback = null)
+    public async Task<int> GitRemoteRemove(string remoteName, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("remote", $"remove {remoteName}", outputCallback: outputCallback);
+        return await RunGitCommand("remote", cancellationToken, $"remove {remoteName}", outputCallback: outputCallback);
     }
 
-    public async Task<int> GitAdd(string filePath, Func<string, Task>? outputCallback = null)
+    public async Task<int> GitAdd(string filePath, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("add", filePath, outputCallback: outputCallback);
+        return await RunGitCommand("add", cancellationToken, filePath, outputCallback: outputCallback);
     }
 
-    public async Task<int> GitCommit(string message, Func<string, Task>? outputCallback = null)
+    public async Task<int> GitCommit(string message, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("commit", $"-m \"{message}\"", outputCallback: outputCallback);
+        return await RunGitCommand("commit", cancellationToken, $"-m \"{message}\"", outputCallback: outputCallback);
     }
 
-    public async Task<int> GitPush(string remoteName, string branchName, Func<string, Task>? outputCallback = null)
+    public async Task<int> GitPush(string remoteName, string branchName, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("push", $"{remoteName} {branchName}", outputCallback: outputCallback);
+        return await RunGitCommand("push", cancellationToken, $"{remoteName} {branchName}", outputCallback: outputCallback);
     }
 
-    public async Task<int> GitPull(string remoteName, string branchName, Func<string, Task>? outputCallback = null)
+    public async Task<int> GitPull(string remoteName, string branchName, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("pull", $"{remoteName} {branchName}", outputCallback: outputCallback);
+        return await RunGitCommand("pull", cancellationToken, $"{remoteName} {branchName}", outputCallback: outputCallback);
     }
 
-    public async Task<int> GitFetch(string remoteName, string branchName, Func<string, Task>? outputCallback = null)
+    public async Task<int> GitFetch(string remoteName, string branchName, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("fetch", $"{remoteName} {branchName}", outputCallback: outputCallback);
+        return await RunGitCommand("fetch", cancellationToken, $"{remoteName} {branchName}", outputCallback: outputCallback);
     }
 
-    public async Task<int> GitCheckout(string branchName, Func<string, Task>? outputCallback = null)
+    public async Task<int> GitCheckout(string branchName, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("checkout", branchName, outputCallback: outputCallback);
+        return await RunGitCommand("checkout", cancellationToken, branchName, outputCallback: outputCallback);
     }
 
-    public Task<int> GitBranch(string branchName, Func<string, Task>? outputCallback = null)
+    public Task<int> GitBranch(string branchName, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<int> GitStatus(Func<string, Task>? outputCallback = null)
+    public async Task<int> GitStatus(CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("status", outputCallback: outputCallback);
+        return await RunGitCommand("status", cancellationToken, outputCallback: outputCallback);
     }
 
-    public async Task<int> GitConfig(string key, string value, Func<string, Task>? outputCallback = null)
+    public async Task<int> GitConfig(string key, string value, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("config", $"{key} {value}", outputCallback: outputCallback);
+        return await RunGitCommand("config", cancellationToken, $"{key} {value}", outputCallback: outputCallback);
     }
 
     private async Task<int> RunGitCommand(
         string command, 
+        CancellationToken cancellationToken, 
         string additionalCommandLine = "", 
         string options = "", 
-        Func<string, Task>? outputCallback = null,
-        CancellationToken cancellationToken = default)
+        Func<string, Task>? outputCallback = null)
     {
         if (_gitPath is null)
         {
