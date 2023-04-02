@@ -24,7 +24,7 @@ public static class Extensions
         bool throwIfProcessServiceNotRegistered = true)
     {
         //Requires IProcessService to be registered
-        var processService = services.BuildServiceProvider().GetRequiredService<IProcessService>();
+        var processService = services.BuildServiceProvider().GetRequiredService<ProcessService>();
         
         switch (processService)
         {
@@ -32,7 +32,7 @@ public static class Extensions
                 throw new ArgumentNullException(nameof(processService));
             //Otherwise, register IProcessService with its default implementation
             case null:
-                services.AddSingleton<IProcessService, ProcessService>();
+                services.AddTransient<ProcessService>();
                 return services;
         }
 
