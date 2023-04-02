@@ -130,6 +130,10 @@ namespace BldIt.Shared.Processes
         #region Public Methods
         
         public async Task<int> RunAsync(CancellationToken cancellationToken) => await RunAsync(null, cancellationToken);
+        public Task<int> RunAsync(Func<string, Task>? outputCallback, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Run the executable with
