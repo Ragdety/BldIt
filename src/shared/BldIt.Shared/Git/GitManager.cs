@@ -5,6 +5,7 @@ namespace BldIt.Shared.Git;
 
 public class GitManager : IGitManager
 {
+    //Use ProcessService
     private readonly ProcessService _processService;
     private string? _repositoryPath;
     private string? _gitPath;
