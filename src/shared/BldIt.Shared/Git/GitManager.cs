@@ -5,7 +5,7 @@ namespace BldIt.Shared.Git;
 
 public class GitManager : IGitManager
 {
-    private readonly IProcessService _processService;
+    private readonly ProcessService _processService;
     private string? _repositoryPath;
     private string? _gitPath;
 
@@ -16,7 +16,7 @@ public class GitManager : IGitManager
     /// <param name="repositoryPath">The local path to the repository. If not set, call Initialize(repoPath) to initialize it</param>
     /// <param name="gitPath">Git path to use. If not set, call Initialize(repoPath) to find it in the system</param>
     public GitManager(
-        IProcessService processService,
+        ProcessService processService,
         string? repositoryPath = null,
         string? gitPath = null)
     {
