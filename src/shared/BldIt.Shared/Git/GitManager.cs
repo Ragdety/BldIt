@@ -140,6 +140,12 @@ public class GitManager : IGitManager
         _processService.Program = _gitPath;
         _processService.Arguments = args;
         _processService.WorkingDirectory = _repositoryPath;
+        
+        if (outputCallback is not null)
+        {
+            //Send the git command to the output callback
+            await outputCallback($"{_gitPath} {args}");
+        }
 
         return await _processService.RunAsync(outputCallback, cancellationToken);
     }
