@@ -64,7 +64,7 @@ public class GitManager : IGitManager
         CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
         return await RunGitCommand("remote", cancellationToken,
-            $"add {remoteName} https://{username}:{accessToken}@github.com/{username}:{repoName}",
+            $"add {remoteName} https://{username}:{accessToken}@github.com/{username}/{repoName}",
             outputCallback: outputCallback);
     }
 
