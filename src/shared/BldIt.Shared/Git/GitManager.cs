@@ -47,7 +47,7 @@ public class GitManager : IGitManager
 
     public async Task<int> GitInit(CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
     {
-        return await RunGitCommand("init", cancellationToken, outputCallback: outputCallback);
+        return await RunGitCommand("init", cancellationToken, _repositoryPath!, outputCallback: outputCallback);
     }
 
     public Task<int> GitClone(string remoteUrl, CancellationToken cancellationToken, Func<string, Task>? outputCallback = null)
@@ -120,9 +120,9 @@ public class GitManager : IGitManager
 
     private async Task<int> RunGitCommand(
         string command, 
-        CancellationToken cancellationToken, 
-        string additionalCommandLine = "", 
+        CancellationToken cancellationToken = default, 
         string options = "", 
+        string additionalCommandLine = "", 
         Func<string, Task>? outputCallback = null)
     {
         if (_gitPath is null)
