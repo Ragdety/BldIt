@@ -29,7 +29,7 @@ public class BuildRequestConsumer : IConsumer<BuildRequest>
         
         _buildQueue.Queue(async token =>
         {
-            await _publishEndpoint.Publish(new StartBuildRequest(message.BuildId, message.BuildConfigId, message.BuildNumber), token);
+            await _publishEndpoint.Publish(new StartBuildRequest(message.BuildId, message.BuildConfigId, message.BuildNumber, message.JobId), token);
         });
 
         return Task.CompletedTask;

@@ -37,6 +37,23 @@ public class JobController : ApiController
         _projectsRepo = projectsRepo;
         _publishEndpoint = publishEndpoint;
     }
+    
+    [HttpGet(Routes.Jobs.GetAll)]
+    public async Task<IActionResult> GetAll([FromRoute] Guid projectId)
+    {
+        var jobsInstance = _uriService.GetJobsUri(projectId).AbsolutePath;
+        
+        var project = await _projectsRepo.GetAsync(projectId);
+        if (project == null || project.Deleted)
+        {
+            throw new ProblemDetailsException(new InstanceNotFound(
+                $"Project with id '{projectId}' was not found", jobsInstance, _uriService));
+        }
+        
+        var jobs = await _jobsRepo.GetAllAsync(
+            j => j.ProjectId == projectId && !j.Deleted);
+        return Ok(jobs);
+    }
 
     [HttpGet(Routes.Jobs.GetName)]
     public async Task<IActionResult> GetByName(

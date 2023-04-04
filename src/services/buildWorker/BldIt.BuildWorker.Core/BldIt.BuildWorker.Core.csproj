@@ -7,10 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BldIt.Api.Shared" Version="1.0.67" />
-      <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.37-alpha" />
-      <PackageReference Include="BldIt.BuildScheduler.Contracts" Version="1.0.7" />
-      <PackageReference Include="BldIt.Shared" Version="1.0.17" />
+      <PackageReference Include="BldIt.Api.Shared" Version="1.0.76" />
+      <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.48-alpha" />
+      <PackageReference Include="BldIt.BuildScheduler.Contracts" Version="1.0.8" />
+      <PackageReference Include="BldIt.Shared" Version="1.0.26" />
       <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
     </ItemGroup>
 

@@ -2,5 +2,5 @@
 
 public class CreateJobConfigDto
 {
-    public string? JobWorkspacePath { get; set; }
+    
 }

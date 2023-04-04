@@ -102,10 +102,32 @@ namespace BldIt.Projects.Service.Controllers
 
             if (existingProject != null)
             {
-                throw new ProblemDetailsException(new ExistingInstance(
-                    $"Project with name '{projectToCreate.ProjectName}' already exists",
-                    Routes.Projects.Post,
-                    _uriService));
+                if (!existingProject.Deleted)
+                {
+                    //TODO: Move these problem details exception throwing to a separate service
+                    throw new ProblemDetailsException(new ExistingInstance(
+                        $"Project with name '{projectToCreate.ProjectName}' is already taken.",
+                        Routes.Projects.Post,
+                        _uriService));
+                }
+                
+                //If the logged in user is not the owner of the project, throw a 400
+                if (existingProject.CreatorId != Guid.Parse(UserId))
+                {
+                    _logger.LogWarning("User tried to recover a project that they do not own.");
+                    throw new ProblemDetailsException(new ExistingInstance(
+                        $"Project with name '{projectToCreate.ProjectName}' is already taken.",
+                        Routes.Projects.Post,
+                        _uriService));
+                }
+                    
+                
+                //TODO: Move this to a recovery endpoint, in case the user wants a project back
+                //Leave project for about 5 days or something
+                existingProject.Deleted = false;
+                await _projectsRepository.UpdateAsync(existingProject);
+                await _publishEndpoint.Publish(new ProjectRecovered(existingProject.Id));
+                return Ok(existingProject);
             }
 
             var projPath = Path.Combine(_bldItWorkspaceConfig.ProjectsPath(), projectToCreate.ProjectName);

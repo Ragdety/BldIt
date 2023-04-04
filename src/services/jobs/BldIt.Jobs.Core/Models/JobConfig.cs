@@ -2,13 +2,8 @@
 
 namespace BldIt.Jobs.Core.Models;
 
-public abstract class JobConfig : IEntity<Guid>
+public class JobConfig : IEntity<Guid>
 {
-    protected JobConfig()
-    {
-        
-    }
-    
     //General information about job configuration
     public Guid Id { get; set; }
     public bool Deleted { get; set; } = false;
@@ -18,5 +13,5 @@ public abstract class JobConfig : IEntity<Guid>
     public Guid JobId { get; set; }
 
     //Null if no SCM is configured, this will be set if GitHub is configured
-    public Guid? ScmId { get; set; } = null;
+    public Guid? ScmConfigId { get; set; }
 }

@@ -56,6 +56,7 @@ public class GitHubCredentialsController : ApiController
             Description = c.Description,
             GitHubUserId = c.GitHubUserId,
             UserId = c.UserId,
+            GitHubUserName = c.GitHubUserName
         });
         
         return Ok(credentialViewModels);
@@ -89,11 +90,13 @@ public class GitHubCredentialsController : ApiController
         
         var user = await _gitHubUserRepository.GetAsync(u => u.BldItUserId == userId);
         string gitUserId;
+        string gitUserName;
         
         //If user exists, just use that Id for the credential
         if (user is not null)
         {
             gitUserId = user.Id;
+            gitUserName = user.Name;
         }
         else
         {
@@ -123,20 +126,22 @@ public class GitHubCredentialsController : ApiController
             ));
             
             gitUserId = gitHubUser.Id;
+            gitUserName = gitHubUser.Login;
         }
         
         var credential = new GitHubCredential
         {
             AccessToken = credentialToCreate.PersonalAccessToken,
-            GitHubUserId = gitUserId,
             Description = credentialToCreate.Description,
-            UserId = Guid.Parse(UserId)
+            UserId = Guid.Parse(UserId),
+            GitHubUserId = gitUserId,
+            GitHubUserName = gitUserName
         };
         
         await _gitHubCredentialsRepository.CreateAsync(credential);
         
         //TODO: Encrypt access token when publishing
-        await _publishEndpoint.Publish(new GitHubCredentialCreated(credential.Id, credential.AccessToken, credential.UserId));
+        await _publishEndpoint.Publish(new GitHubCredentialCreated(credential.Id, credential.AccessToken, credential.UserId, gitUserName));
         
         var locationUri = _uriService.GetGitHubCredential(credential.Id);
         return Created(locationUri, new GitHubCredentialView
@@ -146,7 +151,8 @@ public class GitHubCredentialsController : ApiController
             CreatedAt = credential.CreatedAt,
             UserId = credential.UserId,
             Description = credential.Description,
-            GitHubUserId = credential.GitHubUserId
+            GitHubUserId = credential.GitHubUserId,
+            GitHubUserName = credential.GitHubUserName
         });
     }
     
@@ -173,7 +179,8 @@ public class GitHubCredentialsController : ApiController
             CreatedAt = credential.CreatedAt,
             Description = credential.Description,
             UserId = credential.UserId,
-            GitHubUserId = credential.GitHubUserId
+            GitHubUserId = credential.GitHubUserId,
+            GitHubUserName = credential.GitHubUserName
         });
     }
     

@@ -13,6 +13,7 @@ using BldIt.BuildWorker.Core.Hubs;
 using BldIt.BuildWorker.Core.Interfaces;
 using BldIt.BuildWorker.Core.Models;
 using BldIt.BuildWorker.Core.Services;
+using BldIt.Shared.Git;
 using BldIt.Shared.Processes;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,8 @@ builder.Services.AddSwaggerWithAuth(serviceSettings.ServiceName, serviceSettings
 builder.Services.AddMongo();
 builder.Services.AddMongoRepository<WorkerBuildStep, BuildStepKey>(nameof(WorkerBuildStep));
 builder.Services.AddMongoRepository<WorkerBuild, Guid>(nameof(WorkerBuild));
+builder.Services.AddMongoRepository<WorkerScmConfig, Guid>(nameof(WorkerScmConfig));
+builder.Services.AddMongoRepository<WorkerGitHubCredential, Guid>(nameof(WorkerGitHubCredential));
 
 //Mass Transit
 builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);
@@ -68,6 +71,8 @@ builder.Services.AddScoped<IBuildWorker, BuildWorker>();
 builder.Services.AddBldItQueue<string>();
 builder.Services.AddTransient<ProcessService>();
 builder.Services.AddUriService();
+
+builder.Services.AddGit();
 
 var app = builder.Build();
 

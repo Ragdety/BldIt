@@ -18,4 +18,5 @@ public class GitHubCredential : IEntity<Guid>
     
     //GitHub user information, maps to GitHubUser entity
     public string GitHubUserId { get; set; }
+    public string GitHubUserName { get; set; }
 }

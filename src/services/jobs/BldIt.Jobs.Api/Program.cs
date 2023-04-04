@@ -39,6 +39,7 @@ builder.Services.AddMongo();
 builder.Services.AddMongoRepository<IJobsRepo, JobsRepo, Job, Guid>(BldItApiConstants.Services.Jobs.Collections.Jobs);
 builder.Services.AddMongoRepository<JobsProject, Guid>(nameof(JobsProject));
 builder.Services.AddMongoRepository<JobConfig, Guid>(nameof(JobConfig));
+builder.Services.AddMongoRepository<ScmConfig, Guid>(nameof(ScmConfig));
 
 //MassTransit
 builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);

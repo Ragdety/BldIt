@@ -1,4 +1,5 @@
-﻿using BldIt.Api.Shared.MongoDb;
+﻿using System.Linq.Expressions;
+using BldIt.Api.Shared.MongoDb;
 using BldIt.Builds.Core.Models;
 using MongoDB.Driver;
 
@@ -8,6 +9,12 @@ public class BuildsRepo : MongoRepository<Build, Guid>, IBuildsRepo
 {
     public BuildsRepo(IMongoDatabase database, string collectionName) : base(database, collectionName)
     {
+    }
+
+    public override async Task<IReadOnlyCollection<Build>> GetAllAsync(Expression<Func<Build, bool>> filter)
+    {
+        //Always the latest build number first
+        return await DbCollection.Find(filter).SortByDescending(b => b.Number).ToListAsync();
     }
 
     public async Task<Build> GetLatestAsync()
@@ -23,4 +30,6 @@ public class BuildsRepo : MongoRepository<Build, Guid>, IBuildsRepo
     }
 
     public Task<Build> GetByNumberAsync(Guid jobId, int number) => GetAsync(b => b.JobId == jobId && b.Number == number);
+    
+    
 }

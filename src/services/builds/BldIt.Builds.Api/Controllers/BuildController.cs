@@ -99,7 +99,7 @@ public class BuildController : ApiController
             new BuildCreated(build.Id, build.Status.ToString(), build.Number, build.JobId), cancellationToken);
 
         //We will only send the message to the scheduler here requesting a build
-        await _publishEndpoint.Publish(new BuildRequest(build.Id, buildConfig.Id, build.Number), cancellationToken);
+        await _publishEndpoint.Publish(new BuildRequest(build.Id, buildConfig.Id, build.Number, build.JobId), cancellationToken);
 
         var buildStatusUri = _uriService.GetBuildByNumberUri(projectId, jobName, build.Number);
         return Accepted(buildStatusUri, build);

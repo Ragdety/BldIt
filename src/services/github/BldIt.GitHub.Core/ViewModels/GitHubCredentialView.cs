@@ -9,4 +9,5 @@ public class GitHubCredentialView
     public string? Description { get; set; }
     public Guid UserId { get; set; }
     public string GitHubUserId { get; set; }
+    public string GitHubUserName { get; set; }
 }
