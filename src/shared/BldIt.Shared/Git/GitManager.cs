@@ -144,7 +144,8 @@ public class GitManager : IGitManager
         if (outputCallback is not null)
         {
             //Send the git command to the output callback
-            await outputCallback($"{_gitPath} {args}");
+            //TODO: Mask sensitive data or remove it from the output...
+            await outputCallback($"{_gitPath} {command} {options} {additionalCommandLine}");
         }
 
         return await _processService.RunAsync(outputCallback, cancellationToken);
