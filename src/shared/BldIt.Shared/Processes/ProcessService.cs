@@ -120,7 +120,10 @@ public class ProcessService : IProcessService
     {
         //Pipe command into outputCallback
         if (outputCallback is not null)
+        {
             cmd |= outputCallback;
+            cmd.WithStandardErrorPipe(PipeTarget.ToDelegate(outputCallback));
+        }
         //Pipe command into parent process
         else
             cmd |= (Console.OpenStandardOutput(), Console.OpenStandardError());
@@ -135,6 +138,7 @@ public class ProcessService : IProcessService
     {
         //Pipe command into outputHandler
         cmd |= outputHandler;
+        cmd.WithStandardErrorPipe(PipeTarget.ToDelegate(outputHandler));
         
         if (!string.IsNullOrEmpty(OutputLogPath))
             cmd |= PipeTarget.ToFile(OutputLogPath);
