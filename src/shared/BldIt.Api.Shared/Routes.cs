@@ -166,7 +166,7 @@
             
             public struct Repositories
             {
-                private const string RepositoriesBase = GitHubBase + "/repositories";
+                private const string RepositoriesBase = Credentials.Get + "/repositories";
                 
                 public const string GetAll = RepositoriesBase;
                 public const string Get = RepositoriesBase + "/{repositoryId}";
