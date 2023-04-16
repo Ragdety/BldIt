@@ -3,5 +3,6 @@
 public enum BuildStepType
 {
     Batch,
-    Shell
+    Shell,
+    Python
 }

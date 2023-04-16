@@ -3,8 +3,10 @@
 public enum BuildTrigger
 {
     Manual,
-    GitHubHook,
-    Periodically,
-    AfterOtherJob,
-    FromScripts
+    Pr,
+    Push,
+    // GitHubHook,
+    // Periodically,
+    // AfterOtherJob,
+    // FromScripts
 }
