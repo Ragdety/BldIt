@@ -1,9 +1,9 @@
 ﻿using BldIt.Builds.Contracts.Enums;
-using BldIt.Builds.Contracts.Keys;
 
 namespace BldIt.Builds.Contracts.Contracts;
 
 public record BuildStepCreated(
-    BuildStepKey BuildStepKey, 
+    Guid BuildConfigId, 
+    int BuildStepNumber, 
     string Command,
     BuildStepType BuildStepType);
