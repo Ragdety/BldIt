@@ -174,15 +174,16 @@ public class IdentityManager : IIdentityManager
                 ErrorCode = 401
             };
         }
-            
-        if (storedRefreshToken.Used)
-        {
-            return new AuthenticationResult
-            {
-                Errors = new[] { "This token has been used" },
-                ErrorCode = 400
-            };
-        }
+           
+        //Commenting this for now to solve frontend issue
+        // if (storedRefreshToken.Used)
+        // {
+        //     return new AuthenticationResult
+        //     {
+        //         Errors = new[] { "This token has been used" },
+        //         ErrorCode = 400
+        //     };
+        // }
             
         if (storedRefreshToken.JwtId != jti)
         {

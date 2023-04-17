@@ -144,6 +144,42 @@
       "Priority": 2
     },
     {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs/{buildConfig}/steps/{number}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs/{buildConfig}/steps/{number}",
+      "UpstreamHttpMethod": ["DELETE", "GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs/{buildConfig}/steps",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs/{buildConfig}/steps",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    },
+    {
       "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs/{buildConfig}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -153,7 +189,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs/{buildConfig}",
-      "UpstreamHttpMethod": ["POST", "GET"],
+      "UpstreamHttpMethod": ["POST", "GET", "PUT"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
@@ -384,8 +420,26 @@
       "Priority": 1
     },
 
-
-
+    
+    
+    {
+      "DownstreamPathTemplate": "/api/v1/github/credentials/{credentialId}/repositories",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "github-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/github/credentials/{credentialId}/repositories",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "github",
+      "Priority": 10
+    },
     {
       "DownstreamPathTemplate": "/api/v1/github/credentials/{credentialId}",
       "DownstreamScheme": "http",
@@ -415,24 +469,6 @@
       ],
       "UpstreamPathTemplate": "/api/v1/github/credentials",
       "UpstreamHttpMethod": ["GET", "POST"],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      },
-      "SwaggerKey": "github",
-      "Priority": 8
-    },
-    {
-      "DownstreamPathTemplate": "/api/v1/github/repositories",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "github-api",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/api/v1/github/repositories",
-      "UpstreamHttpMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []

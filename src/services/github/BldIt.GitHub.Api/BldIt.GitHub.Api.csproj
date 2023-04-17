@@ -8,7 +8,7 @@
   </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BldIt.Api.Shared" Version="1.0.75" />
+      <PackageReference Include="BldIt.Api.Shared" Version="1.0.77" />
       <PackageReference Include="Octokit" Version="5.0.2" />
     </ItemGroup>
 

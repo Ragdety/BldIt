@@ -34,7 +34,7 @@ public class GitHubRepositoriesController : ApiController
     }
     
     [HttpGet(Routes.GitHub.Repositories.GetAll)]
-    public async Task<IActionResult> GetAll([FromQuery] Guid credentialId)
+    public async Task<IActionResult> GetAll([FromRoute] Guid credentialId)
     {
         var cred = await EnsureCredentialExists(credentialId);
         

@@ -137,7 +137,7 @@ public class BuildController : ApiController
         
         return Ok(build);
     }
-    
+
     [HttpGet(Routes.Builds.GetAll)]
     public async Task<IActionResult> GetAllBuildsForJob([FromRoute] Guid projectId, [FromRoute] string jobName)
     {

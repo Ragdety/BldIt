@@ -1,9 +1,9 @@
-﻿using BldIt.Api.Shared;
+﻿using System.Collections.ObjectModel;
+using BldIt.Api.Shared;
 using BldIt.Api.Shared.Config;
 using BldIt.Api.Shared.Interfaces;
 using BldIt.Api.Shared.Services.Storage;
 using BldIt.Builds.Contracts.Enums;
-using BldIt.Builds.Contracts.Keys;
 using BldIt.BuildScheduler.Contracts.Contracts;
 using BldIt.BuildWorker.Contracts.Contracts;
 using BldIt.BuildWorker.Core.Hubs;
@@ -22,7 +22,7 @@ namespace BldIt.BuildWorker.Core.Services;
 public class BuildWorker : IBuildWorker
 {
     private readonly ProcessService _processService;
-    private readonly IRepository<WorkerBuildStep, BuildStepKey> _buildStepsRepository;
+    private readonly IRepository<WorkerBuildStep, Guid> _buildStepsRepository;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<BuildWorker> _logger;
     private readonly IHubContext<BuildStreamHub> _buildHub;
@@ -33,10 +33,11 @@ public class BuildWorker : IBuildWorker
     private readonly IRepository<WorkerScmConfig, Guid> _scmConfigRepository;
     private readonly IRepository<WorkerGitHubCredential, Guid> _gitHubCredentialRepository;
     private readonly BldItWorkspaceConfig _bldItWorkspaceConfig;
+    private readonly IRepository<WorkerJobConfig, Guid> _jobConfigRepository;
 
     public BuildWorker(
         ProcessService processService, 
-        IRepository<WorkerBuildStep, BuildStepKey> buildStepsRepository, 
+        IRepository<WorkerBuildStep, Guid> buildStepsRepository, 
         IPublishEndpoint publishEndpoint, 
         ILogger<BuildWorker> logger, 
         IHubContext<BuildStreamHub> buildHub, 
@@ -46,7 +47,8 @@ public class BuildWorker : IBuildWorker
         IRepository<WorkerBuild, Guid> buildRepository, 
         IRepository<WorkerScmConfig, Guid> scmConfigRepository, 
         IRepository<WorkerGitHubCredential, Guid> gitHubCredentialRepository, 
-        BldItWorkspaceConfig bldItWorkspaceConfig)
+        BldItWorkspaceConfig bldItWorkspaceConfig, 
+        IRepository<WorkerJobConfig, Guid> jobConfigRepository)
     {
         _processService = processService;
         _buildStepsRepository = buildStepsRepository;
@@ -60,6 +62,7 @@ public class BuildWorker : IBuildWorker
         _scmConfigRepository = scmConfigRepository;
         _gitHubCredentialRepository = gitHubCredentialRepository;
         _bldItWorkspaceConfig = bldItWorkspaceConfig;
+        _jobConfigRepository = jobConfigRepository;
     }
 
     private int CurrentProcessId { get; set; }
@@ -76,10 +79,10 @@ public class BuildWorker : IBuildWorker
 
         // Fetch the build steps based on the buildConfig Id
         var buildSteps = await _buildStepsRepository
-            .GetAllAsync(b => b.Id.BuildConfigId == buildRequest.BuildConfigId);
+            .GetAllAsync(b => b.BuildConfigId == buildRequest.BuildConfigId);
 
         //Order them by number
-        var orderedBuildSteps = buildSteps.OrderBy(k => k.Id.Number);
+        var orderedBuildSteps = buildSteps.OrderBy(k => k.BuildStepNumber);
         
         await UpdateBuildStatusAsync(buildRequest, BuildStatus.Running);
         
@@ -92,15 +95,31 @@ public class BuildWorker : IBuildWorker
         
         if (scmConfig is not null)
         {
-            var reposPath = Path.Combine(_bldItWorkspaceConfig.TempPath(), "repos");
-            //TODO: Get repo path from job's workspace path
-            repositoryPath = Path.Combine(reposPath, scmConfig.RepoName);
+            var jobConfig = await _jobConfigRepository.GetAsync(j => j.JobId == buildRequest.JobId);
+            
+            //This should eventually never happen, but just in case
+            if (jobConfig is null)
+            {
+                _logger.LogError("Job config not found for job id {JobId}", buildRequest.JobId);
+                _logger.LogWarning("Using temporary path for repository");
+                // await SendBuildHubOutput("Job config not found for job id {JobId}", cancellationToken);
+                // await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath);
+                // return;
+                var reposPath = Path.Combine(_bldItWorkspaceConfig.TempPath(), "repos");
+                repositoryPath = Path.Combine(reposPath, scmConfig.RepoName);
+            }
+            else
+            {
+                repositoryPath = Path.Combine(jobConfig.JobWorkspacePath, scmConfig.RepoName);
+                _logger.LogInformation("Repository path: {RepositoryPath}", repositoryPath);
+            }
+            
             Directory.CreateDirectory(repositoryPath);
         }
         
         try
         {
-            var exitCode = await RunLinuxProcess("apt-get update -y && apt-get install -y git", cancellationToken);
+            var exitCode = await RunLinuxProcess("apt-get update && apt-get install -y git", cancellationToken);
             
             if (exitCode != 0)
             {
@@ -133,7 +152,7 @@ public class BuildWorker : IBuildWorker
             //Execute the command/script provided by the build step and check its exit code
             try
             {
-                var exitCode = await RunBuildStepAsync(buildStep, logFilePath, cancellationToken);
+                var exitCode = await RunBuildStepAsync(buildStep, logFilePath, repositoryPath, cancellationToken);
                 if (exitCode == 0) continue;
             }
             catch (Exception e)
@@ -178,19 +197,30 @@ public class BuildWorker : IBuildWorker
     private async Task<int> RunBuildStepAsync(
         WorkerBuildStep buildStep, 
         string logFilePath,
+        string repositoryPath,
         CancellationToken cancellationToken)
     {
         var extension = buildStep.Type switch 
         {
             BuildStepType.Batch => BldItApiConstants.Files.ScriptTypeExtensions.Batch,
             BuildStepType.Shell => BldItApiConstants.Files.ScriptTypeExtensions.Bash,
+            BuildStepType.Python => BldItApiConstants.Files.ScriptTypeExtensions.Python,
             _ => throw new ArgumentOutOfRangeException(nameof(buildStep.Type))
         };
 
         var scriptContent = buildStep.Command;
         var scriptFilePath = await _temporaryFileStorage.CreateTemporaryScriptFileAsync(scriptContent, extension);
 
-        if (OsInfo.IsLinux())
+        if (buildStep.Type == BuildStepType.Python)
+        {
+            //Install python if needed
+            await RunLinuxProcess("apt-get update && apt-get install -y python3 && apt-get install -y python3-pip", 
+                cancellationToken);
+            
+            _processService.Program = "python3";
+            _processService.Arguments = new[] {scriptFilePath};
+        }
+        else if (OsInfo.IsLinux())
         {
             _processService.Program = OsInfo.Paths.Linux.Shell;
             _processService.Arguments = new[] {scriptFilePath};
@@ -199,8 +229,17 @@ public class BuildWorker : IBuildWorker
         {
             _processService.Program = scriptFilePath;
         }
-
+        
         _processService.OutputLogPath = logFilePath;
+        _processService.WorkingDirectory = repositoryPath;
+        
+        var environmentVariables = new Dictionary<string, string?>
+        {
+            {"WORKSPACE", repositoryPath},
+            //{"BUILD_NUMBER", buildStep}
+        };
+
+        _processService.EnvironmentVariables = environmentVariables;
 
         _logger.LogInformation("Executing temporary script file \'{ScriptFilePath}\'", scriptFilePath);
 
@@ -277,6 +316,8 @@ public class BuildWorker : IBuildWorker
         string logFilePath, 
         string repositoryPath)
     {
+        //TODO: Maybe post build steps here?
+        
         if (buildResult == BuildResult.Failed)
         {
             await UpdateBuildResultAsync(buildRequest, BuildResult.Failed);
@@ -365,7 +406,7 @@ public class BuildWorker : IBuildWorker
             throw new Exception("git checkout failed with status code: " + errorlevel);
         }
         
-        await RunLinuxProcess("ls", cancellationToken, repositoryPath);
+        //await RunLinuxProcess("ls", cancellationToken, repositoryPath);
     }
     
     //TODO: Make this run in a separate service allowing Windows and Linux
@@ -385,9 +426,10 @@ public class BuildWorker : IBuildWorker
         _logger.LogInformation("Running command: {Command}", command);
 
         var output = "";
+        var error = "";
         var exitCode = 0;
         
-        await foreach (var cmdEvent in _processService.ListenAsync(null, cancellationToken))
+        await foreach (var cmdEvent in _processService.ListenAsync(GetBuildHubOutputCallback(cancellationToken), cancellationToken))
         {
             switch (cmdEvent)
             {
@@ -399,7 +441,7 @@ public class BuildWorker : IBuildWorker
                     output = stdOut.Text;
                     break;
                 case StandardErrorCommandEvent stdErr:
-                    output = stdErr.Text;
+                    error = stdErr.Text;
                     break;
                 case ExitedCommandEvent exited:
                     exitCode = exited.ExitCode;
@@ -409,8 +451,8 @@ public class BuildWorker : IBuildWorker
             //Append the log into log registry so new users who join the log room can see previous logs
             _buildLogRegistry.AppendBuildLog(WorkingBuildId, output);
             
-            //Sends process output to groups listening (if any)
-            await SendBuildHubOutput(output, cancellationToken);
+            //Sends process errors to groups listening (if any)
+            await SendBuildHubOutput(error, cancellationToken);
         }
         
         var script = Path.GetFileName(scriptFilePath);

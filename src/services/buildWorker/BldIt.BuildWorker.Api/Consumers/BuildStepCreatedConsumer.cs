@@ -1,6 +1,5 @@
 ﻿using BldIt.Api.Shared.Interfaces;
 using BldIt.Builds.Contracts.Contracts;
-using BldIt.Builds.Contracts.Keys;
 using BldIt.BuildWorker.Core.Models;
 using MassTransit;
 
@@ -8,9 +7,9 @@ namespace BldIt.BuildWorker.Api.Consumers;
 
 public class BuildStepCreatedConsumer : IConsumer<BuildStepCreated>
 {
-    private readonly IRepository<WorkerBuildStep, BuildStepKey> _buildStepsRepository;
+    private readonly IRepository<WorkerBuildStep, Guid> _buildStepsRepository;
 
-    public BuildStepCreatedConsumer(IRepository<WorkerBuildStep, BuildStepKey> buildStepsRepository)
+    public BuildStepCreatedConsumer(IRepository<WorkerBuildStep, Guid> buildStepsRepository)
     {
         _buildStepsRepository = buildStepsRepository;
     }
@@ -18,13 +17,15 @@ public class BuildStepCreatedConsumer : IConsumer<BuildStepCreated>
     public async Task Consume(ConsumeContext<BuildStepCreated> context)
     {
         var message = context.Message;
-        
-        var exists = await _buildStepsRepository.ExistsAsync(message.BuildStepKey);
-        if (exists) return;
+
+        var step = await _buildStepsRepository.GetAsync(
+            bs => bs.BuildConfigId == message.BuildConfigId && bs.BuildStepNumber == message.BuildStepNumber);
+        if (step is not null) return;
 
         var buildStepCreated = new WorkerBuildStep
         {
-            Id = message.BuildStepKey,
+            BuildConfigId = message.BuildConfigId,
+            BuildStepNumber = message.BuildStepNumber,
             Command = message.Command,
             Type = message.BuildStepType
         };

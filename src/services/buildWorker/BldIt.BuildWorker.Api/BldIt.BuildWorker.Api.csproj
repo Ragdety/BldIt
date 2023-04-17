@@ -8,9 +8,9 @@
 
     <ItemGroup>
       <PackageReference Include="BldIt.Api.Shared" Version="1.0.76" />
-      <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.48-alpha" />
+      <PackageReference Include="BldIt.Builds.Contracts" Version="1.0.50-alpha" />
         <PackageReference Include="BldIt.GitHub.Contracts" Version="1.0.3" />
-        <PackageReference Include="BldIt.Jobs.Contracts" Version="1.0.47-alpha" />
+        <PackageReference Include="BldIt.Jobs.Contracts" Version="1.0.51-alpha" />
     </ItemGroup>
 
     <ItemGroup>

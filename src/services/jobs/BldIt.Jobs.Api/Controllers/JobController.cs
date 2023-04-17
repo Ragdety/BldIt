@@ -23,19 +23,25 @@ public class JobController : ApiController
     private readonly IJobsRepo _jobsRepo;
     private readonly IRepository<JobsProject, Guid> _projectsRepo;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IRepository<JobConfig, Guid> _jobConfigRepo;
+    private readonly IRepository<JobsProject, Guid> _jobsProjectRepo;
 
     public JobController(
         UriService uriService, 
         IJobsRepo jobsRepo,
         ILogger<JobController> logger, 
         IRepository<JobsProject, Guid> projectsRepo, 
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint, 
+        IRepository<JobConfig, Guid> jobConfigRepo, 
+        IRepository<JobsProject, Guid> jobsProjectRepo)
     {
         _uriService = uriService;
         _jobsRepo = jobsRepo;
         _logger = logger;
         _projectsRepo = projectsRepo;
         _publishEndpoint = publishEndpoint;
+        _jobConfigRepo = jobConfigRepo;
+        _jobsProjectRepo = jobsProjectRepo;
     }
     
     [HttpGet(Routes.Jobs.GetAll)]
@@ -121,6 +127,32 @@ public class JobController : ApiController
             job.Name,
             job.ProjectId
         ));
+        
+        //Create job config (Doing it here now instead of the controller, to make frontend calls easier
+        var jobProject = await _jobsProjectRepo.GetAsync(projectId);
+        
+        var jobWorkspace = Path.Combine(jobProject.ProjectWorkspacePath, "jobs", job.Name);
+
+        var jobConfig = new FreestyleJobConfig
+        {
+            JobId = job.Id,
+            JobWorkspacePath = jobWorkspace
+        };
+        
+        await _jobConfigRepo.CreateAsync(jobConfig);
+        await _publishEndpoint.Publish(new JobConfigCreated
+        (
+            jobConfig.Id,
+            job.Id,
+            jobWorkspace
+        ));
+        
+        //Update the latest job config id
+        var jobCreatedFromRepo = await _jobsRepo.GetAsync(job.Id);
+        jobCreatedFromRepo.LatestJobConfigId = jobConfig.Id;
+        await _jobsRepo.UpdateAsync(jobCreatedFromRepo);
+        
+        job.LatestJobConfigId = jobConfig.Id;
 
         var locationUri = _uriService.GetJobByNameUri(projectId, job.Name);
         return Created(locationUri, job);

@@ -3,5 +3,5 @@
 public class UpdateBuildConfigDto
 {
     public ICollection<CreateBuildStepDto> BuildSteps 
-    { get; set; } = new List<CreateBuildStepDto>();
+        { get; set; } = new List<CreateBuildStepDto>();
 }

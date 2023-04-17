@@ -8,7 +8,6 @@ using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Services.Uri;
 using BldIt.Api.Shared.Settings;
 using BldIt.Api.Shared.Swagger;
-using BldIt.Builds.Contracts.Keys;
 using BldIt.BuildWorker.Core.Hubs;
 using BldIt.BuildWorker.Core.Interfaces;
 using BldIt.BuildWorker.Core.Models;
@@ -37,10 +36,12 @@ builder.Services.AddSwaggerWithAuth(serviceSettings.ServiceName, serviceSettings
 
 //MongoDB
 builder.Services.AddMongo();
-builder.Services.AddMongoRepository<WorkerBuildStep, BuildStepKey>(nameof(WorkerBuildStep));
+builder.Services.AddMongoRepository<WorkerBuildStep, Guid>(nameof(WorkerBuildStep));
 builder.Services.AddMongoRepository<WorkerBuild, Guid>(nameof(WorkerBuild));
 builder.Services.AddMongoRepository<WorkerScmConfig, Guid>(nameof(WorkerScmConfig));
 builder.Services.AddMongoRepository<WorkerGitHubCredential, Guid>(nameof(WorkerGitHubCredential));
+builder.Services.AddMongoRepository<WorkerJobConfig, Guid>(nameof(WorkerJobConfig));
+
 
 //Mass Transit
 builder.Services.AddMassTransitWithRabbitMq(builder.Configuration);

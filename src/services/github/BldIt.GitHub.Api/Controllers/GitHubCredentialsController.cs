@@ -78,7 +78,7 @@ public class GitHubCredentialsController : ApiController
         
         var cred = await _gitHubCredentialsRepository.GetAsync(
             c => c.AccessToken == credentialToCreate.PersonalAccessToken);
-
+        
         if (cred is not null)
         {
             throw new ProblemDetailsException(
@@ -92,6 +92,16 @@ public class GitHubCredentialsController : ApiController
         string gitUserId;
         string gitUserName;
         
+        var response = await _gitHubService.GetGitHubUser(credentialToCreate.PersonalAccessToken);
+
+        if (!response.Success)
+        {
+            throw new ProblemDetailsException(new InvalidInstance(
+                "Invalid GitHub Token",
+                Routes.GitHub.Credentials.Post,
+                _uriService));
+        }
+        
         //If user exists, just use that Id for the credential
         if (user is not null)
         {
@@ -100,16 +110,6 @@ public class GitHubCredentialsController : ApiController
         }
         else
         {
-            var response = await _gitHubService.GetGitHubUser(credentialToCreate.PersonalAccessToken);
-
-            if (!response.Success)
-            {
-                throw new ProblemDetailsException(new InvalidInstance(
-                    "Invalid GitHub Token",
-                    Routes.GitHub.Credentials.Post,
-                    _uriService));
-            }
-        
             var gitHubUser = response.Content!;
         
             //Can suppress because if we reach this point, the user is not null
