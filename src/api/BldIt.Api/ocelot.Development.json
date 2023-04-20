@@ -54,6 +54,25 @@
   ],
   "Routes": [
     {
+      "DownstreamPathTemplate": "/api/v1/jobs/{jobId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "jobs-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/jobs/{jobId}",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "jobs",
+      "Priority": 20
+    },
+    
+    {
       "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/build",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
