@@ -228,9 +228,13 @@ public class BuildController : ApiController
             throw new ProblemDetailsException(
                 new InstanceNotFound($"Log File Path for Build '{buildNumber}' was not found", buildInstance, _uriService));
         }
+        
+        var logContent = await System.IO.File.ReadAllTextAsync(build.LogFilePath);
 
-        await using var file = new FileStream(build.LogFilePath, FileMode.Open, FileAccess.Read);
-        return File(file, "text/plain");
+        return Ok(logContent);
+
+        // await using var file = new FileStream(build.LogFilePath, FileMode.Open, FileAccess.Read);
+        // return File(file, "text/plain");
     }
     
     /*[HttpGet("download")]
