@@ -86,6 +86,82 @@ public class JobController : ApiController
 
         return Ok(job);
     }
+    
+    [HttpGet("/api/v1/jobs/{jobId:guid}")]
+    public async Task<IActionResult> Get([FromRoute] Guid jobId)
+    {
+        const string jobInstance = "/api/v1/jobs/{jobId}";
+
+        var job = await _jobsRepo.GetAsync(jobId);
+        if (job == null || job.Deleted)
+        {
+            throw new ProblemDetailsException(new InstanceNotFound(
+                $"Job with id '{jobId}' was not found", jobInstance, _uriService));
+        }
+
+        return Ok(job);
+    }
+    
+    [HttpPut(Routes.Jobs.GetName)]
+    public async Task<IActionResult> UpdateJob(
+        [FromBody] JobUpdateDto jobToUpdate,
+        [FromRoute] Guid projectId,
+        [FromRoute] string jobName)
+    {
+        var jobInstance = _uriService.GetJobByNameUri(projectId, jobName).AbsolutePath;
+        
+        var project = await _projectsRepo.GetAsync(projectId);
+        if (project == null || project.Deleted)
+        {
+            throw new ProblemDetailsException(new InstanceNotFound(
+                $"Project with id '{projectId}' was not found", jobInstance, _uriService));
+        }
+        
+        var job = await _jobsRepo.GetByNameAsync(projectId, jobName);
+        if (job == null || job.Deleted)
+        {
+            throw new ProblemDetailsException(new InstanceNotFound(
+                $"Job with name '{jobName}' was not found within project: '{projectId}'", jobInstance, _uriService));
+        }
+
+        job.Name = jobToUpdate.JobName;
+        job.Description = jobToUpdate.JobDescription;
+        
+        await _jobsRepo.UpdateAsync(job);
+        await _publishEndpoint.Publish(new JobUpdated(job.Id, job.Name));
+        
+        return Ok(job);
+    }
+    
+    [HttpDelete(Routes.Jobs.GetName)]
+    public async Task<IActionResult> DeleteJob(
+        [FromRoute] Guid projectId,
+        [FromRoute] string jobName)
+    {
+        var jobInstance = _uriService.GetJobByNameUri(projectId, jobName).AbsolutePath;
+        
+        var project = await _projectsRepo.GetAsync(projectId);
+        if (project == null || project.Deleted)
+        {
+            throw new ProblemDetailsException(new InstanceNotFound(
+                $"Project with id '{projectId}' was not found", jobInstance, _uriService));
+        }
+        
+        var job = await _jobsRepo.GetByNameAsync(projectId, jobName);
+        if (job == null || job.Deleted)
+        {
+            throw new ProblemDetailsException(new InstanceNotFound(
+                $"Job with name '{jobName}' was not found within project: '{projectId}'", jobInstance, _uriService));
+        }
+
+        job.Deleted = true;
+        await _jobsRepo.UpdateAsync(job);
+        
+        //TODO: Delete all job configs, and everything related to this job, and in other microservices as well
+        //await _publishEndpoint.Publish(new JobDeleted(job.Id, job.Name));
+        
+        return NoContent();
+    }
 
     [HttpPost(Routes.Jobs.Post)]
     public async Task<IActionResult> CreateJob(

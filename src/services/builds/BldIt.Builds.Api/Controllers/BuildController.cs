@@ -137,6 +137,21 @@ public class BuildController : ApiController
         
         return Ok(build);
     }
+    
+    [HttpGet("/api/v1/builds/{buildId:guid}")]
+    public async Task<IActionResult> GetBuildByNumber([FromRoute] Guid buildId)
+    {
+        const string buildInstance = "/api/v1/builds/{buildId}";
+        
+        var build = await _buildsRepo.GetAsync(b => b.Id == buildId);
+        if (build is null)
+        {
+            throw new ProblemDetailsException(
+                new InstanceNotFound($"Build '{buildId}' was not found", buildInstance, _uriService));
+        }
+        
+        return Ok(build);
+    }
 
     [HttpGet(Routes.Builds.GetAll)]
     public async Task<IActionResult> GetAllBuildsForJob([FromRoute] Guid projectId, [FromRoute] string jobName)
@@ -214,11 +229,8 @@ public class BuildController : ApiController
                 new InstanceNotFound($"Log File Path for Build '{buildNumber}' was not found", buildInstance, _uriService));
         }
 
-        var ms = new MemoryStream();
-        await using (FileStream file = new FileStream(build.LogFilePath, FileMode.Open, FileAccess.Read))
-            await file.CopyToAsync(ms);
-        
-        return File(ms, "text/plain");
+        await using var file = new FileStream(build.LogFilePath, FileMode.Open, FileAccess.Read);
+        return File(file, "text/plain");
     }
     
     /*[HttpGet("download")]
