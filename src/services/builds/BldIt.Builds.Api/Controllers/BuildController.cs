@@ -231,7 +231,11 @@ public class BuildController : ApiController
         
         var logContent = await System.IO.File.ReadAllTextAsync(build.LogFilePath);
 
-        return Ok(logContent);
+        return Ok(new
+        {
+            LogPath = build.LogFilePath,
+            LogContent = logContent
+        });
 
         // await using var file = new FileStream(build.LogFilePath, FileMode.Open, FileAccess.Read);
         // return File(file, "text/plain");

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text;
 using BldIt.Api.Shared;
 using BldIt.Api.Shared.Config;
 using BldIt.Api.Shared.Interfaces;
@@ -7,8 +8,10 @@ using BldIt.Builds.Contracts.Enums;
 using BldIt.BuildScheduler.Contracts.Contracts;
 using BldIt.BuildWorker.Contracts.Contracts;
 using BldIt.BuildWorker.Core.Hubs;
+using BldIt.BuildWorker.Core.Hubs.Clients;
 using BldIt.BuildWorker.Core.Interfaces;
 using BldIt.BuildWorker.Core.Models;
+using BldIt.BuildWorker.Core.ViewModels;
 using BldIt.Shared.Git;
 using BldIt.Shared.OSInformation;
 using BldIt.Shared.Processes;
@@ -34,6 +37,7 @@ public class BuildWorker : IBuildWorker
     private readonly IRepository<WorkerGitHubCredential, Guid> _gitHubCredentialRepository;
     private readonly BldItWorkspaceConfig _bldItWorkspaceConfig;
     private readonly IRepository<WorkerJobConfig, Guid> _jobConfigRepository;
+    private readonly IHubContext<BuildWorkersHub, IBuildWorkersClient> _buildWorkersHub;
 
     public BuildWorker(
         ProcessService processService, 
@@ -48,7 +52,8 @@ public class BuildWorker : IBuildWorker
         IRepository<WorkerScmConfig, Guid> scmConfigRepository, 
         IRepository<WorkerGitHubCredential, Guid> gitHubCredentialRepository, 
         BldItWorkspaceConfig bldItWorkspaceConfig, 
-        IRepository<WorkerJobConfig, Guid> jobConfigRepository)
+        IRepository<WorkerJobConfig, Guid> jobConfigRepository, 
+        IHubContext<BuildWorkersHub, IBuildWorkersClient> buildWorkersHub)
     {
         _processService = processService;
         _buildStepsRepository = buildStepsRepository;
@@ -63,16 +68,31 @@ public class BuildWorker : IBuildWorker
         _gitHubCredentialRepository = gitHubCredentialRepository;
         _bldItWorkspaceConfig = bldItWorkspaceConfig;
         _jobConfigRepository = jobConfigRepository;
+        _buildWorkersHub = buildWorkersHub;
     }
 
     private int CurrentProcessId { get; set; }
     public bool IsWorking { get; set; }
     public Guid WorkingBuildId { get; set; }
+    public int WorkingBuildNumber { get; set; }
+    public Guid WorkingJobId { get; set; }
 
     public async Task StartBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken)
     {
         IsWorking = true;
         WorkingBuildId = buildRequest.BuildId;
+        WorkingBuildNumber = buildRequest.BuildNumber;
+        WorkingJobId = buildRequest.JobId;
+        
+        //Invokes the client method
+        await _buildWorkersHub.Clients.All.UpdateBuildWorkerAvailability(new BuildWorkerViewModel
+        {
+            IsWorking = IsWorking,
+            BuildId = WorkingBuildId,
+            BuildNumber = WorkingBuildNumber,
+            JobId = WorkingJobId
+        });
+        
         _logger.LogInformation("Starting build request {BuildRequest}", buildRequest);
         
         await UpdateBuildStatusAsync(buildRequest, BuildStatus.Starting);
@@ -119,7 +139,7 @@ public class BuildWorker : IBuildWorker
         
         try
         {
-            var exitCode = await RunLinuxProcess("apt-get update && apt-get install -y git", cancellationToken);
+            var exitCode = await RunLinuxProcess("apt-get update && apt-get install -y git", logFilePath, cancellationToken);
             
             if (exitCode != 0)
             {
@@ -132,7 +152,7 @@ public class BuildWorker : IBuildWorker
             //Perform git checkout if scm is available
             if (scmConfig is not null)
             {
-                await PerformGitCheckoutAsync(scmConfig, repositoryPath, cancellationToken);
+                await PerformGitCheckoutAsync(scmConfig, repositoryPath, logFilePath, cancellationToken);
             }
         }
         catch (Exception e)
@@ -215,6 +235,7 @@ public class BuildWorker : IBuildWorker
         {
             //Install python if needed
             await RunLinuxProcess("apt-get update && apt-get install -y python3 && apt-get install -y python3-pip", 
+                logFilePath,
                 cancellationToken);
             
             _processService.Program = "python3";
@@ -236,7 +257,7 @@ public class BuildWorker : IBuildWorker
         var environmentVariables = new Dictionary<string, string?>
         {
             {"WORKSPACE", repositoryPath},
-            //{"BUILD_NUMBER", buildStep}
+            {"BUILD_NUMBER", WorkingBuildNumber.ToString()}
         };
 
         _processService.EnvironmentVariables = environmentVariables;
@@ -318,6 +339,20 @@ public class BuildWorker : IBuildWorker
     {
         //TODO: Maybe post build steps here?
         
+        //TODO: Get rid of this crappy way of adding logs and FIX PROCESS SERVICE
+        var buildLogs = _buildLogRegistry.GetBuildLogs(WorkingBuildId);
+        
+        var stringBuilder = new StringBuilder();
+        foreach (var log in buildLogs)
+        {
+            stringBuilder.AppendLine(log);
+        }
+        
+        //Write the logs to the log file
+        await File.WriteAllTextAsync(logFilePath, stringBuilder.ToString());
+        
+        //TODO END 
+        
         if (buildResult == BuildResult.Failed)
         {
             await UpdateBuildResultAsync(buildRequest, BuildResult.Failed);
@@ -339,9 +374,18 @@ public class BuildWorker : IBuildWorker
 
         await UpdateBuildLogFile(buildRequest, logFilePath);
         IsWorking = false;
+        
+        //Stopped performing work, send update:
+        await _buildWorkersHub.Clients.All.UpdateBuildWorkerAvailability(new BuildWorkerViewModel
+        {
+            IsWorking = IsWorking,
+            BuildId = null,
+            BuildNumber = -1,
+            JobId = null,
+        });
     }
     
-    private async Task PerformGitCheckoutAsync(WorkerScmConfig scmConfig, string repositoryPath, CancellationToken cancellationToken)
+    private async Task PerformGitCheckoutAsync(WorkerScmConfig scmConfig, string repositoryPath, string logFilePath, CancellationToken cancellationToken)
     {
         var cred = await _gitHubCredentialRepository.GetAsync(scmConfig.GitHubCredentialId);
         
@@ -359,7 +403,7 @@ public class BuildWorker : IBuildWorker
         
         //git init
         //var errorlevel = await _gitManager.GitInit(cancellationToken, GetBuildHubOutputCallback(cancellationToken));
-        var errorlevel = await RunLinuxProcess($"git init {repositoryPath}", cancellationToken, repositoryPath);
+        var errorlevel = await RunLinuxProcess($"git init {repositoryPath}", logFilePath, cancellationToken, repositoryPath);
         
         if (errorlevel != 0)
         {
@@ -378,7 +422,7 @@ public class BuildWorker : IBuildWorker
         //Sending log instead
         //errorlevel = await _gitManager.GitRemoteAddWithAuth(remoteName, cred.GitHubUserName, scmConfig.RepoName, cred.AccessToken, cancellationToken);
         
-        errorlevel = await RunLinuxProcess($"git remote add {remoteName} {url}", cancellationToken, repositoryPath);
+        errorlevel = await RunLinuxProcess($"git remote add {remoteName} {url}", logFilePath, cancellationToken, repositoryPath);
         
         if (errorlevel != 0)
         {
@@ -388,7 +432,7 @@ public class BuildWorker : IBuildWorker
         
         //git fetch
         //errorlevel = await _gitManager.GitFetch(remoteName, branchName, cancellationToken, GetBuildHubOutputCallback(cancellationToken));
-        errorlevel = await RunLinuxProcess($"git fetch {remoteName} {branchName}", cancellationToken, repositoryPath);
+        errorlevel = await RunLinuxProcess($"git fetch {remoteName} {branchName}", logFilePath, cancellationToken, repositoryPath);
         
         if (errorlevel != 0)
         {
@@ -398,7 +442,7 @@ public class BuildWorker : IBuildWorker
         
         //git checkout
         //errorlevel = await _gitManager.GitCheckout(branchName, cancellationToken, GetBuildHubOutputCallback(cancellationToken));
-        errorlevel = await RunLinuxProcess($"git checkout {branchName}", cancellationToken, repositoryPath);
+        errorlevel = await RunLinuxProcess($"git checkout {branchName}", logFilePath, cancellationToken, repositoryPath);
         
         if (errorlevel != 0)
         {
@@ -410,13 +454,14 @@ public class BuildWorker : IBuildWorker
     }
     
     //TODO: Make this run in a separate service allowing Windows and Linux
-    private async Task<int> RunLinuxProcess(string command, CancellationToken cancellationToken, string? workingDirectory = null) 
+    private async Task<int> RunLinuxProcess(string command, string logFilePath, CancellationToken cancellationToken, string? workingDirectory = null) 
     {
         //TODO: Move this into a separate service/step
         var scriptFilePath = await _temporaryFileStorage.CreateTemporaryScriptFileAsync(command, ".sh");
-            
+        
         _processService.Program = OsInfo.Paths.Linux.Shell;
         _processService.Arguments = new[] {scriptFilePath};
+        _processService.OutputLogPath = logFilePath;
         
         if (workingDirectory is not null)
         {
@@ -429,7 +474,7 @@ public class BuildWorker : IBuildWorker
         var error = "";
         var exitCode = 0;
         
-        await foreach (var cmdEvent in _processService.ListenAsync(GetBuildHubOutputCallback(cancellationToken), cancellationToken))
+        await foreach (var cmdEvent in _processService.ListenAsync(null, cancellationToken))
         {
             switch (cmdEvent)
             {
@@ -453,6 +498,9 @@ public class BuildWorker : IBuildWorker
             
             //Sends process errors to groups listening (if any)
             await SendBuildHubOutput(error, cancellationToken);
+            
+            //Sends process output to groups listening (if any)
+            await SendBuildHubOutput(output, cancellationToken);
         }
         
         var script = Path.GetFileName(scriptFilePath);
