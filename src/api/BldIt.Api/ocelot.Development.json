@@ -340,7 +340,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}",
-      "UpstreamHttpMethod": ["GET", "PUT"],
+      "UpstreamHttpMethod": ["GET", "PUT", "DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []

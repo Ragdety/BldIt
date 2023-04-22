@@ -230,11 +230,15 @@ public class BuildController : ApiController
         }
         
         var logContent = await System.IO.File.ReadAllTextAsync(build.LogFilePath);
+        
+        //Parse logContent and return a list of log entries on each new line of the file
+        var logEntries = logContent.Split(Environment.NewLine);
 
         return Ok(new
         {
             LogPath = build.LogFilePath,
-            LogContent = logContent
+            LogContent = logContent,
+            LogEntries = logEntries
         });
 
         // await using var file = new FileStream(build.LogFilePath, FileMode.Open, FileAccess.Read);
