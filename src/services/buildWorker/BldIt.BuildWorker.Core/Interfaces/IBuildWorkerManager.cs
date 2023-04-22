@@ -9,4 +9,5 @@ public interface IBuildWorkerManager
     bool HasActiveWorker(Guid buildId);
     IBuildWorker GetActiveWorker(Guid buildId);
     bool MaxCapacityReached();
+    IEnumerable<IBuildWorker> GetActiveWorkers();
 }

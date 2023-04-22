@@ -98,5 +98,6 @@ app.UseCors(b =>
 app.MapControllers();
 
 app.MapHub<BuildStreamHub>("/buildStream");
+app.MapHub<BuildWorkersHub>("/workerStream");
 
 app.Run();

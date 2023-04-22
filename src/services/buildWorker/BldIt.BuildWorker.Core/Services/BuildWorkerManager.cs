@@ -36,6 +36,7 @@ public class BuildWorkerManager : IBuildWorkerManager
         _logger.LogInformation("Max worker capacity set to {Capacity}", _maxWorkerCapacity);
     }
     
+    //Active workers are workers that are currently working on a build
     private Dictionary<Guid, IBuildWorker> ActiveBuildWorkers { get; }
 
     /// <summary>
@@ -101,4 +102,6 @@ public class BuildWorkerManager : IBuildWorkerManager
     }
     
     public bool MaxCapacityReached() => ActiveBuildWorkers.Count == _maxWorkerCapacity;
+    
+    public IEnumerable<IBuildWorker> GetActiveWorkers() => ActiveBuildWorkers.Values;
 }

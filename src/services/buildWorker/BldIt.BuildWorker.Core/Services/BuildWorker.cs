@@ -136,36 +136,39 @@ public class BuildWorker : IBuildWorker
             
             Directory.CreateDirectory(repositoryPath);
         }
-        
-        try
+
+        if (scmConfig is not null)
         {
-            var exitCode = await RunLinuxProcess("apt-get update && apt-get install -y git", logFilePath, cancellationToken);
-            
-            if (exitCode != 0)
+            try
             {
-                _logger.LogError("Error while updating apt-get");
-                await SendBuildHubOutput("Error while updating apt-get", cancellationToken);
+                var exitCode = await RunLinuxProcess("apt-get update && apt-get install -y git", logFilePath, cancellationToken);
+            
+                if (exitCode != 0)
+                {
+                    _logger.LogError("Error while updating apt-get");
+                    await SendBuildHubOutput("Error while updating apt-get", cancellationToken);
+                    await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath);
+                    return;
+                }
+            
+                //Perform git checkout if scm is available
+                if (scmConfig is not null)
+                {
+                    await PerformGitCheckoutAsync(scmConfig, repositoryPath, logFilePath, cancellationToken);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error while performing git checkout");
+                await SendBuildHubOutput("Error while performing git checkout:", cancellationToken);
+                await SendBuildHubOutput(e.Message, cancellationToken);
                 await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath);
+            
+                //Don't proceed further if the git checkout failed. Clean up and return.
                 return;
             }
-            
-            //Perform git checkout if scm is available
-            if (scmConfig is not null)
-            {
-                await PerformGitCheckoutAsync(scmConfig, repositoryPath, logFilePath, cancellationToken);
-            }
         }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Error while performing git checkout");
-            await SendBuildHubOutput("Error while performing git checkout:", cancellationToken);
-            await SendBuildHubOutput(e.Message, cancellationToken);
-            await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath);
-            
-            //Don't proceed further if the git checkout failed. Clean up and return.
-            return;
-        }
-        
+
         foreach (var buildStep in orderedBuildSteps)
         {
             _logger.LogInformation("Executing build step {BuildStep}", buildStep.Command);
@@ -379,9 +382,9 @@ public class BuildWorker : IBuildWorker
         await _buildWorkersHub.Clients.All.UpdateBuildWorkerAvailability(new BuildWorkerViewModel
         {
             IsWorking = IsWorking,
-            BuildId = null,
-            BuildNumber = -1,
-            JobId = null,
+            BuildId = WorkingBuildId,
+            BuildNumber = WorkingBuildNumber,
+            JobId = WorkingJobId
         });
     }
     
@@ -494,6 +497,7 @@ public class BuildWorker : IBuildWorker
             }
 
             //Append the log into log registry so new users who join the log room can see previous logs
+            _buildLogRegistry.AppendBuildLog(WorkingBuildId, error);
             _buildLogRegistry.AppendBuildLog(WorkingBuildId, output);
             
             //Sends process errors to groups listening (if any)
