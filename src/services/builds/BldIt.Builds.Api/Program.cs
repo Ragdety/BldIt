@@ -42,6 +42,7 @@ builder.Services.AddMongo();
 builder.Services.AddMongoRepository<IBuildsRepo, BuildsRepo, Build, Guid>
     (BldItApiConstants.Services.Builds.Collections.Builds);
 builder.Services.AddMongoRepository<BuildsJob, Guid>(nameof(BuildsJob));
+builder.Services.AddMongoRepository<BuildsJobConfig, Guid>(nameof(BuildsJobConfig));
 builder.Services.AddMongoRepository<IBuildConfigRepo, BuildConfigRepo, BuildConfig, Guid>
     (BldItApiConstants.Services.Builds.Collections.BuildConfigs);
 builder.Services.AddMongoRepository<BuildStep, Guid>(BldItApiConstants.Services.Builds.Collections.BuildSteps);

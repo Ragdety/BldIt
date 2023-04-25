@@ -112,6 +112,7 @@ public class BuildWorker : IBuildWorker
         var scmConfig = await _scmConfigRepository.GetAsync(s => s.JobId == buildRequest.JobId);
         
         var repositoryPath = string.Empty;
+        var artifactsPath = string.Empty;
         
         if (scmConfig is not null)
         {
@@ -132,9 +133,18 @@ public class BuildWorker : IBuildWorker
             {
                 repositoryPath = Path.Combine(jobConfig.JobWorkspacePath, scmConfig.RepoName);
                 _logger.LogInformation("Repository path: {RepositoryPath}", repositoryPath);
+                
+                //TODO: Use BldItWorkspaceConfig
+                artifactsPath = Path.Combine(jobConfig.JobWorkspacePath, 
+                    "builds",
+                    buildRequest.BuildNumber.ToString(), 
+                    "artifacts");
+                _logger.LogInformation("Artifact path: {ArtifactPath}", artifactsPath);
             }
             
+            //TODO: Move this to a separate service
             Directory.CreateDirectory(repositoryPath);
+            Directory.CreateDirectory(artifactsPath);
         }
 
         if (scmConfig is not null)
@@ -147,7 +157,7 @@ public class BuildWorker : IBuildWorker
                 {
                     _logger.LogError("Error while updating apt-get");
                     await SendBuildHubOutput("Error while updating apt-get", cancellationToken);
-                    await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath);
+                    await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath, artifactsPath);
                     return;
                 }
             
@@ -162,7 +172,7 @@ public class BuildWorker : IBuildWorker
                 _logger.LogError(e, "Error while performing git checkout");
                 await SendBuildHubOutput("Error while performing git checkout:", cancellationToken);
                 await SendBuildHubOutput(e.Message, cancellationToken);
-                await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath);
+                await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath, artifactsPath);
             
                 //Don't proceed further if the git checkout failed. Clean up and return.
                 return;
@@ -175,7 +185,7 @@ public class BuildWorker : IBuildWorker
             //Execute the command/script provided by the build step and check its exit code
             try
             {
-                var exitCode = await RunBuildStepAsync(buildStep, logFilePath, repositoryPath, cancellationToken);
+                var exitCode = await RunBuildStepAsync(buildStep, logFilePath, repositoryPath,  artifactsPath, cancellationToken);
                 if (exitCode == 0) continue;
             }
             catch (Exception e)
@@ -184,7 +194,7 @@ public class BuildWorker : IBuildWorker
                 await SendBuildHubOutput($"Error running build step command \'{buildStep.Command}\'", cancellationToken);
             }
 
-            await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath);
+            await CleanUpAsync(buildRequest, BuildResult.Failed, logFilePath, repositoryPath, artifactsPath);
             
             //At this stage, the build worker is done doing its work.
             //We'll let the other services handle the build update by listening to the BuildResultUpdated event.
@@ -192,7 +202,7 @@ public class BuildWorker : IBuildWorker
         }
         
         //If we reach this point, the build was successful.
-        await CleanUpAsync(buildRequest, BuildResult.Success, logFilePath, repositoryPath);
+        await CleanUpAsync(buildRequest, BuildResult.Success, logFilePath, repositoryPath, artifactsPath);
     }
 
     public async Task CancelBuildAsync(StartBuildRequest buildRequest, CancellationToken cancellationToken)
@@ -221,6 +231,7 @@ public class BuildWorker : IBuildWorker
         WorkerBuildStep buildStep, 
         string logFilePath,
         string repositoryPath,
+        string artifactsPath,
         CancellationToken cancellationToken)
     {
         var extension = buildStep.Type switch 
@@ -260,7 +271,9 @@ public class BuildWorker : IBuildWorker
         var environmentVariables = new Dictionary<string, string?>
         {
             {"WORKSPACE", repositoryPath},
-            {"BUILD_NUMBER", WorkingBuildNumber.ToString()}
+            {"BUILD_NUMBER", WorkingBuildNumber.ToString()},
+            {"ARTIFACTS_PATH", artifactsPath},
+            {"LOG_PATH", logFilePath}
         };
 
         _processService.EnvironmentVariables = environmentVariables;
@@ -338,7 +351,8 @@ public class BuildWorker : IBuildWorker
         StartBuildRequest buildRequest, 
         BuildResult buildResult, 
         string logFilePath, 
-        string repositoryPath)
+        string repositoryPath, 
+        string artifactsPath)
     {
         //TODO: Maybe post build steps here?
         
@@ -355,6 +369,10 @@ public class BuildWorker : IBuildWorker
         await File.WriteAllTextAsync(logFilePath, stringBuilder.ToString());
         
         //TODO END 
+        
+        //Copy the log file to the artifacts path, renamed to build number
+        var logFileDestination = Path.Combine(artifactsPath, $"{buildRequest.BuildNumber}.log");
+        File.Copy(logFilePath, logFileDestination, true);
         
         if (buildResult == BuildResult.Failed)
         {

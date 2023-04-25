@@ -145,6 +145,42 @@
       "Priority": 2
     },
     {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds/{buildNumber}/artifacts/{artifactName}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds/{buildNumber}/artifacts/{artifactName}",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds/{buildNumber}/artifacts",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "builds-api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/builds/{buildNumber}/artifacts",
+      "UpstreamHttpMethod": ["GET"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "SwaggerKey": "builds",
+      "Priority": 2
+    },
+    {
       "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}/buildConfigs",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -328,7 +364,7 @@
       "Priority": 0
     },
 
-
+  
 
     {
       "DownstreamPathTemplate": "/api/v1/projects/{projectId}/jobs/{jobName}",

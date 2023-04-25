@@ -1,4 +1,5 @@
-﻿using BldIt.Api.Shared;
+﻿using System.IO.Compression;
+using BldIt.Api.Shared;
 using BldIt.Api.Shared.Services.Storage;
 using BldIt.Api.Shared.Abstractions;
 using BldIt.Api.Shared.Exceptions;
@@ -15,6 +16,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ZipArchive = SharpCompress.Archives.Zip.ZipArchive;
 
 namespace BldIt.Builds.Service.Controllers;
 
@@ -26,19 +28,25 @@ public class BuildController : ApiController
     private readonly IBuildConfigRepo _buildConfigsRepository;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly UriService _uriService;
+    private readonly IRepository<BuildsJobConfig, Guid> _jobConfigsRepository;
+    private readonly ILogger<BuildController> _logger;
 
     public BuildController(
         IBuildsRepo buildsRepo, 
         IRepository<BuildsJob, Guid> jobsRepository,
         IBuildConfigRepo buildConfigsRepository, 
         IPublishEndpoint publishEndpoint, 
-        UriService uriService)
+        UriService uriService, 
+        IRepository<BuildsJobConfig, Guid> jobConfigsRepository, 
+        ILogger<BuildController> logger)
     {
         _buildsRepo = buildsRepo;
         _jobsRepository = jobsRepository;
         _buildConfigsRepository = buildConfigsRepository;
         _publishEndpoint = publishEndpoint;
         _uriService = uriService;
+        _jobConfigsRepository = jobConfigsRepository;
+        _logger = logger;
     }
         
     [HttpPost(Routes.Builds.Build)]
@@ -203,7 +211,7 @@ public class BuildController : ApiController
     }
     
     [HttpGet(Routes.Builds.GetBuildLog)]
-    public async Task<IActionResult> GetBuildLogFile([FromRoute] Guid projectId, [FromRoute] string jobName, [FromRoute] int buildNumber)
+    public async Task<IActionResult> GetBuildLogFileContents([FromRoute] Guid projectId, [FromRoute] string jobName, [FromRoute] int buildNumber)
     {
         //var build = await 
         var buildInstance = _uriService.GetBuildByNumberUri(projectId, jobName, buildNumber).AbsolutePath;
@@ -245,21 +253,57 @@ public class BuildController : ApiController
         // return File(file, "text/plain");
     }
     
-    /*[HttpGet("download")]
-    public IActionResult GetBlobDownload([FromQuery] string link)
+    [HttpGet(Routes.Builds.GetBuildByNumber + "/artifacts")]
+    public async Task<IActionResult> GetBuildArtifactsList(
+        [FromRoute] Guid projectId, 
+        [FromRoute] string jobName,
+        [FromRoute] int buildNumber)
     {
-        var net = new System.Net.WebClient();
-        var data = net.DownloadData(link);
-        var content = new System.IO.MemoryStream(data);
-        var contentType = "APPLICATION/octet-stream";
-        var fileName = "something.bin";
-        return File(content, contentType, fileName);
-    }*/
+        var buildInstance = _uriService.GetBuildByNumberUri(projectId, jobName, buildNumber).AbsolutePath;
+
+        var job = await _jobsRepository.GetAsync(j => j.Name == jobName && j.ProjectId == projectId);
+        if (job is null)
+        {
+            throw new ProblemDetailsException(
+                new InstanceNotFound($"Job with name '{jobName}' was not found", buildInstance, _uriService));
+        }
+        
+        var build = await _buildsRepo.GetAsync(b => b.JobId == job.Id && b.Number == buildNumber);
+
+        if (build is null)
+        {
+            throw new ProblemDetailsException(
+                new InstanceNotFound($"Build '{buildNumber}' was not found", buildInstance, _uriService));
+        }
+        
+        var jobConfig = await _jobConfigsRepository.GetAsync(c => c.JobId == job.Id);
+        
+        var artifactsPath = Path.Combine(jobConfig.JobWorkspacePath,
+            "builds",
+            buildNumber.ToString(),
+            "artifacts");
+        
+        var zipPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".zip");
+        ZipFile.CreateFromDirectory(artifactsPath, zipPath);
+        
+        var fileBytes = await System.IO.File.ReadAllBytesAsync(zipPath);
+        return File(fileBytes, "application/zip", Path.GetFileName(zipPath));
+    }
+
+    private List<string> GetFilesRecursive(string directoryPath)
+    {
+        var fileNames = new List<string>();
+        foreach (var filePath in Directory.GetFiles(directoryPath))
+        {
+            fileNames.Add(Path.GetFileName(filePath));
+        }
+        foreach (var subdirectoryPath in Directory.GetDirectories(directoryPath))
+        {
+            fileNames.AddRange(GetFilesRecursive(subdirectoryPath));
+        }
+        return fileNames;
+    }
     
-   /* public ActionResult DownloadDocument(string filePath, string fileName)
-    {    
-        byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+    //Get file paths recursively
     
-        return File(fileBytes, "application/force-download", fileName);   
-    }*/
 }

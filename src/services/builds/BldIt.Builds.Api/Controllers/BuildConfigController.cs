@@ -23,19 +23,22 @@ public class BuildConfigController : ApiController
     private readonly IRepository<BuildsJob, Guid> _jobsRepo;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly IRepository<BuildStep, Guid> _buildStepsRepo;
+    private readonly ILogger<BuildConfigController> _logger;
 
     public BuildConfigController(
         UriService uriService,
         IBuildConfigRepo buildsConfigRepo,
         IRepository<BuildsJob, Guid> jobsRepo, 
         IPublishEndpoint publishEndpoint, 
-        IRepository<BuildStep, Guid> buildStepsRepo)
+        IRepository<BuildStep, Guid> buildStepsRepo, 
+        ILogger<BuildConfigController> logger)
     {
         _uriService = uriService;
         _buildsConfigRepo = buildsConfigRepo;
         _jobsRepo = jobsRepo;
         _publishEndpoint = publishEndpoint;
         _buildStepsRepo = buildStepsRepo;
+        _logger = logger;
     }
 
     [HttpPost(Routes.BuildConfigs.Post)]
@@ -225,6 +228,9 @@ public class BuildConfigController : ApiController
                 Command = step.Command,
                 Type = step.Type
             };
+            
+            _logger.LogInformation("Creating Build Step {@BuildStep}", createdStep);
+            
             await _buildStepsRepo.CreateAsync(createdStep);
             await _publishEndpoint.Publish(
                 new BuildStepCreated(createdStep.BuildConfigId, createdStep.Number, createdStep.Command, createdStep.Type));
